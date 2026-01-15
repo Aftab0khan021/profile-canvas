@@ -167,7 +167,7 @@ export default function PublicHome() {
             <div className="flex items-center justify-between mb-12">
               <h2 className="text-3xl font-bold">Top Skills</h2>
               <Button variant="ghost" asChild>
-                <Link to={`${basePath}/skills`} className="gap-1">
+                <Link to={`${basePath}/about`} className="gap-1">
                   View All <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
