@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { 
@@ -19,6 +19,15 @@ import {
   GraduationCap, Award, Lightbulb, Target, Heart, Zap, Users, Code, Brain
 } from 'lucide-react';
 import { format } from 'date-fns';
+
+// Smooth scroll handler for in-page navigation
+const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+  e.preventDefault();
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 
 export default function PublicPortfolio() {
   const { username } = useParams<{ username: string }>();
@@ -141,12 +150,12 @@ export default function PublicPortfolio() {
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="h-8 w-8 rounded-lg brand-bg flex items-center justify-center text-white font-bold text-sm">{initials}</div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#about" className="brand-hover transition-colors">About</a>
-            <a href="#projects" className="brand-hover transition-colors">Projects</a>
-            <a href="#experience" className="brand-hover transition-colors">Experience</a>
-            <a href="#skills" className="brand-hover transition-colors">Skills</a>
-            {blogs.length > 0 && <a href="#blog" className="brand-hover transition-colors">Blog</a>}
-            <a href="#contact" className="brand-hover transition-colors">Contact</a>
+            <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className="brand-hover transition-colors cursor-pointer">About</a>
+            <a href="#projects" onClick={(e) => scrollToSection(e, 'projects')} className="brand-hover transition-colors cursor-pointer">Projects</a>
+            <a href="#experience" onClick={(e) => scrollToSection(e, 'experience')} className="brand-hover transition-colors cursor-pointer">Experience</a>
+            <a href="#skills" onClick={(e) => scrollToSection(e, 'skills')} className="brand-hover transition-colors cursor-pointer">Skills</a>
+            {blogs.length > 0 && <a href="#blog" onClick={(e) => scrollToSection(e, 'blog')} className="brand-hover transition-colors cursor-pointer">Blog</a>}
+            <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="brand-hover transition-colors cursor-pointer">Contact</a>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -164,8 +173,8 @@ export default function PublicPortfolio() {
             <p className="text-xl brand-primary mb-6">{profile.title || 'Creative Professional'}</p>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">{profile.bio}</p>
             <div className="flex justify-center gap-3">
-              <Button className="brand-btn" asChild><a href="#projects">View Projects</a></Button>
-              <Button variant="outline" asChild><a href="#contact">Contact Me</a></Button>
+              <Button className="brand-btn" onClick={(e) => { e.preventDefault(); document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }); }}>View Projects</Button>
+              <Button variant="outline" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}>Contact Me</Button>
             </div>
             <div className="flex justify-center gap-4 mt-6">
               {profile.github_url && <a href={profile.github_url} target="_blank" className="text-muted-foreground brand-hover"><Github className="h-5 w-5" /></a>}
@@ -257,9 +266,9 @@ export default function PublicPortfolio() {
                     <p className="text-xs text-muted-foreground mb-3">
                       {new Date(cert.issue_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </p>
-                    {cert.skills_learned.length > 0 && (
+                    {(cert.skills_learned || []).length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {cert.skills_learned.slice(0, 3).map((skill) => (
+                        {(cert.skills_learned || []).slice(0, 3).map((skill) => (
                           <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
                         ))}
                       </div>
@@ -291,7 +300,7 @@ export default function PublicPortfolio() {
                   {project.image_url && <img src={project.image_url} alt={project.title} className="w-full h-48 object-cover" />}
                   <CardHeader><CardTitle>{project.title}</CardTitle><CardDescription className="line-clamp-2">{project.description}</CardDescription></CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-1 mb-4">{project.tech_stack.map((t) => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
+                    <div className="flex flex-wrap gap-1 mb-4">{(project.tech_stack || []).map((t) => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
                     <div className="flex gap-2">
                       {project.live_url && <Button size="sm" className="brand-btn" asChild><a href={project.live_url} target="_blank"><ExternalLink className="h-3 w-3 mr-1" />Live</a></Button>}
                       {project.github_url && <Button size="sm" variant="outline" asChild><a href={project.github_url} target="_blank"><Github className="h-3 w-3 mr-1" />Code</a></Button>}
@@ -442,7 +451,7 @@ export default function PublicPortfolio() {
             <div className="grid md:grid-cols-2 gap-6">
               {testimonials.map((t) => (
                 <Card key={t.id}><CardContent className="pt-6">
-                  <div className="flex gap-1 mb-3">{[...Array(t.rating)].map((_, i) => <Star key={i} className="h-4 w-4 brand-fill" style={{ color: brandColor, fill: brandColor }} />)}</div>
+                  <div className="flex gap-1 mb-3">{[...Array(t.rating || 5)].map((_, i) => <Star key={i} className="h-4 w-4 brand-fill" style={{ color: brandColor, fill: brandColor }} />)}</div>
                   <p className="text-muted-foreground italic mb-4">"{t.text}"</p>
                   <p className="font-semibold">{t.client_name}</p>
                   {t.company && <p className="text-sm text-muted-foreground">{t.company}</p>}
