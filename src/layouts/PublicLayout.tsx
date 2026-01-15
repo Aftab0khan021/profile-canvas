@@ -49,6 +49,8 @@ export default function PublicLayout() {
     { to: basePath, label: 'Home', end: true },
     { to: `${basePath}/about`, label: 'About' },
     { to: `${basePath}/projects`, label: 'Projects' },
+    { to: `${basePath}/experience`, label: 'Experience' },
+    { to: `${basePath}/skills`, label: 'Skills' },
     { to: `${basePath}/blog`, label: 'Blog' },
     { to: `${basePath}/contact`, label: 'Contact' },
   ];
