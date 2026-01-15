@@ -148,7 +148,39 @@ export function useProjects() {
     },
   });
 
-  return { projects, isLoading, createProject, updateProject, deleteProject };
+  const reorderProjects = useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      const promises = updates.map(({ id, sort_order }) =>
+        supabase.from('projects').update({ sort_order }).eq('id', id)
+      );
+      await Promise.all(promises);
+    },
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: ['projects', user?.id] });
+      const previousProjects = queryClient.getQueryData(['projects', user?.id]);
+      
+      queryClient.setQueryData(['projects', user?.id], (old: Project[] | undefined) => {
+        if (!old) return old;
+        const sorted = [...old];
+        updates.forEach(({ id, sort_order }) => {
+          const project = sorted.find(p => p.id === id);
+          if (project) project.sort_order = sort_order;
+        });
+        return sorted.sort((a, b) => a.sort_order - b.sort_order);
+      });
+      
+      return { previousProjects };
+    },
+    onError: (error, _, context) => {
+      queryClient.setQueryData(['projects', user?.id], context?.previousProjects);
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', user?.id] });
+    },
+  });
+
+  return { projects, isLoading, createProject, updateProject, deleteProject, reorderProjects };
 }
 
 // Experience hooks
@@ -328,6 +360,26 @@ export function useTestimonials() {
     },
   });
 
+  const updateTestimonial = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Testimonial> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials', user?.id] });
+      toast({ title: 'Testimonial updated successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const deleteTestimonial = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('testimonials').delete().eq('id', id);
@@ -342,7 +394,7 @@ export function useTestimonials() {
     },
   });
 
-  return { testimonials, isLoading, createTestimonial, deleteTestimonial };
+  return { testimonials, isLoading, createTestimonial, updateTestimonial, deleteTestimonial };
 }
 
 // Messages hooks
