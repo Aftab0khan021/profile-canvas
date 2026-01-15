@@ -12,7 +12,7 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { ColorPicker } from '@/components/ColorPicker';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save, Layout, Minimize2, Briefcase } from 'lucide-react';
+import { Loader2, Save, Layout, Minimize2, Briefcase, Sparkles } from 'lucide-react';
 
 const settingsSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
@@ -26,6 +26,8 @@ const settingsSchema = z.object({
   resume_url: z.string().nullable().optional(),
   brand_color: z.string().optional(),
   template: z.string().optional(),
+  roles_text: z.string().optional(),
+  availability_status: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
@@ -47,11 +49,14 @@ export default function SettingsPage() {
       resume_url: null,
       brand_color: '#3b82f6',
       template: 'modern',
+      roles_text: '',
+      availability_status: 'Available for Opportunities',
     },
   });
 
   useEffect(() => {
     if (profile) {
+      const profileAny = profile as any;
       form.reset({
         full_name: profile.full_name || '',
         title: profile.title || '',
@@ -63,12 +68,19 @@ export default function SettingsPage() {
         avatar_url: profile.avatar_url,
         resume_url: profile.resume_url,
         brand_color: profile.brand_color || '#3b82f6',
-        template: (profile as any).template || 'modern',
+        template: profileAny.template || 'modern',
+        roles_text: (profileAny.roles || []).join(', '),
+        availability_status: profileAny.availability_status || 'Available for Opportunities',
       });
     }
   }, [profile, form]);
 
   const onSubmit = async (values: SettingsFormValues) => {
+    // Convert comma-separated roles to array
+    const rolesArray = values.roles_text
+      ? values.roles_text.split(',').map(r => r.trim()).filter(Boolean)
+      : [];
+
     await updateProfile.mutateAsync({
       full_name: values.full_name || null,
       title: values.title || null,
@@ -81,6 +93,8 @@ export default function SettingsPage() {
       resume_url: values.resume_url,
       brand_color: values.brand_color || '#3b82f6',
       template: values.template || 'modern',
+      roles: rolesArray,
+      availability_status: values.availability_status || 'Available for Opportunities',
     } as any);
   };
 
@@ -189,6 +203,50 @@ export default function SettingsPage() {
                     <FormControl>
                       <Textarea placeholder="Tell visitors about yourself..." rows={4} {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                Hero Customization
+              </CardTitle>
+              <CardDescription>Customize the animated hero section on your home page</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="roles_text"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Animated Roles</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Software Engineer, Problem Solver, Creative Thinker" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Comma-separated list of roles that will animate in your hero section (e.g., "Software Engineer, Full Stack Developer, Tech Lead")
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="availability_status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Availability Status</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Available for Opportunities" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Status badge shown on your portfolio (e.g., "Available for Work", "Open to Projects", "Currently Employed")
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

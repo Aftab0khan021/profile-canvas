@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
+import { usePublicProfileItems, usePublicPageContent } from '@/hooks/useProfileItems';
 import { useTrackView } from '@/hooks/useAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Github, Linkedin, Mail, ExternalLink, ArrowRight, FileText, 
   Star, Quote, ChevronLeft, ChevronRight, Download, Code, Sparkles 
@@ -19,9 +20,22 @@ import { format } from 'date-fns';
 export default function PublicHome() {
   const { profile, brandColor, username } = usePublicLayoutContext();
   const { projects, skills, testimonials } = usePublicPortfolioData(profile?.id);
+  const { getContent } = usePublicPageContent(profile?.id);
   const trackView = useTrackView();
   const hasTracked = useRef(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+
+  // Get roles from profile for typewriter effect
+  const profileAny = profile as any;
+  const roles = profileAny?.roles?.length > 0 
+    ? profileAny.roles 
+    : [profile?.title || 'Software Engineer'];
+  const availabilityStatus = profileAny?.availability_status || 'Available for Opportunities';
+
+  // Get dynamic content
+  const ctaTitle = getContent('home', 'cta_title', "Let's Build Something Amazing");
+  const ctaDescription = getContent('home', 'cta_description', 'Have a project in mind? Let\'s discuss how we can work together to bring your ideas to life.');
 
   // Fetch published blogs
   const { data: blogs = [] } = useQuery({
@@ -60,6 +74,15 @@ export default function PublicHome() {
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
+
+  // Animated roles rotation
+  useEffect(() => {
+    if (roles.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [roles.length]);
 
   // Group skills by category (show top 3 categories)
   const skillsByCategory = skills.reduce((acc, skill) => {
@@ -103,22 +126,27 @@ export default function PublicHome() {
             >
               <div className="mb-4">
                 <Badge variant="secondary" className="text-sm px-3 py-1">
-                  <Sparkles className="h-3 w-3 mr-1" /> Available for work
+                  <Sparkles className="h-3 w-3 mr-1" /> {availabilityStatus}
                 </Badge>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
                 Hi, I'm{' '}
                 <span style={{ color: brandColor }}>{profile?.full_name?.split(' ')[0] || 'there'}</span>
               </h1>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <p className="text-2xl md:text-3xl font-medium mb-6 text-muted-foreground">
-                  {profile?.title || 'Software Engineer'}
-                </p>
-              </motion.div>
+              <div className="h-12 mb-6">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={currentRoleIndex}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-2xl md:text-3xl font-medium text-muted-foreground"
+                  >
+                    {roles[currentRoleIndex]}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
               <p className="text-lg text-muted-foreground mb-8 max-w-lg leading-relaxed">
                 {profile?.bio}
               </p>
@@ -358,26 +386,28 @@ export default function PublicHome() {
               <Card className="p-8 md:p-12">
                 <CardContent className="text-center p-0">
                   <Quote className="h-12 w-12 mx-auto mb-6 opacity-20" style={{ color: brandColor }} />
-                  <motion.div
-                    key={currentTestimonial}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <p className="text-xl md:text-2xl italic mb-6 text-foreground/90">
-                      "{testimonials[currentTestimonial]?.text}"
-                    </p>
-                    <div className="flex items-center justify-center gap-1 mb-4">
-                      {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <p className="font-semibold text-lg">{testimonials[currentTestimonial]?.client_name}</p>
-                    {testimonials[currentTestimonial]?.company && (
-                      <p className="text-muted-foreground">{testimonials[currentTestimonial]?.company}</p>
-                    )}
-                  </motion.div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentTestimonial}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <p className="text-xl md:text-2xl italic mb-6 text-foreground/90">
+                        "{testimonials[currentTestimonial]?.text}"
+                      </p>
+                      <div className="flex items-center justify-center gap-1 mb-4">
+                        {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
+                          <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      <p className="font-semibold text-lg">{testimonials[currentTestimonial]?.client_name}</p>
+                      {testimonials[currentTestimonial]?.company && (
+                        <p className="text-muted-foreground">{testimonials[currentTestimonial]?.company}</p>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
                 </CardContent>
               </Card>
               {testimonials.length > 1 && (
@@ -529,9 +559,9 @@ export default function PublicHome() {
                 style={{ background: `radial-gradient(circle at 30% 50%, ${brandColor}, transparent 50%)` }}
               />
               <CardContent className="relative z-10 p-0">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Let's Build Something Amazing</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">{ctaTitle}</h2>
                 <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
-                  Have a project in mind? Let's discuss how we can work together to bring your ideas to life.
+                  {ctaDescription}
                 </p>
                 <Button size="lg" style={{ backgroundColor: brandColor }} className="text-white gap-2" asChild>
                   <Link to={`${basePath}/contact`}>

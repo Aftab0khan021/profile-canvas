@@ -230,6 +230,36 @@ export type Database = {
           },
         ]
       }
+      page_content: {
+        Row: {
+          content_value: string | null
+          created_at: string | null
+          id: string
+          page_slug: string
+          section_key: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content_value?: string | null
+          created_at?: string | null
+          id?: string
+          page_slug: string
+          section_key: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content_value?: string | null
+          created_at?: string | null
+          id?: string
+          page_slug?: string
+          section_key?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_views: {
         Row: {
           id: string
@@ -257,8 +287,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon_name: string | null
+          id: string
+          sort_order: number | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          sort_order?: number | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          sort_order?: number | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           brand_color: string | null
@@ -270,6 +334,7 @@ export type Database = {
           linkedin_url: string | null
           phone: string | null
           resume_url: string | null
+          roles: string[] | null
           template: string | null
           theme_preference: string | null
           title: string | null
@@ -277,6 +342,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           brand_color?: string | null
@@ -288,6 +354,7 @@ export type Database = {
           linkedin_url?: string | null
           phone?: string | null
           resume_url?: string | null
+          roles?: string[] | null
           template?: string | null
           theme_preference?: string | null
           title?: string | null
@@ -295,6 +362,7 @@ export type Database = {
           username: string
         }
         Update: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           brand_color?: string | null
@@ -306,6 +374,7 @@ export type Database = {
           linkedin_url?: string | null
           phone?: string | null
           resume_url?: string | null
+          roles?: string[] | null
           template?: string | null
           theme_preference?: string | null
           title?: string | null

@@ -21,6 +21,8 @@ import TestimonialsPage from "./pages/dashboard/TestimonialsPage";
 import EducationPage from "./pages/dashboard/EducationPage";
 import CertificationsPage from "./pages/dashboard/CertificationsPage";
 import ResumePage from "./pages/dashboard/ResumePage";
+import BrandPage from "./pages/dashboard/BrandPage";
+import SiteContentPage from "./pages/dashboard/SiteContentPage";
 import PublicLayout from "./layouts/PublicLayout";
 import PublicHome from "./pages/public/PublicHome";
 import PublicAbout from "./pages/public/PublicAbout";
@@ -67,6 +69,8 @@ const App = () => (
                 <Route path="blog" element={<BlogPage />} />
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="resume" element={<ResumePage />} />
+                <Route path="brand" element={<BrandPage />} />
+                <Route path="content" element={<SiteContentPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
               
