@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
 import { usePublicPageContent } from '@/hooks/useProfileItems';
@@ -7,12 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
-import { Github, ExternalLink, Search, X, LayoutGrid, List, FolderOpen } from 'lucide-react';
+import { Github, ExternalLink, Search, X, LayoutGrid, List, FolderOpen, Eye } from 'lucide-react';
 
 type ViewMode = 'grid' | 'list';
 
 export default function PublicProjects() {
-  const { profile, brandColor } = usePublicLayoutContext();
+  const { profile, brandColor, username } = usePublicLayoutContext();
   const { projects } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
   const [searchQuery, setSearchQuery] = useState('');
@@ -210,19 +211,17 @@ export default function PublicProjects() {
                       )}
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        {project.live_url && (
-                          <Button 
-                            size="sm" 
-                            className="text-white"
-                            style={{ backgroundColor: brandColor }}
-                            asChild
-                          >
-                            <a href={project.live_url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              View Details
-                            </a>
-                          </Button>
-                        )}
+                        <Button 
+                          size="sm" 
+                          className="text-white"
+                          style={{ backgroundColor: brandColor }}
+                          asChild
+                        >
+                          <Link to={`/p/${username}/projects/${project.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Link>
+                        </Button>
                         {project.github_url && (
                           <Button size="sm" variant="secondary" asChild>
                             <a href={project.github_url} target="_blank" rel="noopener noreferrer">
@@ -230,9 +229,6 @@ export default function PublicProjects() {
                               Code
                             </a>
                           </Button>
-                        )}
-                        {!project.live_url && !project.github_url && (
-                          <p className="text-white/70 text-sm">No links available</p>
                         )}
                       </div>
                     </div>
@@ -309,19 +305,17 @@ export default function PublicProjects() {
                           ))}
                         </div>
                         <div className="flex gap-2">
-                          {project.live_url && (
-                            <Button
-                              size="sm"
-                              style={{ backgroundColor: brandColor }}
-                              className="text-white"
-                              asChild
-                            >
-                              <a href={project.live_url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                Live Demo
-                              </a>
-                            </Button>
-                          )}
+                          <Button
+                            size="sm"
+                            style={{ backgroundColor: brandColor }}
+                            className="text-white"
+                            asChild
+                          >
+                            <Link to={`/p/${username}/projects/${project.id}`}>
+                              <Eye className="h-3 w-3 mr-1" />
+                              View Details
+                            </Link>
+                          </Button>
                           {project.github_url && (
                             <Button size="sm" variant="outline" asChild>
                               <a href={project.github_url} target="_blank" rel="noopener noreferrer">
