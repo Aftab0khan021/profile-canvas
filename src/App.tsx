@@ -20,6 +20,7 @@ import BlogPage from "./pages/dashboard/BlogPage";
 import TestimonialsPage from "./pages/dashboard/TestimonialsPage";
 import EducationPage from "./pages/dashboard/EducationPage";
 import CertificationsPage from "./pages/dashboard/CertificationsPage";
+import ResumePage from "./pages/dashboard/ResumePage";
 import PublicPortfolio from "./pages/PublicPortfolio";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="testimonials" element={<TestimonialsPage />} />
                 <Route path="blog" element={<BlogPage />} />
                 <Route path="messages" element={<MessagesPage />} />
+                <Route path="resume" element={<ResumePage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />

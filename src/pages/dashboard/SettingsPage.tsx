@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ColorPicker } from '@/components/ColorPicker';
-import { Loader2, Save } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Loader2, Save, Layout, Minimize2, Briefcase } from 'lucide-react';
 
 const settingsSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
@@ -23,6 +25,7 @@ const settingsSchema = z.object({
   avatar_url: z.string().nullable().optional(),
   resume_url: z.string().nullable().optional(),
   brand_color: z.string().optional(),
+  template: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
@@ -43,6 +46,7 @@ export default function SettingsPage() {
       avatar_url: null,
       resume_url: null,
       brand_color: '#3b82f6',
+      template: 'modern',
     },
   });
 
@@ -59,6 +63,7 @@ export default function SettingsPage() {
         avatar_url: profile.avatar_url,
         resume_url: profile.resume_url,
         brand_color: profile.brand_color || '#3b82f6',
+        template: (profile as any).template || 'modern',
       });
     }
   }, [profile, form]);
@@ -75,7 +80,8 @@ export default function SettingsPage() {
       avatar_url: values.avatar_url,
       resume_url: values.resume_url,
       brand_color: values.brand_color || '#3b82f6',
-    });
+      template: values.template || 'modern',
+    } as any);
   };
 
   if (isLoading) {
@@ -258,7 +264,7 @@ export default function SettingsPage() {
               <CardTitle>Branding</CardTitle>
               <CardDescription>Customize the look of your portfolio</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <FormField
                 control={form.control}
                 name="brand_color"
@@ -269,6 +275,59 @@ export default function SettingsPage() {
                       <ColorPicker value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormDescription>This color will be used for buttons and accents on your public portfolio</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="template"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Portfolio Template</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2"
+                      >
+                        <Label
+                          htmlFor="modern"
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+                            field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="modern" id="modern" className="sr-only" />
+                          <Layout className="h-8 w-8 mb-2" />
+                          <span className="font-medium">Modern</span>
+                          <span className="text-xs text-muted-foreground text-center mt-1">Clean centered layout</span>
+                        </Label>
+                        <Label
+                          htmlFor="minimal"
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+                            field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="minimal" id="minimal" className="sr-only" />
+                          <Minimize2 className="h-8 w-8 mb-2" />
+                          <span className="font-medium">Minimal</span>
+                          <span className="text-xs text-muted-foreground text-center mt-1">Large typography, simple</span>
+                        </Label>
+                        <Label
+                          htmlFor="professional"
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+                            field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="professional" id="professional" className="sr-only" />
+                          <Briefcase className="h-8 w-8 mb-2" />
+                          <span className="font-medium">Professional</span>
+                          <span className="text-xs text-muted-foreground text-center mt-1">Sidebar navigation</span>
+                        </Label>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormDescription>Choose how your public portfolio is displayed</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
