@@ -12,7 +12,13 @@ import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import ProjectsPage from "./pages/dashboard/ProjectsPage";
+import ExperiencePage from "./pages/dashboard/ExperiencePage";
+import SkillsPage from "./pages/dashboard/SkillsPage";
+import MessagesPage from "./pages/dashboard/MessagesPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
+import BlogPage from "./pages/dashboard/BlogPage";
 import PublicPortfolio from "./pages/PublicPortfolio";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,10 +35,16 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/p/:username" element={<PublicPortfolio />} />
+              <Route path="/p/:username/blog/:slug" element={<BlogPost />} />
               <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                 <Route index element={<DashboardHome />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="projects" element={<ProjectsPage />} />
+                <Route path="experience" element={<ExperiencePage />} />
+                <Route path="skills" element={<SkillsPage />} />
+                <Route path="messages" element={<MessagesPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="blog" element={<BlogPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
