@@ -58,6 +58,90 @@ export type Database = {
           },
         ]
       }
+      certifications: {
+        Row: {
+          created_at: string
+          credential_url: string | null
+          id: string
+          issue_date: string
+          issuer: string
+          skills_learned: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credential_url?: string | null
+          id?: string
+          issue_date: string
+          issuer: string
+          skills_learned?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credential_url?: string | null
+          id?: string
+          issue_date?: string
+          issuer?: string
+          skills_learned?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      education: {
+        Row: {
+          created_at: string
+          degree: string
+          description: string | null
+          end_date: string | null
+          field_of_study: string
+          gpa: string | null
+          id: string
+          institution: string
+          is_current: boolean | null
+          location: string | null
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          degree: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study: string
+          gpa?: string | null
+          id?: string
+          institution: string
+          is_current?: boolean | null
+          location?: string | null
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          degree?: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study?: string
+          gpa?: string | null
+          id?: string
+          institution?: string
+          is_current?: boolean | null
+          location?: string | null
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       experience: {
         Row: {
           company: string

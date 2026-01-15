@@ -73,6 +73,34 @@ export interface Message {
   created_at: string;
 }
 
+export interface Education {
+  id: string;
+  user_id: string;
+  degree: string;
+  field_of_study: string;
+  institution: string;
+  location: string | null;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  gpa: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Certification {
+  id: string;
+  user_id: string;
+  title: string;
+  issuer: string;
+  issue_date: string;
+  credential_url: string | null;
+  skills_learned: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 // Projects hooks
 export function useProjects() {
   const { user } = useAuth();
@@ -528,5 +556,191 @@ export function usePublicPortfolioData(userId: string | undefined) {
     enabled: !!userId,
   });
 
-  return { projects, experience, skills, testimonials };
+  const { data: education = [] } = useQuery({
+    queryKey: ['publicEducation', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('education')
+        .select('*')
+        .eq('user_id', userId)
+        .order('start_date', { ascending: false });
+      if (error) throw error;
+      return data as Education[];
+    },
+    enabled: !!userId,
+  });
+
+  const { data: certifications = [] } = useQuery({
+    queryKey: ['publicCertifications', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('certifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('issue_date', { ascending: false });
+      if (error) throw error;
+      return data as Certification[];
+    },
+    enabled: !!userId,
+  });
+
+  return { projects, experience, skills, testimonials, education, certifications };
+}
+
+// Education hooks
+export function useEducation() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: education = [], isLoading } = useQuery({
+    queryKey: ['education', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('education')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_date', { ascending: false });
+      if (error) throw error;
+      return data as Education[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const createEducation = useMutation({
+    mutationFn: async (edu: Omit<Education, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { data, error } = await supabase
+        .from('education')
+        .insert({ ...edu, user_id: user.id })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['education', user?.id] });
+      toast({ title: 'Education added successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const updateEducation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Education> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('education')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['education', user?.id] });
+      toast({ title: 'Education updated successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const deleteEducation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('education').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['education', user?.id] });
+      toast({ title: 'Education deleted successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { education, isLoading, createEducation, updateEducation, deleteEducation };
+}
+
+// Certifications hooks
+export function useCertifications() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: certifications = [], isLoading } = useQuery({
+    queryKey: ['certifications', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('certifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('issue_date', { ascending: false });
+      if (error) throw error;
+      return data as Certification[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const createCertification = useMutation({
+    mutationFn: async (cert: Omit<Certification, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { data, error } = await supabase
+        .from('certifications')
+        .insert({ ...cert, user_id: user.id })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certifications', user?.id] });
+      toast({ title: 'Certification added successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const updateCertification = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Certification> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('certifications')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certifications', user?.id] });
+      toast({ title: 'Certification updated successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const deleteCertification = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('certifications').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certifications', user?.id] });
+      toast({ title: 'Certification deleted successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { certifications, isLoading, createCertification, updateCertification, deleteCertification };
 }

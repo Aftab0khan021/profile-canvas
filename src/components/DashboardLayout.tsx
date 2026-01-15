@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   Sparkles, LayoutDashboard, User, FolderOpen, Briefcase,
-  Lightbulb, MessageSquare, Settings, LogOut, ExternalLink, Menu, X, Quote, FileText
+  Lightbulb, MessageSquare, Settings, LogOut, ExternalLink, Menu, X, Quote, FileText, GraduationCap, Award
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,8 @@ const navItems = [
   { to: '/dashboard/profile', icon: User, label: 'Profile' },
   { to: '/dashboard/projects', icon: FolderOpen, label: 'Projects' },
   { to: '/dashboard/experience', icon: Briefcase, label: 'Experience' },
+  { to: '/dashboard/education', icon: GraduationCap, label: 'Education' },
+  { to: '/dashboard/certifications', icon: Award, label: 'Certifications' },
   { to: '/dashboard/skills', icon: Lightbulb, label: 'Skills' },
   { to: '/dashboard/testimonials', icon: Quote, label: 'Testimonials' },
   { to: '/dashboard/blog', icon: FileText, label: 'Blog' },
