@@ -146,6 +146,33 @@ export type Database = {
           },
         ]
       }
+      portfolio_views: {
+        Row: {
+          id: string
+          page_path: string
+          referrer: string | null
+          user_agent: string | null
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

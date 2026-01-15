@@ -1,20 +1,24 @@
 import { useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useProjects, Project } from '@/hooks/usePortfolioData';
+import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ImageUpload';
+import { ProjectPreviewModal } from '@/components/ProjectPreviewModal';
 
 export default function ProjectsPage() {
   const { projects, isLoading, createProject, updateProject, deleteProject, reorderProjects } = useProjects();
+  const { profile } = useProfile();
   const [isOpen, setIsOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [previewProject, setPreviewProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState({ 
     title: '', 
     description: '', 
@@ -172,6 +176,14 @@ export default function ProjectsPage() {
                                 <span className="truncate">{project.title}</span>
                               </div>
                               <div className="flex gap-1 flex-shrink-0">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  onClick={() => setPreviewProject(project)}
+                                  title="Preview"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
                                 <Button variant="ghost" size="icon" onClick={() => openEdit(project)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -216,6 +228,14 @@ export default function ProjectsPage() {
           </Droppable>
         </DragDropContext>
       )}
+
+      {/* Project Preview Modal */}
+      <ProjectPreviewModal
+        project={previewProject}
+        brandColor={profile?.brand_color || '#3b82f6'}
+        open={!!previewProject}
+        onOpenChange={(open) => !open && setPreviewProject(null)}
+      />
     </div>
   );
 }

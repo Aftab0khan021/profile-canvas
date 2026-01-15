@@ -1,6 +1,7 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { usePublicProfile } from '@/hooks/useProfile';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
+import { useTrackView } from '@/hooks/useAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Mail, Github, Linkedin, ExternalLink, Download, MapPin, Calendar, Star, Loader2, Send, FileText } from 'lucide-react';
@@ -17,11 +18,25 @@ import { format } from 'date-fns';
 
 export default function PublicPortfolio() {
   const { username } = useParams<{ username: string }>();
+  const location = useLocation();
   const { data: profile, isLoading } = usePublicProfile(username || '');
   const { projects, experience, skills, testimonials } = usePublicPortfolioData(profile?.id);
+  const trackView = useTrackView();
+  const hasTracked = useRef(false);
   const { toast } = useToast();
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
+
+  // Track page view once when profile loads
+  useEffect(() => {
+    if (profile?.id && !hasTracked.current) {
+      hasTracked.current = true;
+      trackView.mutate({
+        userId: profile.id,
+        pagePath: location.pathname,
+      });
+    }
+  }, [profile?.id, location.pathname, trackView]);
 
   // Fetch published blogs
   const { data: blogs = [] } = useQuery({

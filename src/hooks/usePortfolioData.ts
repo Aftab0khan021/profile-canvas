@@ -394,7 +394,23 @@ export function useTestimonials() {
     },
   });
 
-  return { testimonials, isLoading, createTestimonial, updateTestimonial, deleteTestimonial };
+  const bulkDeleteTestimonials = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('testimonials')
+        .delete()
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials', user?.id] });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { testimonials, isLoading, createTestimonial, updateTestimonial, deleteTestimonial, bulkDeleteTestimonials };
 }
 
 // Messages hooks

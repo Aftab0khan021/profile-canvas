@@ -1,15 +1,19 @@
 import { useProfile } from '@/hooks/useProfile';
 import { useProjects, useExperience, useMessages } from '@/hooks/usePortfolioData';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { FolderOpen, Briefcase, MessageSquare, ExternalLink, ArrowRight } from 'lucide-react';
+import { FolderOpen, Briefcase, MessageSquare, ExternalLink, ArrowRight, Eye, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
 
 export default function DashboardHome() {
   const { profile } = useProfile();
   const { projects } = useProjects();
   const { experience } = useExperience();
   const { messages, unreadCount } = useMessages();
+  const { analytics, isLoading: analyticsLoading } = useAnalytics();
+
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -35,6 +39,119 @@ export default function DashboardHome() {
         </Card>
       )}
 
+      {/* Analytics Section */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <BarChart3 className="h-5 w-5" />
+          Portfolio Analytics
+        </h2>
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {analyticsLoading ? '—' : analytics?.totalViews || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">All time</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Today</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {analyticsLoading ? '—' : analytics?.viewsToday || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Views today</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">This Week</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {analyticsLoading ? '—' : analytics?.viewsThisWeek || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Last 7 days</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">This Month</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {analyticsLoading ? '—' : analytics?.viewsThisMonth || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Last 30 days</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Views Chart */}
+      {analytics?.viewsByDay && analytics.viewsByDay.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Views (Last 7 Days)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between gap-2 h-32">
+              {analytics.viewsByDay.map((day, i) => {
+                const maxViews = Math.max(...analytics.viewsByDay.map((d) => d.count), 1);
+                const height = (day.count / maxViews) * 100;
+                const date = new Date(day.date);
+                return (
+                  <div key={day.date} className="flex-1 flex flex-col items-center gap-2">
+                    <div className="w-full bg-muted rounded-sm overflow-hidden flex flex-col justify-end h-24">
+                      <div
+                        className="bg-primary transition-all duration-300"
+                        style={{ height: `${Math.max(height, 4)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {weekdays[date.getDay()]}
+                    </span>
+                    <span className="text-xs font-medium">{day.count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Popular Pages */}
+      {analytics?.viewsByPage && analytics.viewsByPage.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Popular Pages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analytics.viewsByPage.map((page) => (
+                <div key={page.page} className="flex items-center justify-between">
+                  <span className="text-sm truncate max-w-[200px]">{page.page}</span>
+                  <span className="text-sm font-medium">{page.count} views</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
