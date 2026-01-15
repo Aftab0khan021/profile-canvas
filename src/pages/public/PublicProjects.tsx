@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
+import { usePublicPageContent } from '@/hooks/useProfileItems';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,9 +14,14 @@ type ViewMode = 'grid' | 'list';
 export default function PublicProjects() {
   const { profile, brandColor } = usePublicLayoutContext();
   const { projects } = usePublicPortfolioData(profile?.id);
+  const { getContent } = usePublicPageContent(profile?.id);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+
+  // Get dynamic content
+  const heroSubtitle = getContent('projects', 'hero_subtitle', 'A showcase of my work, experiments, and contributions. Each project represents a unique challenge and solution.');
+  const emptyStateMessage = getContent('projects', 'empty_state', 'No projects to display yet.');
 
   // Get unique categories and tech stack for filtering
   const { categories, allTechStack } = useMemo(() => {
@@ -62,7 +68,7 @@ export default function PublicProjects() {
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">My Projects</h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              A showcase of my work, experiments, and contributions. Each project represents a unique challenge and solution.
+              {heroSubtitle}
             </p>
           </motion.div>
         </div>
@@ -159,7 +165,7 @@ export default function PublicProjects() {
               <p className="text-muted-foreground">
                 {searchQuery || selectedCategory
                   ? 'Try adjusting your search or filters.'
-                  : 'No projects to display yet.'}
+                  : emptyStateMessage}
               </p>
               {(searchQuery || selectedCategory) && (
                 <Button 

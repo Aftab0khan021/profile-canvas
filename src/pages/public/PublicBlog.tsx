@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
+import { usePublicPageContent } from '@/hooks/useProfileItems';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,12 @@ import { format } from 'date-fns';
 
 export default function PublicBlog() {
   const { profile, brandColor, username } = usePublicLayoutContext();
+  const { getContent } = usePublicPageContent(profile?.id);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Get dynamic content
+  const heroSubtitle = getContent('blog', 'hero_subtitle', 'Thoughts, tutorials, and insights on development, technology, and beyond.');
+  const emptyStateMessage = getContent('blog', 'empty_state', 'No articles published yet.');
 
   // Fetch all published blogs
   const { data: blogs = [], isLoading } = useQuery({
@@ -58,7 +64,7 @@ export default function PublicBlog() {
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Latest Insights</h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Thoughts, tutorials, and insights on development, technology, and beyond.
+              {heroSubtitle}
             </p>
           </motion.div>
         </div>
@@ -106,7 +112,7 @@ export default function PublicBlog() {
                 {searchQuery ? 'No Articles Found' : 'No Articles Published Yet'}
               </h3>
               <p className="text-muted-foreground">
-                {searchQuery ? 'Try a different search term.' : 'Check back soon for new content!'}
+                {searchQuery ? 'Try a different search term.' : emptyStateMessage}
               </p>
               {searchQuery && (
                 <Button variant="outline" className="mt-4" onClick={() => setSearchQuery('')}>

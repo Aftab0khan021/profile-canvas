@@ -1,6 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
+import { usePublicProfileItems, usePublicPageContent } from '@/hooks/useProfileItems';
+import { DynamicIcon } from '@/components/IconPicker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,17 +10,18 @@ import { motion } from 'framer-motion';
 import { 
   GraduationCap, Award, Calendar, MapPin, ExternalLink, Phone, Mail, Download,
   Lightbulb, Target, Users, Zap, Briefcase, Code, Brain, Sparkles, Heart,
-  CheckCircle2, BookOpen
+  CheckCircle2
 } from 'lucide-react';
 
-const values = [
+// Default values if user hasn't created any
+const defaultHighlights = [
   { icon: Target, title: 'Problem Solver', description: 'I thrive on breaking down complex challenges into elegant, efficient solutions.', color: '#3b82f6' },
   { icon: Users, title: 'Team Collaborator', description: 'I believe the best results come from diverse perspectives working together.', color: '#10b981' },
   { icon: Lightbulb, title: 'Continuous Learner', description: 'Technology evolves fast, and I make it a priority to stay ahead of the curve.', color: '#f59e0b' },
   { icon: Heart, title: 'User-Centric', description: 'Every line of code I write is focused on creating great user experiences.', color: '#ef4444' },
 ];
 
-const coreValues = [
+const defaultValues = [
   { icon: Sparkles, title: 'Quality First', description: 'Never compromising on code quality and best practices.' },
   { icon: Zap, title: 'Continuous Learning', description: 'Always exploring new technologies and methodologies.' },
   { icon: Users, title: 'Collaboration', description: 'Working effectively with diverse teams and stakeholders.' },
@@ -51,6 +54,15 @@ function AnimatedProgress({ value, brandColor }: AnimatedProgressProps) {
 export default function PublicAbout() {
   const { profile, brandColor } = usePublicLayoutContext();
   const { education, certifications, experience, skills } = usePublicPortfolioData(profile?.id);
+  const { highlights: dynamicHighlights, values: dynamicValues } = usePublicProfileItems(profile?.id);
+  const { getContent } = usePublicPageContent(profile?.id);
+
+  // Get dynamic content
+  const pageSubtitle = getContent('about', 'page_subtitle', '');
+
+  // Use dynamic highlights/values if available, otherwise use defaults
+  const highlights = dynamicHighlights.length > 0 ? dynamicHighlights : null;
+  const values = dynamicValues.length > 0 ? dynamicValues : null;
 
   // Separate technical and soft skills
   const { technicalSkills, softSkills } = useMemo(() => {
@@ -106,6 +118,11 @@ export default function PublicAbout() {
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
                 {profile?.bio || 'No bio available.'}
               </p>
+              {pageSubtitle && (
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  {pageSubtitle}
+                </p>
+              )}
               
               {/* Quick Contact */}
               <div className="flex flex-wrap gap-4 mb-6">
@@ -135,34 +152,66 @@ export default function PublicAbout() {
         </div>
       </section>
 
-      {/* What Defines Me - 4 Column Grid */}
+      {/* What Defines Me - 4 Column Grid (Dynamic or Default) */}
       <section className="py-16 px-4 border-t">
         <div className="container mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold text-center mb-12">What Defines Me</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                whileHover={{ y: -8 }}
-              >
-                <Card className="text-center h-full transition-shadow hover:shadow-xl">
-                  <CardContent className="pt-8 pb-6">
-                    <div
-                      className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                      style={{ background: `linear-gradient(135deg, ${value.color}30, ${value.color}10)` }}
-                    >
-                      <value.icon className="h-8 w-8" style={{ color: value.color }} />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">{value.title}</h3>
-                    <p className="text-sm text-muted-foreground">{value.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+            {highlights ? (
+              // Dynamic highlights from database
+              highlights.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  whileHover={{ y: -8 }}
+                >
+                  <Card className="text-center h-full transition-shadow hover:shadow-xl">
+                    <CardContent className="pt-8 pb-6">
+                      <div
+                        className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                        style={{ background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)` }}
+                      >
+                        <DynamicIcon 
+                          name={item.icon_name} 
+                          className="h-8 w-8" 
+                          fallback={<Sparkles className="h-8 w-8" style={{ color: brandColor }} />}
+                        />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              // Default highlights
+              defaultHighlights.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  whileHover={{ y: -8 }}
+                >
+                  <Card className="text-center h-full transition-shadow hover:shadow-xl">
+                    <CardContent className="pt-8 pb-6">
+                      <div
+                        className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                        style={{ background: `linear-gradient(135deg, ${item.color}30, ${item.color}10)` }}
+                      >
+                        <item.icon className="h-8 w-8" style={{ color: item.color }} />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -477,38 +526,74 @@ export default function PublicAbout() {
         </section>
       )}
 
-      {/* My Values */}
+      {/* My Values (Dynamic or Default) */}
       <section className="py-16 px-4 border-t">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold text-center mb-12">My Values</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            {coreValues.map((value, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
-                <Card 
-                  className="h-full transition-all hover:shadow-lg"
-                  style={{ borderLeft: `4px solid ${brandColor}` }}
+            {values ? (
+              // Dynamic values from database
+              values.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <CardContent className="pt-6 flex items-start gap-4">
-                    <div
-                      className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: `${brandColor}15` }}
-                    >
-                      <value.icon className="h-6 w-6" style={{ color: brandColor }} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">{value.title}</h3>
-                      <p className="text-sm text-muted-foreground">{value.description}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                  <Card 
+                    className="h-full transition-all hover:shadow-lg"
+                    style={{ borderLeft: `4px solid ${brandColor}` }}
+                  >
+                    <CardContent className="pt-6 flex items-start gap-4">
+                      <div
+                        className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: `${brandColor}15` }}
+                      >
+                        <DynamicIcon 
+                          name={item.icon_name} 
+                          className="h-6 w-6" 
+                          fallback={<Heart className="h-6 w-6" style={{ color: brandColor }} />}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              // Default values
+              defaultValues.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <Card 
+                    className="h-full transition-all hover:shadow-lg"
+                    style={{ borderLeft: `4px solid ${brandColor}` }}
+                  >
+                    <CardContent className="pt-6 flex items-start gap-4">
+                      <div
+                        className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: `${brandColor}15` }}
+                      >
+                        <item.icon className="h-6 w-6" style={{ color: brandColor }} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </section>

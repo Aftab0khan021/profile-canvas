@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
+import { usePublicPageContent } from '@/hooks/useProfileItems';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,16 @@ import { Mail, Phone, Linkedin, Github, MapPin, Send, Loader2, CheckCircle2, Arr
 
 export default function PublicContact() {
   const { profile, brandColor } = usePublicLayoutContext();
+  const { getContent } = usePublicPageContent(profile?.id);
   const { toast } = useToast();
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Get dynamic content
+  const heroSubtitle = getContent('contact', 'hero_subtitle', "Have a project in mind, a question, or just want to say hello? I'd love to hear from you.");
+  const formSuccessMessage = getContent('contact', 'form_success', "Thanks for reaching out. I'll get back to you soon.");
+  const availabilityText = getContent('contact', 'availability_text', 'Available for new projects');
 
   const handleContact = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +41,7 @@ export default function PublicContact() {
       toast({ title: 'Error', description: 'Failed to send message. Please try again.', variant: 'destructive' });
     } else {
       setSent(true);
-      toast({ title: 'Message sent!', description: "Thanks for reaching out. I'll get back to you soon." });
+      toast({ title: 'Message sent!', description: formSuccessMessage });
       setContactForm({ name: '', email: '', message: '' });
       setTimeout(() => setSent(false), 5000);
     }
@@ -59,8 +66,7 @@ export default function PublicContact() {
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Have a project in mind, a question, or just want to say hello? I'd love to hear from you. 
-              Fill out the form below or reach out through any of the channels listed.
+              {heroSubtitle}
             </p>
           </motion.div>
         </div>
@@ -125,7 +131,7 @@ export default function PublicContact() {
                       className="h-3 w-3 rounded-full animate-pulse"
                       style={{ backgroundColor: '#10b981' }}
                     />
-                    <span className="font-medium">Available for new projects</span>
+                    <span className="font-medium">{availabilityText}</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     I typically respond within 24 hours. Looking forward to hearing from you!
@@ -163,7 +169,7 @@ export default function PublicContact() {
                       </div>
                       <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
                       <p className="text-muted-foreground">
-                        Thank you for reaching out. I'll get back to you soon.
+                        {formSuccessMessage}
                       </p>
                     </motion.div>
                   ) : (
