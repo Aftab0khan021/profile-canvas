@@ -390,6 +390,8 @@ export type Database = {
           github_url: string | null
           id: string
           image_url: string | null
+          images: string[] | null
+          key_features: string[] | null
           live_url: string | null
           sort_order: number | null
           tech_stack: string[] | null
@@ -403,6 +405,8 @@ export type Database = {
           github_url?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          key_features?: string[] | null
           live_url?: string | null
           sort_order?: number | null
           tech_stack?: string[] | null
@@ -416,6 +420,8 @@ export type Database = {
           github_url?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          key_features?: string[] | null
           live_url?: string | null
           sort_order?: number | null
           tech_stack?: string[] | null
