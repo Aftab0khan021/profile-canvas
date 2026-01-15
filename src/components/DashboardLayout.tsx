@@ -12,11 +12,12 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/dashboard/profile', icon: User, label: 'Profile' },
   { to: '/dashboard/projects', icon: FolderOpen, label: 'Projects' },
   { to: '/dashboard/experience', icon: Briefcase, label: 'Experience' },
   { to: '/dashboard/skills', icon: Lightbulb, label: 'Skills' },
+  { to: '/dashboard/blog', icon: FolderOpen, label: 'Blog' },
   { to: '/dashboard/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
