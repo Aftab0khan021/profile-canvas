@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical, Eye, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical, Eye, X, ImagePlus, Link, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ProjectPreviewModal } from '@/components/ProjectPreviewModal';
+import { Separator } from '@/components/ui/separator';
 
 export default function ProjectsPage() {
   const { projects, isLoading, createProject, updateProject, deleteProject, reorderProjects } = useProjects();
@@ -114,76 +115,115 @@ export default function ProjectsPage() {
             <DialogHeader>
               <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} />
-              </div>
-              <div className="space-y-2">
-                <Label>Cover Image</Label>
-                <ImageUpload
-                  value={formData.image_url}
-                  onChange={(url) => setFormData(p => ({ ...p, image_url: url }))}
-                  variant="image"
-                />
-              </div>
-              
-              {/* Gallery Images */}
-              <div className="space-y-2">
-                <Label>Gallery Images ({formData.images.length})</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border">
-                      <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                  <div className="aspect-video">
-                    <ImageUpload
-                      value={null}
-                      onChange={addImage}
-                      variant="image"
-                      className="h-full"
-                    />
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Basic Info Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <span>Basic Info</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Add multiple screenshots for the project gallery</p>
+                <div className="space-y-2">
+                  <Label>Title *</Label>
+                  <Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tech Stack</Label>
+                  <Input value={formData.tech_stack} onChange={(e) => setFormData(p => ({ ...p, tech_stack: e.target.value }))} placeholder="React, TypeScript, Tailwind (comma separated)" />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Live URL</Label>
-                  <Input value={formData.live_url} onChange={(e) => setFormData(p => ({ ...p, live_url: e.target.value }))} />
+              <Separator />
+
+              {/* Media Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <ImagePlus className="h-4 w-4" />
+                  <span>Media</span>
                 </div>
                 <div className="space-y-2">
-                  <Label>GitHub URL</Label>
-                  <Input value={formData.github_url} onChange={(e) => setFormData(p => ({ ...p, github_url: e.target.value }))} />
+                  <Label>Cover Image</Label>
+                  <ImageUpload
+                    value={formData.image_url}
+                    onChange={(url) => setFormData(p => ({ ...p, image_url: url }))}
+                    variant="image"
+                  />
+                </div>
+                
+                {/* Gallery Images */}
+                <div className="space-y-2 p-3 border rounded-lg bg-muted/30">
+                  <Label className="flex items-center gap-2">
+                    Gallery Images
+                    <Badge variant="secondary" className="text-xs">{formData.images.length} images</Badge>
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-2">Add multiple screenshots for the project detail page</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {formData.images.map((img, index) => (
+                      <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border">
+                        <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="aspect-video">
+                      <ImageUpload
+                        value={null}
+                        onChange={addImage}
+                        variant="image"
+                        className="h-full"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Tech Stack (comma separated)</Label>
-                <Input value={formData.tech_stack} onChange={(e) => setFormData(p => ({ ...p, tech_stack: e.target.value }))} placeholder="React, TypeScript, Tailwind" />
+
+              <Separator />
+
+              {/* Links Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Link className="h-4 w-4" />
+                  <span>Links</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Live URL</Label>
+                    <Input value={formData.live_url} onChange={(e) => setFormData(p => ({ ...p, live_url: e.target.value }))} placeholder="https://example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>GitHub URL</Label>
+                    <Input value={formData.github_url} onChange={(e) => setFormData(p => ({ ...p, github_url: e.target.value }))} placeholder="https://github.com/..." />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Key Features (one per line)</Label>
-                <Textarea 
-                  value={formData.key_features} 
-                  onChange={(e) => setFormData(p => ({ ...p, key_features: e.target.value }))} 
-                  rows={4} 
-                  placeholder="Responsive design&#10;Modern UI/UX&#10;Performance optimized"
-                />
-                <p className="text-xs text-muted-foreground">These will display as checkmarks on the project detail page</p>
+
+              <Separator />
+
+              {/* Key Features Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <ListChecks className="h-4 w-4" />
+                  <span>Key Features</span>
+                </div>
+                <div className="space-y-2 p-3 border rounded-lg bg-muted/30">
+                  <Label>Features (one per line)</Label>
+                  <Textarea 
+                    value={formData.key_features} 
+                    onChange={(e) => setFormData(p => ({ ...p, key_features: e.target.value }))} 
+                    rows={4} 
+                    placeholder="Responsive design&#10;Modern UI/UX&#10;Performance optimized&#10;Real-time updates"
+                  />
+                  <p className="text-xs text-muted-foreground">These display as checkmarks on the project detail page</p>
+                </div>
               </div>
+
               <Button type="submit" className="w-full" disabled={createProject.isPending || updateProject.isPending}>
                 {(createProject.isPending || updateProject.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingProject ? 'Update Project' : 'Create Project'}
