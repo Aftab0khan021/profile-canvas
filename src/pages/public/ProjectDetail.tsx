@@ -29,25 +29,21 @@ export default function ProjectDetail() {
     [projects, projectId]
   );
   
-  // For demo purposes, create multiple images from the single image
+  // Use gallery images if available, fallback to cover image
   const images = useMemo(() => {
-    if (!project?.image_url) return [];
-    // In a real app, you'd have multiple images stored
-    return [project.image_url];
+    if (!project) return [];
+    const galleryImages = project.images || [];
+    if (galleryImages.length > 0) return galleryImages;
+    // Fallback to single cover image
+    return project.image_url ? [project.image_url] : [];
   }, [project]);
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Demo key features - in production, these would be stored in the database
+  // Use dynamic key features from database
   const keyFeatures = useMemo(() => {
     if (!project) return [];
-    return [
-      'Responsive design for all devices',
-      'Modern UI/UX with smooth animations',
-      'Optimized for performance',
-      'Clean and maintainable codebase',
-      'Accessible and SEO-friendly',
-    ];
+    return project.key_features || [];
   }, [project]);
 
   if (!project) {
@@ -253,33 +249,35 @@ export default function ProjectDetail() {
               className="space-y-6"
             >
               {/* Key Features */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5" style={{ color: brandColor }} />
-                    Key Features
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {keyFeatures.map((feature, index) => (
-                      <motion.li
-                        key={index}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
-                        className="flex items-start gap-3"
-                      >
-                        <CheckCircle2 
-                          className="h-5 w-5 mt-0.5 flex-shrink-0" 
-                          style={{ color: brandColor }} 
-                        />
-                        <span>{feature}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              {keyFeatures.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5" style={{ color: brandColor }} />
+                      Key Features
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      {keyFeatures.map((feature, index) => (
+                        <motion.li
+                          key={index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                          className="flex items-start gap-3"
+                        >
+                          <CheckCircle2 
+                            className="h-5 w-5 mt-0.5 flex-shrink-0" 
+                            style={{ color: brandColor }} 
+                          />
+                          <span>{feature}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Technologies Used */}
               <Card>

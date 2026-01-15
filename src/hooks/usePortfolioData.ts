@@ -13,6 +13,8 @@ export interface Project {
   live_url: string | null;
   github_url: string | null;
   tech_stack: string[];
+  key_features: string[];
+  images: string[];
   sort_order: number;
   created_at: string;
   updated_at: string;

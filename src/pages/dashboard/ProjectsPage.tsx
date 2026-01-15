@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Github, Loader2, GripVertical, Eye, X, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ProjectPreviewModal } from '@/components/ProjectPreviewModal';
@@ -26,17 +26,24 @@ export default function ProjectsPage() {
     live_url: '', 
     github_url: '', 
     tech_stack: '', 
+    key_features: '',
+    images: [] as string[],
     sort_order: 0 
   });
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', image_url: '', live_url: '', github_url: '', tech_stack: '', sort_order: 0 });
+    setFormData({ title: '', description: '', image_url: '', live_url: '', github_url: '', tech_stack: '', key_features: '', images: [], sort_order: 0 });
     setEditingProject(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { ...formData, tech_stack: formData.tech_stack.split(',').map(s => s.trim()).filter(Boolean) };
+    const data = { 
+      ...formData, 
+      tech_stack: formData.tech_stack.split(',').map(s => s.trim()).filter(Boolean),
+      key_features: formData.key_features.split('\n').map(s => s.trim()).filter(Boolean),
+      images: formData.images
+    };
     if (editingProject) {
       updateProject.mutate({ id: editingProject.id, ...data });
     } else {
@@ -54,10 +61,22 @@ export default function ProjectsPage() {
       image_url: project.image_url || '', 
       live_url: project.live_url || '', 
       github_url: project.github_url || '', 
-      tech_stack: project.tech_stack.join(', '), 
+      tech_stack: (project.tech_stack || []).join(', '), 
+      key_features: (project.key_features || []).join('\n'),
+      images: project.images || [],
       sort_order: project.sort_order 
     });
     setIsOpen(true);
+  };
+
+  const addImage = (url: string | null) => {
+    if (url) {
+      setFormData(p => ({ ...p, images: [...p.images, url] }));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(p => ({ ...p, images: p.images.filter((_, i) => i !== index) }));
   };
 
   const handleDragEnd = useCallback((result: DropResult) => {
@@ -105,13 +124,42 @@ export default function ProjectsPage() {
                 <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} />
               </div>
               <div className="space-y-2">
-                <Label>Project Image</Label>
+                <Label>Cover Image</Label>
                 <ImageUpload
                   value={formData.image_url}
                   onChange={(url) => setFormData(p => ({ ...p, image_url: url }))}
                   variant="image"
                 />
               </div>
+              
+              {/* Gallery Images */}
+              <div className="space-y-2">
+                <Label>Gallery Images ({formData.images.length})</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border">
+                      <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <div className="aspect-video">
+                    <ImageUpload
+                      value={null}
+                      onChange={addImage}
+                      variant="image"
+                      className="h-full"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Add multiple screenshots for the project gallery</p>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Live URL</Label>
@@ -125,6 +173,16 @@ export default function ProjectsPage() {
               <div className="space-y-2">
                 <Label>Tech Stack (comma separated)</Label>
                 <Input value={formData.tech_stack} onChange={(e) => setFormData(p => ({ ...p, tech_stack: e.target.value }))} placeholder="React, TypeScript, Tailwind" />
+              </div>
+              <div className="space-y-2">
+                <Label>Key Features (one per line)</Label>
+                <Textarea 
+                  value={formData.key_features} 
+                  onChange={(e) => setFormData(p => ({ ...p, key_features: e.target.value }))} 
+                  rows={4} 
+                  placeholder="Responsive design&#10;Modern UI/UX&#10;Performance optimized"
+                />
+                <p className="text-xs text-muted-foreground">These will display as checkmarks on the project detail page</p>
               </div>
               <Button type="submit" className="w-full" disabled={createProject.isPending || updateProject.isPending}>
                 {(createProject.isPending || updateProject.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
