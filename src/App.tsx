@@ -21,7 +21,14 @@ import TestimonialsPage from "./pages/dashboard/TestimonialsPage";
 import EducationPage from "./pages/dashboard/EducationPage";
 import CertificationsPage from "./pages/dashboard/CertificationsPage";
 import ResumePage from "./pages/dashboard/ResumePage";
-import PublicPortfolio from "./pages/PublicPortfolio";
+import PublicLayout from "./layouts/PublicLayout";
+import PublicHome from "./pages/public/PublicHome";
+import PublicAbout from "./pages/public/PublicAbout";
+import PublicProjects from "./pages/public/PublicProjects";
+import PublicExperience from "./pages/public/PublicExperience";
+import PublicSkills from "./pages/public/PublicSkills";
+import PublicBlog from "./pages/public/PublicBlog";
+import PublicContact from "./pages/public/PublicContact";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
@@ -38,8 +45,20 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/p/:username" element={<PublicPortfolio />} />
-              <Route path="/p/:username/blog/:slug" element={<BlogPost />} />
+              
+              {/* Public Portfolio - Multi-page architecture */}
+              <Route path="/p/:username" element={<PublicLayout />}>
+                <Route index element={<PublicHome />} />
+                <Route path="about" element={<PublicAbout />} />
+                <Route path="projects" element={<PublicProjects />} />
+                <Route path="experience" element={<PublicExperience />} />
+                <Route path="skills" element={<PublicSkills />} />
+                <Route path="blog" element={<PublicBlog />} />
+                <Route path="contact" element={<PublicContact />} />
+                <Route path="blog/:slug" element={<BlogPost />} />
+              </Route>
+              
+              {/* Dashboard */}
               <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                 <Route index element={<DashboardHome />} />
                 <Route path="profile" element={<ProfilePage />} />
@@ -54,6 +73,7 @@ const App = () => (
                 <Route path="resume" element={<ResumePage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
