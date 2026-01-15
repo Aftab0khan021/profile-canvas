@@ -25,8 +25,6 @@ import PublicLayout from "./layouts/PublicLayout";
 import PublicHome from "./pages/public/PublicHome";
 import PublicAbout from "./pages/public/PublicAbout";
 import PublicProjects from "./pages/public/PublicProjects";
-import PublicExperience from "./pages/public/PublicExperience";
-import PublicSkills from "./pages/public/PublicSkills";
 import PublicBlog from "./pages/public/PublicBlog";
 import PublicContact from "./pages/public/PublicContact";
 import BlogPost from "./pages/BlogPost";
@@ -51,8 +49,6 @@ const App = () => (
                 <Route index element={<PublicHome />} />
                 <Route path="about" element={<PublicAbout />} />
                 <Route path="projects" element={<PublicProjects />} />
-                <Route path="experience" element={<PublicExperience />} />
-                <Route path="skills" element={<PublicSkills />} />
                 <Route path="blog" element={<PublicBlog />} />
                 <Route path="contact" element={<PublicContact />} />
                 <Route path="blog/:slug" element={<BlogPost />} />

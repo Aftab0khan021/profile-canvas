@@ -1,10 +1,15 @@
+import { useMemo } from 'react';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { GraduationCap, Award, Calendar, MapPin, ExternalLink, Lightbulb, Target, Users, Zap } from 'lucide-react';
+import { 
+  GraduationCap, Award, Calendar, MapPin, ExternalLink, 
+  Lightbulb, Target, Users, Zap, Briefcase, Code, Brain, Sparkles 
+} from 'lucide-react';
 
 const values = [
   { icon: Lightbulb, title: 'Continuous Learning', description: 'Always exploring new technologies and methodologies to stay at the cutting edge.' },
@@ -15,11 +20,30 @@ const values = [
 
 export default function PublicAbout() {
   const { profile, brandColor } = usePublicLayoutContext();
-  const { education, certifications } = usePublicPortfolioData(profile?.id);
+  const { education, certifications, experience, skills } = usePublicPortfolioData(profile?.id);
+
+  // Separate technical and soft skills
+  const { technicalSkills, softSkills } = useMemo(() => {
+    const softSkillCategories = ['soft skills', 'soft skill', 'interpersonal', 'communication', 'leadership'];
+    const technical: Record<string, typeof skills> = {};
+    const soft: typeof skills = [];
+
+    skills.forEach((skill) => {
+      const categoryLower = skill.category.toLowerCase();
+      if (softSkillCategories.some((sc) => categoryLower.includes(sc))) {
+        soft.push(skill);
+      } else {
+        if (!technical[skill.category]) technical[skill.category] = [];
+        technical[skill.category].push(skill);
+      }
+    });
+
+    return { technicalSkills: technical, softSkills: soft };
+  }, [skills]);
 
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section - Bio */}
       <section className="pt-20 pb-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <motion.div
@@ -77,6 +101,85 @@ export default function PublicAbout() {
           </div>
         </div>
       </section>
+
+      {/* Experience Timeline */}
+      {experience.length > 0 && (
+        <section className="py-16 px-4 border-t">
+          <div className="container mx-auto max-w-3xl">
+            <h2 className="text-3xl font-bold text-center mb-12">Experience</h2>
+            <div className="relative">
+              {/* Timeline line */}
+              <div
+                className="absolute left-6 top-0 bottom-0 w-0.5"
+                style={{ backgroundColor: `${brandColor}30` }}
+              />
+
+              <div className="space-y-8">
+                {experience.map((exp, index) => (
+                  <motion.div
+                    key={exp.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="relative pl-16"
+                  >
+                    {/* Timeline dot */}
+                    <div
+                      className="absolute left-4 w-5 h-5 rounded-full border-4 bg-background"
+                      style={{ borderColor: brandColor }}
+                    />
+
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Briefcase className="h-5 w-5" style={{ color: brandColor }} />
+                              <h3 className="font-semibold text-lg">{exp.role}</h3>
+                            </div>
+                            <p style={{ color: brandColor }} className="font-medium">
+                              {exp.company}
+                            </p>
+                          </div>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {new Date(exp.start_date).toLocaleDateString('en-US', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}{' '}
+                              -{' '}
+                              {exp.is_current
+                                ? 'Present'
+                                : exp.end_date
+                                ? new Date(exp.end_date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })
+                                : ''}
+                            </div>
+                            {exp.location && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                {exp.location}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {exp.description && (
+                          <div className="text-muted-foreground text-sm whitespace-pre-line">
+                            {exp.description}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Education Timeline */}
       {education.length > 0 && (
@@ -193,6 +296,90 @@ export default function PublicAbout() {
                           </a>
                         </Button>
                       )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Technical Skills with Progress Bars */}
+      {Object.keys(technicalSkills).length > 0 && (
+        <section className="py-16 px-4 border-t">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-3">
+              <Code className="h-8 w-8" style={{ color: brandColor }} />
+              Technical Skills
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {Object.entries(technicalSkills).map(([category, categorySkills], catIndex) => (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: catIndex * 0.1 }}
+                >
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" style={{ color: brandColor }} />
+                        {category}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {categorySkills.map((skill, skillIndex) => (
+                        <motion.div
+                          key={skill.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: catIndex * 0.1 + skillIndex * 0.05 }}
+                        >
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="font-medium">{skill.skill_name}</span>
+                            <span className="text-muted-foreground">{skill.proficiency_level}%</span>
+                          </div>
+                          <Progress
+                            value={skill.proficiency_level}
+                            className="h-2"
+                          />
+                        </motion.div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Soft Skills Grid */}
+      {softSkills.length > 0 && (
+        <section className="py-16 px-4 border-t">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-3">
+              <Brain className="h-8 w-8" style={{ color: brandColor }} />
+              Soft Skills
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {softSkills.map((skill, index) => (
+                <motion.div
+                  key={skill.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                >
+                  <Card className="text-center hover:shadow-md transition-shadow h-full">
+                    <CardContent className="pt-6 pb-6">
+                      <div
+                        className="h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-3"
+                        style={{ backgroundColor: `${brandColor}15` }}
+                      >
+                        <Brain className="h-7 w-7" style={{ color: brandColor }} />
+                      </div>
+                      <p className="font-medium">{skill.skill_name}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
