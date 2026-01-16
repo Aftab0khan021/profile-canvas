@@ -77,9 +77,9 @@ export function useAnalytics() {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
-      // Group views by day (last 7 days)
+      // Group views by day (last 30 days)
       const dayGroups: Record<string, number> = {};
-      for (let i = 6; i >= 0; i--) {
+      for (let i = 29; i >= 0; i--) {
         const date = new Date(todayStart);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SEO } from '@/components/SEO';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   Sparkles, 
@@ -14,6 +15,31 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "FolioX",
+  "description": "Build a stunning developer portfolio in minutes. Import from GitHub, showcase your projects, and get hired faster. No coding required.",
+  "url": "https://foliox.lovable.app",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Beautiful Themes",
+    "Developer-First Design",
+    "Lightning Fast Performance",
+    "Custom Portfolio URLs",
+    "Mobile Responsive",
+    "SEO Optimized",
+    "Dark/Light Mode",
+    "Built-in Contact Form"
+  ]
+};
 
 const features = [
   {
@@ -52,6 +78,11 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="FolioX | The #1 Portfolio Builder for Developers"
+        description="Build a stunning developer portfolio in minutes. Import from GitHub, showcase your projects, and get hired faster. No coding required."
+        schema={webAppSchema}
+      />
       {/* Hero Gradient Background */}
       <div className="absolute inset-0 hero-gradient pointer-events-none" />
 

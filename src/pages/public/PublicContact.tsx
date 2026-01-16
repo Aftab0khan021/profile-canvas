@@ -29,22 +29,42 @@ export default function PublicContact() {
     if (!profile?.id) return;
     
     setSending(true);
+    
+    // Insert message into database
     const { error } = await supabase.from('messages').insert({
       user_id: profile.id,
       sender_name: contactForm.name,
       sender_email: contactForm.email,
       content: contactForm.message,
     });
-    setSending(false);
     
     if (error) {
+      setSending(false);
       toast({ title: 'Error', description: 'Failed to send message. Please try again.', variant: 'destructive' });
-    } else {
-      setSent(true);
-      toast({ title: 'Message sent!', description: formSuccessMessage });
-      setContactForm({ name: '', email: '', message: '' });
-      setTimeout(() => setSent(false), 5000);
+      return;
     }
+    
+    // Send email notification to portfolio owner (non-blocking)
+    if (profile.email) {
+      supabase.functions.invoke('send-contact-email', {
+        body: {
+          recipient_email: profile.email,
+          recipient_name: profile.full_name || 'Portfolio Owner',
+          sender_name: contactForm.name,
+          sender_email: contactForm.email,
+          message: contactForm.message,
+        },
+      }).catch((emailError) => {
+        console.error('Failed to send email notification:', emailError);
+        // Don't show error to user since message was saved successfully
+      });
+    }
+    
+    setSending(false);
+    setSent(true);
+    toast({ title: 'Message sent!', description: formSuccessMessage });
+    setContactForm({ name: '', email: '', message: '' });
+    setTimeout(() => setSent(false), 5000);
   };
 
   const contactInfo = [
