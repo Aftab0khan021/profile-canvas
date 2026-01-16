@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { FolderOpen, Briefcase, MessageSquare, ExternalLink, ArrowRight, Eye, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { useMemo } from 'react';
 
 export default function DashboardHome() {
   const { profile } = useProfile();
@@ -13,7 +16,25 @@ export default function DashboardHome() {
   const { messages, unreadCount } = useMessages();
   const { analytics, isLoading: analyticsLoading } = useAnalytics();
 
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  // Format chart data for recharts
+  const chartData = useMemo(() => {
+    if (!analytics?.viewsByDay) return [];
+    return analytics.viewsByDay.map((day) => {
+      const date = new Date(day.date);
+      return {
+        date: day.date,
+        label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        views: day.count,
+      };
+    });
+  }, [analytics?.viewsByDay]);
+
+  const chartConfig = {
+    views: {
+      label: 'Views',
+      color: 'hsl(var(--primary))',
+    },
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -100,37 +121,61 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Views Chart */}
-      {analytics?.viewsByDay && analytics.viewsByDay.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Views (Last 7 Days)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-end justify-between gap-2 h-32">
-              {analytics.viewsByDay.map((day, i) => {
-                const maxViews = Math.max(...analytics.viewsByDay.map((d) => d.count), 1);
-                const height = (day.count / maxViews) * 100;
-                const date = new Date(day.date);
-                return (
-                  <div key={day.date} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="w-full bg-muted rounded-sm overflow-hidden flex flex-col justify-end h-24">
-                      <div
-                        className="bg-primary transition-all duration-300"
-                        style={{ height: `${Math.max(height, 4)}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {weekdays[date.getDay()]}
-                    </span>
-                    <span className="text-xs font-medium">{day.count}</span>
-                  </div>
-                );
-              })}
+      {/* Views Area Chart - Last 30 Days */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Views (Last 30 Days)</CardTitle>
+          <CardDescription>Daily portfolio views over the past month</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {analyticsLoading ? (
+            <div className="h-[200px] flex items-center justify-center">
+              <p className="text-muted-foreground">Loading chart...</p>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : chartData.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-[200px] w-full">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  interval="preserveStartEnd"
+                  tickMargin={8}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  width={30}
+                  allowDecimals={false}
+                />
+                <ChartTooltip
+                  content={<ChartTooltipContent indicator="line" />}
+                  cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '4 4' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#viewsGradient)"
+                />
+              </AreaChart>
+            </ChartContainer>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center">
+              <p className="text-muted-foreground">No view data available yet</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Popular Pages */}
       {analytics?.viewsByPage && analytics.viewsByPage.length > 0 && (
