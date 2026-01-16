@@ -1,9 +1,10 @@
 import { Outlet, useParams, Link, useLocation, useOutletContext } from 'react-router-dom';
 import { usePublicProfile } from '@/hooks/useProfile';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 // Types for outlet context
@@ -60,8 +61,53 @@ export default function PublicLayout() {
     return location.pathname.startsWith(path);
   };
 
+  // Generate dynamic SEO data
+  const seoTitle = profile.full_name && profile.title
+    ? `${profile.full_name} - ${profile.title} | Portfolio`
+    : profile.full_name
+    ? `${profile.full_name} | Portfolio`
+    : 'Developer Portfolio';
+
+  const seoDescription = profile.bio
+    ? profile.bio.length > 160 ? profile.bio.slice(0, 157) + '...' : profile.bio
+    : `View ${profile.full_name || 'this developer'}'s portfolio showcasing projects, skills, and experience.`;
+
+  const seoImage = profile.avatar_url || 'https://lovable.dev/opengraph-image-p98pqg.png';
+
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  // Build sameAs array for social links
+  const sameAs = useMemo(() => {
+    const links: string[] = [];
+    if (profile.linkedin_url) links.push(profile.linkedin_url);
+    if (profile.github_url) links.push(profile.github_url);
+    return links;
+  }, [profile.linkedin_url, profile.github_url]);
+
+  // Person schema for JSON-LD
+  const personSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": profile.full_name || 'Developer',
+    "jobTitle": profile.title || undefined,
+    "url": currentUrl,
+    "image": profile.avatar_url || undefined,
+    "email": profile.email || undefined,
+    ...(sameAs.length > 0 && { sameAs })
+  }), [profile, currentUrl, sameAs]);
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Dynamic SEO */}
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        image={seoImage}
+        url={currentUrl}
+        type="profile"
+        schema={personSchema}
+      />
+
       {/* Dynamic brand color styles */}
       <style>{`
         .brand-primary { color: ${brandColor}; }
