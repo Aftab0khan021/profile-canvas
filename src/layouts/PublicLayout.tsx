@@ -26,6 +26,36 @@ export default function PublicLayout() {
   const { data: profile, isLoading } = usePublicProfile(username || '');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // --- FIXED: HOOKS MOVED TO TOP LEVEL (Before any return) ---
+  
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  // Safe useMemo calls that handle null profile
+  const sameAs = useMemo(() => {
+    if (!profile) return [];
+    const links: string[] = [];
+    if (profile.linkedin_url) links.push(profile.linkedin_url);
+    if (profile.github_url) links.push(profile.github_url);
+    return links;
+  }, [profile]);
+
+  // Person schema for JSON-LD
+  const personSchema = useMemo(() => {
+    if (!profile) return {};
+    return {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": profile.full_name || 'Developer',
+      "jobTitle": profile.title || undefined,
+      "url": currentUrl,
+      "image": profile.avatar_url || undefined,
+      "email": profile.email || undefined,
+      ...(sameAs.length > 0 && { sameAs })
+    };
+  }, [profile, currentUrl, sameAs]);
+
+  // --- END OF HOOKS ---
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -42,6 +72,7 @@ export default function PublicLayout() {
     );
   }
 
+  // Derived data (safe to do here since we passed the early returns)
   const initials = profile.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
   const brandColor = profile.brand_color || '#3b82f6';
   const basePath = `/p/${username}`;
@@ -73,28 +104,6 @@ export default function PublicLayout() {
     : `View ${profile.full_name || 'this developer'}'s portfolio showcasing projects, skills, and experience.`;
 
   const seoImage = profile.avatar_url || 'https://lovable.dev/opengraph-image-p98pqg.png';
-
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-
-  // Build sameAs array for social links
-  const sameAs = useMemo(() => {
-    const links: string[] = [];
-    if (profile.linkedin_url) links.push(profile.linkedin_url);
-    if (profile.github_url) links.push(profile.github_url);
-    return links;
-  }, [profile.linkedin_url, profile.github_url]);
-
-  // Person schema for JSON-LD
-  const personSchema = useMemo(() => ({
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": profile.full_name || 'Developer',
-    "jobTitle": profile.title || undefined,
-    "url": currentUrl,
-    "image": profile.avatar_url || undefined,
-    "email": profile.email || undefined,
-    ...(sameAs.length > 0 && { sameAs })
-  }), [profile, currentUrl, sameAs]);
 
   return (
     <div className="min-h-screen bg-background">
