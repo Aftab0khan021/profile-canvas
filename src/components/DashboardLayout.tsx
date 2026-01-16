@@ -36,7 +36,7 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex overflow-hidden">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -44,7 +44,7 @@ export default function DashboardLayout() {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform lg:transform-none",
+        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-200 ease-in-out lg:transform-none",
         sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="flex flex-col h-full">
@@ -60,7 +60,7 @@ export default function DashboardLayout() {
             </Button>
           </div>
 
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.to}
@@ -84,7 +84,7 @@ export default function DashboardLayout() {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-sidebar-border space-y-2">
+          <div className="p-4 border-t border-sidebar-border space-y-2 shrink-0">
             {profile?.username && (
               <Button variant="outline" size="sm" className="w-full justify-start" asChild>
                 <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer">
@@ -102,8 +102,8 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="h-14 border-b border-border flex items-center justify-between px-4 lg:px-6">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 lg:px-6 shrink-0 bg-background">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
