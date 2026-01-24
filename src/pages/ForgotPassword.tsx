@@ -34,7 +34,8 @@ export default function ForgotPassword() {
 
     setIsLoading(true);
 
-    const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+    const redirectUrl = import.meta.env.VITE_APP_URL || 'https://portfolio-hubs.vercel.app';
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${redirectUrl}/reset-password`,
     });
