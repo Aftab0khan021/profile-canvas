@@ -21,7 +21,7 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = emailSchema.safeParse({ email });
     if (!result.success) {
       toast({
@@ -33,9 +33,10 @@ export default function ForgotPassword() {
     }
 
     setIsLoading(true);
-    
+
+    const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${redirectUrl}/reset-password`,
     });
 
     setIsLoading(false);
@@ -58,7 +59,7 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="absolute inset-0 hero-gradient pointer-events-none" />
-      
+
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
@@ -74,7 +75,7 @@ export default function ForgotPassword() {
           <CardHeader>
             <CardTitle>Forgot Password</CardTitle>
             <CardDescription>
-              {emailSent 
+              {emailSent
                 ? "We've sent you an email with instructions to reset your password."
                 : "Enter your email address and we'll send you a link to reset your password."
               }
@@ -90,8 +91,8 @@ export default function ForgotPassword() {
                   Check your email inbox and click the link to reset your password.
                   The link will expire in 1 hour.
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => setEmailSent(false)}
                 >
