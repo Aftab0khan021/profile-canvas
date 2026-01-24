@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPageContent } from '@/hooks/useProfileItems';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,15 +10,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Linkedin, Github, MapPin, Send, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, Phone, Linkedin, Github, MapPin, Send, Loader2, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
 
 export default function PublicContact() {
   const { profile, brandColor } = usePublicLayoutContext();
   const { getContent } = usePublicPageContent(profile?.id);
   const { toast } = useToast();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
+  const [cooldownTime, setCooldownTime] = useState(0);
 
   // Get dynamic content
   const heroSubtitle = getContent('contact', 'hero_subtitle', "Have a project in mind, a question, or just want to say hello? I'd love to hear from you.");
@@ -27,9 +31,30 @@ export default function PublicContact() {
   const handleContact = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile?.id) return;
-    
+
+    // Check if rate limited
+    if (rateLimited) {
+      toast({
+        title: 'Please wait',
+        description: `You can send another message in ${cooldownTime} seconds.`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setSending(true);
-    
+
+    // Get reCAPTCHA token
+    let recaptchaToken = '';
+    if (executeRecaptcha) {
+      try {
+        recaptchaToken = await executeRecaptcha('contact_form');
+      } catch (error) {
+        console.error('reCAPTCHA error:', error);
+        // Continue without token if reCAPTCHA fails
+      }
+    }
+
     // Insert message into database
     const { error } = await supabase.from('messages').insert({
       user_id: profile.id,
@@ -37,13 +62,13 @@ export default function PublicContact() {
       sender_email: contactForm.email,
       content: contactForm.message,
     });
-    
+
     if (error) {
       setSending(false);
       toast({ title: 'Error', description: 'Failed to send message. Please try again.', variant: 'destructive' });
       return;
     }
-    
+
     // Send email notification to portfolio owner (non-blocking)
     if (profile.email) {
       supabase.functions.invoke('send-contact-email', {
@@ -53,13 +78,39 @@ export default function PublicContact() {
           sender_name: contactForm.name,
           sender_email: contactForm.email,
           message: contactForm.message,
+          recaptcha_token: recaptchaToken,
         },
+      }).then((response) => {
+        // Check for rate limit response
+        if (response.error && response.error.message?.includes('rate limit')) {
+          setRateLimited(true);
+          const cooldown = 60; // 60 seconds
+          setCooldownTime(cooldown);
+
+          // Countdown timer
+          const interval = setInterval(() => {
+            setCooldownTime((prev) => {
+              if (prev <= 1) {
+                clearInterval(interval);
+                setRateLimited(false);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+
+          toast({
+            title: 'Rate limit exceeded',
+            description: `Please wait ${cooldown} seconds before sending another message.`,
+            variant: 'destructive'
+          });
+        }
       }).catch((emailError) => {
         console.error('Failed to send email notification:', emailError);
         // Don't show error to user since message was saved successfully
       });
     }
-    
+
     setSending(false);
     setSent(true);
     toast({ title: 'Message sent!', description: formSuccessMessage });
@@ -103,7 +154,7 @@ export default function PublicContact() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="lg:col-span-2 space-y-6"
             >
-              <Card 
+              <Card
                 className="overflow-hidden"
                 style={{ background: `linear-gradient(135deg, ${brandColor}10, ${brandColor}05)` }}
               >
@@ -147,7 +198,7 @@ export default function PublicContact() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3 mb-3">
-                    <div 
+                    <div
                       className="h-3 w-3 rounded-full animate-pulse"
                       style={{ backgroundColor: '#10b981' }}
                     />
@@ -181,7 +232,7 @@ export default function PublicContact() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="text-center py-12"
                     >
-                      <div 
+                      <div
                         className="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4"
                         style={{ backgroundColor: `${brandColor}15` }}
                       >
@@ -239,12 +290,17 @@ export default function PublicContact() {
                         size="lg"
                         className="w-full text-white"
                         style={{ backgroundColor: brandColor }}
-                        disabled={sending}
+                        disabled={sending || rateLimited}
                       >
                         {sending ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             Sending...
+                          </>
+                        ) : rateLimited ? (
+                          <>
+                            <Shield className="h-4 w-4 mr-2" />
+                            Wait {cooldownTime}s
                           </>
                         ) : (
                           <>
@@ -253,6 +309,11 @@ export default function PublicContact() {
                           </>
                         )}
                       </Button>
+                      {executeRecaptcha && (
+                        <p className="text-xs text-muted-foreground text-center mt-2">
+                          Protected by reCAPTCHA
+                        </p>
+                      )}
                     </form>
                   )}
                 </CardContent>

@@ -33,7 +33,7 @@ export default function Auth() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupUsername, setSignupUsername] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
-  
+
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +49,7 @@ export default function Auth() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = loginSchema.safeParse({ email: loginEmail, password: loginPassword });
     if (!result.success) {
       toast({
@@ -75,7 +75,7 @@ export default function Auth() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = signupSchema.safeParse({
       email: signupEmail,
       password: signupPassword,
@@ -109,7 +109,7 @@ export default function Auth() {
     } else {
       toast({
         title: 'Welcome to FolioX!',
-        description: 'Your account has been created successfully.',
+        description: 'Your account has been created. Please check your email to verify your account.',
       });
     }
   };
@@ -117,7 +117,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="absolute inset-0 hero-gradient pointer-events-none" />
-      
+
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
@@ -153,7 +153,12 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="login-password">Password</Label>
+                      <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                        Forgot Password?
+                      </Link>
+                    </div>
                     <Input
                       id="login-password"
                       type="password"
