@@ -73,11 +73,27 @@ export default function PublicContact() {
       if (functionError) {
         setSending(false);
 
-        // Check if it's a rate limit error
-        if (functionError.message?.includes('rate limit') || functionError.message?.includes('429')) {
+        // Try to parse the error response to get remaining time
+        let isRateLimitError = false;
+        let remainingSeconds = 120; // Default fallback
+
+        // Check if it's a rate limit error (status 429 or message contains "rate limit")
+        if (functionError.message?.includes('rate limit') ||
+          functionError.message?.includes('429') ||
+          functionError.message?.includes('Too many requests')) {
+          isRateLimitError = true;
+
+          // Try to extract remaining time from error message
+          // Error format: "FunctionsHttpError: Too many requests. Please wait X seconds..."
+          const timeMatch = functionError.message.match(/wait (\d+) seconds/);
+          if (timeMatch && timeMatch[1]) {
+            remainingSeconds = parseInt(timeMatch[1], 10);
+          }
+        }
+
+        if (isRateLimitError) {
           setRateLimited(true);
-          const cooldown = 120; // 120 seconds (2 minutes)
-          setCooldownTime(cooldown);
+          setCooldownTime(remainingSeconds);
 
           // Countdown timer
           const interval = setInterval(() => {
@@ -92,14 +108,15 @@ export default function PublicContact() {
           }, 1000);
 
           toast({
-            title: 'Rate limit exceeded',
-            description: `Please wait ${cooldown} seconds before sending another message.`,
+            title: 'Message limit reached',
+            description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
             variant: 'destructive'
           });
           return; // Don't save message if rate limited
         }
 
-        // Other errors (not rate limit)
+        // Other errors (not rate limit) - only show for non-rate-limit errors
+        console.error('Edge Function error:', functionError);
         toast({
           title: 'Error',
           description: 'Failed to send message. Please try again.',
