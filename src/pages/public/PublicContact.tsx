@@ -58,84 +58,74 @@ export default function PublicContact() {
     // IMPORTANT: Check rate limit FIRST by calling Edge Function
     // This prevents saving spam messages to database
     if (profile.email) {
-      const { data, error: functionError } = await supabase.functions.invoke('send-contact-email', {
-        body: {
-          recipient_email: profile.email,
-          recipient_name: profile.full_name || 'Portfolio Owner',
-          sender_name: contactForm.name,
-          sender_email: contactForm.email,
-          message: contactForm.message,
-          recaptcha_token: recaptchaToken,
-        },
-      });
+      // Use raw fetch instead of Supabase client to access 429 response body
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      // Debug logging
-      console.log('Edge Function Response:', { data, error: functionError });
-
-      // Check for rate limit in multiple ways
-      let isRateLimitError = false;
-      let remainingSeconds = 120; // Default fallback
-
-      // Method 1: Check if data contains rate limit error (when status is 429)
-      if (data && typeof data === 'object') {
-        const responseData = data as any;
-        if (responseData.error === 'rate limit exceeded' ||
-          responseData.message?.includes('rate limit') ||
-          responseData.message?.includes('Too many requests')) {
-          isRateLimitError = true;
-          if (responseData.remainingTime) {
-            remainingSeconds = responseData.remainingTime;
-          }
-        }
-      }
-
-      // Method 2: Check functionError object
-      if (functionError) {
-        const errorMsg = functionError.message || '';
-
-        if (errorMsg.includes('rate limit') ||
-          errorMsg.includes('429') ||
-          errorMsg.includes('Too many requests')) {
-          isRateLimitError = true;
-
-          // Try to extract remaining time from error message
-          const timeMatch = errorMsg.match(/wait (\d+) seconds/);
-          if (timeMatch && timeMatch[1]) {
-            remainingSeconds = parseInt(timeMatch[1], 10);
-          }
-        }
-      }
-
-      // Handle rate limit error
-      if (isRateLimitError) {
-        setSending(false);
-        setRateLimited(true);
-        setCooldownTime(remainingSeconds);
-
-        // Countdown timer
-        const interval = setInterval(() => {
-          setCooldownTime((prev) => {
-            if (prev <= 1) {
-              clearInterval(interval);
-              setRateLimited(false);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-
-        toast({
-          title: 'Message limit reached',
-          description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
-          variant: 'destructive'
+      try {
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+          },
+          body: JSON.stringify({
+            recipient_email: profile.email,
+            recipient_name: profile.full_name || 'Portfolio Owner',
+            sender_name: contactForm.name,
+            sender_email: contactForm.email,
+            message: contactForm.message,
+            recaptcha_token: recaptchaToken,
+          }),
         });
-        return; // Don't save message if rate limited
-      }
 
-      // Handle other errors (not rate limit)
-      if (functionError && !isRateLimitError) {
+        const responseData = await response.json();
+
+        // Check if rate limited (429 status)
+        if (response.status === 429) {
+          setSending(false);
+
+          const remainingSeconds = responseData.remainingTime || 120;
+          setRateLimited(true);
+          setCooldownTime(remainingSeconds);
+
+          // Countdown timer
+          const interval = setInterval(() => {
+            setCooldownTime((prev) => {
+              if (prev <= 1) {
+                clearInterval(interval);
+                setRateLimited(false);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+
+          toast({
+            title: 'Message limit reached',
+            description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
+            variant: 'destructive'
+          });
+          return; // Don't save message if rate limited
+        }
+
+        // Check for other errors
+        if (!response.ok) {
+          setSending(false);
+          console.error('Edge Function error:', responseData);
+          toast({
+            title: 'Error',
+            description: 'Failed to send message. Please try again.',
+            variant: 'destructive'
+          });
+          return;
+        }
+
+        // Success - continue to save message
+      } catch (error) {
         setSending(false);
-        console.error('Edge Function error:', functionError);
+        console.error('Network error:', error);
         toast({
           title: 'Error',
           description: 'Failed to send message. Please try again.',
