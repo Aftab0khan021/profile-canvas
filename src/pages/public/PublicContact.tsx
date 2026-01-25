@@ -55,23 +55,10 @@ export default function PublicContact() {
       }
     }
 
-    // Insert message into database
-    const { error } = await supabase.from('messages').insert({
-      user_id: profile.id,
-      sender_name: contactForm.name,
-      sender_email: contactForm.email,
-      content: contactForm.message,
-    });
-
-    if (error) {
-      setSending(false);
-      toast({ title: 'Error', description: 'Failed to send message. Please try again.', variant: 'destructive' });
-      return;
-    }
-
-    // Send email notification to portfolio owner (non-blocking)
+    // IMPORTANT: Check rate limit FIRST by calling Edge Function
+    // This prevents saving spam messages to database
     if (profile.email) {
-      supabase.functions.invoke('send-contact-email', {
+      const { data, error: functionError } = await supabase.functions.invoke('send-contact-email', {
         body: {
           recipient_email: profile.email,
           recipient_name: profile.full_name || 'Portfolio Owner',
@@ -80,11 +67,16 @@ export default function PublicContact() {
           message: contactForm.message,
           recaptcha_token: recaptchaToken,
         },
-      }).then((response) => {
-        // Check for rate limit response
-        if (response.error && response.error.message?.includes('rate limit')) {
+      });
+
+      // Check for rate limit error
+      if (functionError) {
+        setSending(false);
+
+        // Check if it's a rate limit error
+        if (functionError.message?.includes('rate limit') || functionError.message?.includes('429')) {
           setRateLimited(true);
-          const cooldown = 60; // 60 seconds
+          const cooldown = 120; // 120 seconds (2 minutes)
           setCooldownTime(cooldown);
 
           // Countdown timer
@@ -104,11 +96,31 @@ export default function PublicContact() {
             description: `Please wait ${cooldown} seconds before sending another message.`,
             variant: 'destructive'
           });
+          return; // Don't save message if rate limited
         }
-      }).catch((emailError) => {
-        console.error('Failed to send email notification:', emailError);
-        // Don't show error to user since message was saved successfully
-      });
+
+        // Other errors (not rate limit)
+        toast({
+          title: 'Error',
+          description: 'Failed to send message. Please try again.',
+          variant: 'destructive'
+        });
+        return;
+      }
+    }
+
+    // Only save message to database if rate limit check passed
+    const { error: dbError } = await supabase.from('messages').insert({
+      user_id: profile.id,
+      sender_name: contactForm.name,
+      sender_email: contactForm.email,
+      content: contactForm.message,
+    });
+
+    if (dbError) {
+      setSending(false);
+      toast({ title: 'Error', description: 'Failed to save message. Please try again.', variant: 'destructive' });
+      return;
     }
 
     setSending(false);

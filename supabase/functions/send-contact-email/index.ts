@@ -33,12 +33,13 @@ interface RecaptchaResponse {
 // Verify reCAPTCHA token with Google
 async function verifyRecaptcha(token: string): Promise<{ success: boolean; score: number; error?: string }> {
   if (!RECAPTCHA_SECRET_KEY) {
-    console.warn("RECAPTCHA_SECRET_KEY not configured, skipping verification");
+    console.warn("RECAPTCHA_SECRET_KEY not configured, skipping reCAPTCHA verification");
     return { success: true, score: 1.0 }; // Allow if not configured
   }
 
   if (!token) {
-    return { success: false, score: 0, error: "No reCAPTCHA token provided" };
+    console.warn("No reCAPTCHA token provided, but continuing (RECAPTCHA_SECRET_KEY is set)");
+    return { success: true, score: 0.5 }; // Allow but with low score
   }
 
   try {
@@ -52,7 +53,10 @@ async function verifyRecaptcha(token: string): Promise<{ success: boolean; score
 
     if (!data.success) {
       console.error("reCAPTCHA verification failed:", data['error-codes']);
-      return { success: false, score: 0, error: "reCAPTCHA verification failed" };
+      // Allow request to continue even if reCAPTCHA fails (fail open for now)
+      // This prevents reCAPTCHA issues from blocking legitimate users
+      console.warn("Allowing request despite reCAPTCHA failure (fail-open mode)");
+      return { success: true, score: 0.3, error: "reCAPTCHA verification failed but allowed" };
     }
 
     const score = data.score || 0;
@@ -60,13 +64,15 @@ async function verifyRecaptcha(token: string): Promise<{ success: boolean; score
 
     // Score threshold: 0.5 (0.0 = bot, 1.0 = human)
     if (score < 0.5) {
-      return { success: false, score, error: "reCAPTCHA score too low (possible bot)" };
+      console.warn(`Low reCAPTCHA score (${score}), but allowing request (fail-open mode)`);
+      return { success: true, score, error: "Low score but allowed" };
     }
 
     return { success: true, score };
   } catch (error) {
     console.error("Error verifying reCAPTCHA:", error);
-    return { success: false, score: 0, error: "reCAPTCHA verification error" };
+    // Allow request to continue if reCAPTCHA service fails (fail open)
+    return { success: true, score: 0.5, error: "reCAPTCHA service unavailable" };
   }
 }
 
@@ -75,19 +81,21 @@ async function checkRateLimit(ip: string): Promise<{ allowed: boolean; remaining
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   // Clean up old entries first (older than 5 minutes)
-  await supabase.rpc("cleanup_old_rate_limits").catch(() => {
-    // Ignore cleanup errors, continue with rate limit check
-  });
+  const { error: cleanupError } = await supabase.rpc("cleanup_old_rate_limits");
+  if (cleanupError) {
+    console.warn("Cleanup function error (non-critical):", cleanupError);
+    // Continue with rate limit check even if cleanup fails
+  }
 
-  // Check submissions in the last 60 seconds
-  const sixtySecondsAgo = new Date(Date.now() - 60000).toISOString();
+  // Check submissions in the last 120 seconds
+  const twoMinutesAgo = new Date(Date.now() - 120000).toISOString();
 
   const { data: recentSubmissions, error } = await supabase
     .from("rate_limits")
     .select("created_at")
     .eq("ip_address", ip)
     .eq("endpoint", "contact_form")
-    .gte("created_at", sixtySecondsAgo)
+    .gte("created_at", twoMinutesAgo)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -97,15 +105,15 @@ async function checkRateLimit(ip: string): Promise<{ allowed: boolean; remaining
   }
 
   const submissionCount = recentSubmissions?.length || 0;
-  const RATE_LIMIT = 3; // 3 submissions per 60 seconds
+  const RATE_LIMIT = 3; // 3 submissions per 120 seconds
 
   if (submissionCount >= RATE_LIMIT) {
     // Calculate remaining time until oldest submission expires
     const oldestSubmission = recentSubmissions[submissionCount - 1];
     const oldestTime = new Date(oldestSubmission.created_at).getTime();
-    const remainingTime = Math.ceil((oldestTime + 60000 - Date.now()) / 1000);
+    const remainingTime = Math.ceil((oldestTime + 120000 - Date.now()) / 1000);
 
-    console.log(`Rate limit exceeded for IP ${ip}: ${submissionCount} submissions in last 60s`);
+    console.log(`Rate limit exceeded for IP ${ip}: ${submissionCount} submissions in last 120s`);
     return { allowed: false, remainingTime: Math.max(remainingTime, 1) };
   }
 
