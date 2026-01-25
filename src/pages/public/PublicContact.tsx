@@ -69,53 +69,72 @@ export default function PublicContact() {
         },
       });
 
-      // Check for rate limit error
+      // Debug logging
+      console.log('Edge Function Response:', { data, error: functionError });
+
+      // Check for rate limit in multiple ways
+      let isRateLimitError = false;
+      let remainingSeconds = 120; // Default fallback
+
+      // Method 1: Check if data contains rate limit error (when status is 429)
+      if (data && typeof data === 'object') {
+        const responseData = data as any;
+        if (responseData.error === 'rate limit exceeded' ||
+          responseData.message?.includes('rate limit') ||
+          responseData.message?.includes('Too many requests')) {
+          isRateLimitError = true;
+          if (responseData.remainingTime) {
+            remainingSeconds = responseData.remainingTime;
+          }
+        }
+      }
+
+      // Method 2: Check functionError object
       if (functionError) {
-        setSending(false);
+        const errorMsg = functionError.message || '';
 
-        // Try to parse the error response to get remaining time
-        let isRateLimitError = false;
-        let remainingSeconds = 120; // Default fallback
-
-        // Check if it's a rate limit error (status 429 or message contains "rate limit")
-        if (functionError.message?.includes('rate limit') ||
-          functionError.message?.includes('429') ||
-          functionError.message?.includes('Too many requests')) {
+        if (errorMsg.includes('rate limit') ||
+          errorMsg.includes('429') ||
+          errorMsg.includes('Too many requests')) {
           isRateLimitError = true;
 
           // Try to extract remaining time from error message
-          // Error format: "FunctionsHttpError: Too many requests. Please wait X seconds..."
-          const timeMatch = functionError.message.match(/wait (\d+) seconds/);
+          const timeMatch = errorMsg.match(/wait (\d+) seconds/);
           if (timeMatch && timeMatch[1]) {
             remainingSeconds = parseInt(timeMatch[1], 10);
           }
         }
+      }
 
-        if (isRateLimitError) {
-          setRateLimited(true);
-          setCooldownTime(remainingSeconds);
+      // Handle rate limit error
+      if (isRateLimitError) {
+        setSending(false);
+        setRateLimited(true);
+        setCooldownTime(remainingSeconds);
 
-          // Countdown timer
-          const interval = setInterval(() => {
-            setCooldownTime((prev) => {
-              if (prev <= 1) {
-                clearInterval(interval);
-                setRateLimited(false);
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-
-          toast({
-            title: 'Message limit reached',
-            description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
-            variant: 'destructive'
+        // Countdown timer
+        const interval = setInterval(() => {
+          setCooldownTime((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setRateLimited(false);
+              return 0;
+            }
+            return prev - 1;
           });
-          return; // Don't save message if rate limited
-        }
+        }, 1000);
 
-        // Other errors (not rate limit) - only show for non-rate-limit errors
+        toast({
+          title: 'Message limit reached',
+          description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
+          variant: 'destructive'
+        });
+        return; // Don't save message if rate limited
+      }
+
+      // Handle other errors (not rate limit)
+      if (functionError && !isRateLimitError) {
+        setSending(false);
         console.error('Edge Function error:', functionError);
         toast({
           title: 'Error',
