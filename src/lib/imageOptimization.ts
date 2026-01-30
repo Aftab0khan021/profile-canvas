@@ -9,9 +9,9 @@ export interface ImageTransformOptions {
 
 /**
  * Get optimized image URL from Supabase Storage with transformations
- * @param path - Image path in storage
+ * @param path - Image path in storage or full URL
  * @param options - Transformation options
- * @returns Optimized image URL
+ * @returns Optimized image URL or original URL as fallback
  */
 export function getOptimizedImageUrl(
     path: string | null | undefined,
@@ -19,6 +19,12 @@ export function getOptimizedImageUrl(
 ): string {
     // Return placeholder if no path
     if (!path) return '/placeholder.svg';
+
+    // If it's already a full URL (http/https), return it as-is
+    // Supabase transformations only work on storage paths, not external URLs
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
 
     const {
         width = 800,
@@ -28,6 +34,7 @@ export function getOptimizedImageUrl(
     } = options;
 
     try {
+        // Try to get optimized URL from Supabase storage
         const { data } = supabase.storage
             .from('portfolio-images')
             .getPublicUrl(path, {
@@ -42,7 +49,8 @@ export function getOptimizedImageUrl(
         return data.publicUrl;
     } catch (error) {
         console.error('Error getting optimized image URL:', error);
-        return '/placeholder.svg';
+        // Fallback to original path if transformation fails
+        return path;
     }
 }
 
