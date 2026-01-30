@@ -30,16 +30,18 @@ interface RecaptchaResponse {
   'error-codes'?: string[];
 }
 
-// Verify reCAPTCHA token with Google
+// Verify reCAPTCHA token with Google (FAIL-CLOSED MODE)
 async function verifyRecaptcha(token: string): Promise<{ success: boolean; score: number; error?: string }> {
+  // FAIL-CLOSED: Block if secret key not configured
   if (!RECAPTCHA_SECRET_KEY) {
-    console.warn("RECAPTCHA_SECRET_KEY not configured, skipping reCAPTCHA verification");
-    return { success: true, score: 1.0 }; // Allow if not configured
+    console.error("RECAPTCHA_SECRET_KEY not configured - blocking request");
+    return { success: false, score: 0, error: "reCAPTCHA not configured" };
   }
 
+  // FAIL-CLOSED: Block if no token provided
   if (!token) {
-    console.warn("No reCAPTCHA token provided, but continuing (RECAPTCHA_SECRET_KEY is set)");
-    return { success: true, score: 0.5 }; // Allow but with low score
+    console.error("No reCAPTCHA token provided - blocking request");
+    return { success: false, score: 0, error: "reCAPTCHA token required" };
   }
 
   try {
@@ -51,27 +53,27 @@ async function verifyRecaptcha(token: string): Promise<{ success: boolean; score
 
     const data: RecaptchaResponse = await response.json();
 
+    // FAIL-CLOSED: Block if verification fails
     if (!data.success) {
       console.error("reCAPTCHA verification failed:", data['error-codes']);
-      // Allow request to continue even if reCAPTCHA fails (fail open for now)
-      // This prevents reCAPTCHA issues from blocking legitimate users
-      console.warn("Allowing request despite reCAPTCHA failure (fail-open mode)");
-      return { success: true, score: 0.3, error: "reCAPTCHA verification failed but allowed" };
+      return { success: false, score: 0, error: "reCAPTCHA verification failed" };
     }
 
     const score = data.score || 0;
     console.log("reCAPTCHA verification successful, score:", score);
 
-    // Score threshold: 0.5 (0.0 = bot, 1.0 = human)
+    // FAIL-CLOSED: Block if score too low (likely bot)
     if (score < 0.5) {
-      console.warn(`Low reCAPTCHA score (${score}), but allowing request (fail-open mode)`);
-      return { success: true, score, error: "Low score but allowed" };
+      console.warn(`Low reCAPTCHA score (${score}) - blocking request`);
+      return { success: false, score, error: "Suspicious activity detected" };
     }
 
     return { success: true, score };
   } catch (error) {
     console.error("Error verifying reCAPTCHA:", error);
-    // Allow request to continue if reCAPTCHA service fails (fail open)
+    // GRACEFUL DEGRADATION: Allow if reCAPTCHA service is down (with rate limiting as fallback)
+    // This is the ONLY fail-open case - when Google's service is unavailable
+    console.warn("reCAPTCHA service unavailable - allowing with rate limiting");
     return { success: true, score: 0.5, error: "reCAPTCHA service unavailable" };
   }
 }
