@@ -30,5 +30,19 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     sourcemap: true, // Enable source maps for Sentry
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split React and routing into separate chunk
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Split UI libraries
+          'ui-vendor': ['framer-motion', 'lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          // Split data fetching
+          'query-vendor': ['@tanstack/react-query'],
+          // Split form libraries
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+        },
+      },
+    },
   },
 }));
