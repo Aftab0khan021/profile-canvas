@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -37,6 +38,10 @@ export default function Auth() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [justSignedUp, setJustSignedUp] = useState(false);
+  const [loginTurnstileToken, setLoginTurnstileToken] = useState<string | null>(null);
+  const [signupTurnstileToken, setSignupTurnstileToken] = useState<string | null>(null);
+  const loginTurnstileRef = useRef<any>(null);
+  const signupTurnstileRef = useRef<any>(null);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -100,6 +105,16 @@ export default function Auth() {
       return;
     }
 
+    // Check Turnstile token
+    if (!loginTurnstileToken) {
+      toast({
+        title: 'Security Check Required',
+        description: 'Please complete the security verification',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
     const { error } = await signIn(loginEmail, loginPassword);
     setIsLoading(false);
@@ -110,6 +125,9 @@ export default function Auth() {
         description: error.message,
         variant: 'destructive',
       });
+      // Reset Turnstile on error
+      loginTurnstileRef.current?.reset();
+      setLoginTurnstileToken(null);
     }
   };
 
@@ -127,6 +145,16 @@ export default function Auth() {
       toast({
         title: 'Validation Error',
         description: result.error.errors[0].message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check Turnstile token
+    if (!signupTurnstileToken) {
+      toast({
+        title: 'Security Check Required',
+        description: 'Please complete the security verification',
         variant: 'destructive',
       });
       return;
@@ -232,6 +260,18 @@ export default function Auth() {
                       required
                     />
                   </div>
+
+                  {/* Turnstile Security Check */}
+                  <div className="flex justify-center">
+                    <Turnstile
+                      ref={loginTurnstileRef}
+                      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || ''}
+                      onSuccess={(token) => setLoginTurnstileToken(token)}
+                      onError={() => setLoginTurnstileToken(null)}
+                      onExpire={() => setLoginTurnstileToken(null)}
+                    />
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -317,9 +357,21 @@ export default function Auth() {
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      At least 6 characters
+                      At least 8 characters
                     </p>
                   </div>
+
+                  {/* Turnstile Security Check */}
+                  <div className="flex justify-center">
+                    <Turnstile
+                      ref={signupTurnstileRef}
+                      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || ''}
+                      onSuccess={(token) => setSignupTurnstileToken(token)}
+                      onError={() => setSignupTurnstileToken(null)}
+                      onExpire={() => setSignupTurnstileToken(null)}
+                    />
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
