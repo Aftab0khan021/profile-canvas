@@ -22,5 +22,10 @@ export function RequireAuth({ children }: RequireAuthProps) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Check if email is verified
+  if (!user.email_confirmed_at) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
   return <>{children}</>;
 }

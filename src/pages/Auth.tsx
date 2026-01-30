@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -33,6 +34,9 @@ export default function Auth() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupUsername, setSignupUsername] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [justSignedUp, setJustSignedUp] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -42,10 +46,46 @@ export default function Auth() {
   const from = (location.state as { from?: Location })?.from?.pathname || '/dashboard';
 
   useEffect(() => {
-    if (user) {
+    // Don't auto-navigate if user just signed up (we'll manually redirect to verify-email)
+    if (user && !justSignedUp) {
       navigate(from, { replace: true });
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, from, justSignedUp]);
+
+  // Check username availability with debouncing
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (!signupUsername || signupUsername.length < 3) {
+        setUsernameAvailable(null);
+        return;
+      }
+
+      setIsCheckingUsername(true);
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', signupUsername.toLowerCase())
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking username:', error);
+          setUsernameAvailable(null);
+        } else {
+          setUsernameAvailable(!data);
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setUsernameAvailable(null);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    };
+
+    const timer = setTimeout(checkUsername, 500); // 500ms debounce
+    return () => clearTimeout(timer);
+  }, [signupUsername]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,19 +138,43 @@ export default function Auth() {
 
     if (error) {
       let message = error.message;
-      if (message.includes('already registered')) {
+
+      // Handle duplicate email
+      if (message.includes('already registered') || message.includes('User already registered')) {
         message = 'An account with this email already exists. Please login instead.';
       }
+
+      // Handle duplicate username
+      else if (message.includes('duplicate key') && message.includes('profiles_username_key')) {
+        message = `The username "${signupUsername}" is already taken. Please choose a different username.`;
+      }
+
+      // Handle other database errors
+      else if (message.includes('Database error') || message.includes('SQLSTATE')) {
+        message = 'There was a problem creating your account. Please try again or contact support if the issue persists.';
+      }
+
       toast({
         title: 'Signup Failed',
         description: message,
         variant: 'destructive',
       });
     } else {
+      // Mark that user just signed up to prevent auto-navigation
+      setJustSignedUp(true);
+
+      // Store email for verification page (user session won't exist until email is verified)
+      localStorage.setItem('pendingVerificationEmail', signupEmail);
+
       toast({
         title: 'Welcome to FolioX!',
         description: 'Your account has been created. Please check your email to verify your account.',
       });
+
+      // Redirect to verify-email page after auth state settles
+      setTimeout(() => {
+        navigate('/verify-email');
+      }, 1500);
     }
   };
 
@@ -206,12 +270,29 @@ export default function Auth() {
                         placeholder="johndoe"
                         value={signupUsername}
                         onChange={(e) => setSignupUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                        className="pl-28"
+                        className="pl-28 pr-10"
                         required
                       />
+                      {signupUsername.length >= 3 && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {isCheckingUsername ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : usernameAvailable === true ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          ) : usernameAvailable === false ? (
+                            <XCircle className="h-4 w-4 text-destructive" />
+                          ) : null}
+                        </div>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      This will be your public portfolio URL
+                      {signupUsername.length >= 3 && usernameAvailable === false ? (
+                        <span className="text-destructive">This username is already taken</span>
+                      ) : signupUsername.length >= 3 && usernameAvailable === true ? (
+                        <span className="text-green-500">This username is available</span>
+                      ) : (
+                        'This will be your public portfolio URL'
+                      )}
                     </p>
                   </div>
                   <div className="space-y-2">
