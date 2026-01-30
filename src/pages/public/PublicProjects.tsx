@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { Github, ExternalLink, Search, X, LayoutGrid, List, FolderOpen, Eye } from 'lucide-react';
+import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 
 type ViewMode = 'grid' | 'list';
 
@@ -28,14 +29,14 @@ export default function PublicProjects() {
   const { categories, allTechStack } = useMemo(() => {
     const catSet = new Map<string, number>();
     const techSet = new Set<string>();
-    
+
     projects.forEach((project) => {
       // Use first tech as category approximation or create generic categories
       const primaryTech = (project.tech_stack || [])[0] || 'Other';
       catSet.set(primaryTech, (catSet.get(primaryTech) || 0) + 1);
       (project.tech_stack || []).forEach((tech) => techSet.add(tech));
     });
-    
+
     return {
       categories: Array.from(catSet.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5),
       allTechStack: Array.from(techSet).sort(),
@@ -45,14 +46,14 @@ export default function PublicProjects() {
   // Filter projects
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      const matchesSearch = !searchQuery || 
+      const matchesSearch = !searchQuery ||
         project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (project.tech_stack || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const matchesCategory = !selectedCategory || 
+
+      const matchesCategory = !selectedCategory ||
         (project.tech_stack || []).includes(selectedCategory);
-      
+
       return matchesSearch && matchesCategory;
     });
   }, [projects, searchQuery, selectedCategory]);
@@ -169,8 +170,8 @@ export default function PublicProjects() {
                   : emptyStateMessage}
               </p>
               {(searchQuery || selectedCategory) && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => {
                     setSearchQuery('');
@@ -197,12 +198,13 @@ export default function PublicProjects() {
                     <div className="relative overflow-hidden h-56">
                       {project.image_url ? (
                         <img
-                          src={project.image_url}
+                          src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
                           alt={project.title}
+                          loading="lazy"
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
-                        <div 
+                        <div
                           className="w-full h-full flex items-center justify-center"
                           style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
                         >
@@ -211,8 +213,8 @@ export default function PublicProjects() {
                       )}
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="text-white"
                           style={{ backgroundColor: brandColor }}
                           asChild
@@ -273,12 +275,13 @@ export default function PublicProjects() {
                       <div className="relative overflow-hidden w-full md:w-64 h-48 md:h-auto flex-shrink-0">
                         {project.image_url ? (
                           <img
-                            src={project.image_url}
+                            src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
                             alt={project.title}
+                            loading="lazy"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         ) : (
-                          <div 
+                          <div
                             className="w-full h-full flex items-center justify-center"
                             style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
                           >

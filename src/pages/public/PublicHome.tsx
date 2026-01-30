@@ -9,13 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Github, Linkedin, Mail, ExternalLink, ArrowRight, FileText, 
-  Star, Quote, ChevronLeft, ChevronRight, Download, Code, Sparkles 
+import {
+  Github, Linkedin, Mail, ExternalLink, ArrowRight, FileText,
+  Star, Quote, ChevronLeft, ChevronRight, Download, Code, Sparkles
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
+import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 
 export default function PublicHome() {
   const { profile, brandColor, username } = usePublicLayoutContext();
@@ -28,8 +29,8 @@ export default function PublicHome() {
 
   // Get roles from profile for typewriter effect
   const profileAny = profile as any;
-  const roles = profileAny?.roles?.length > 0 
-    ? profileAny.roles 
+  const roles = profileAny?.roles?.length > 0
+    ? profileAny.roles
     : [profile?.title || 'Software Engineer'];
   const availabilityStatus = profileAny?.availability_status || 'Available for Opportunities';
 
@@ -106,11 +107,11 @@ export default function PublicHome() {
       <section className="relative pt-24 pb-32 px-4 overflow-hidden">
         {/* Animated background blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div 
+          <div
             className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
             style={{ backgroundColor: `${brandColor}20` }}
           />
-          <div 
+          <div
             className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
             style={{ backgroundColor: `${brandColor}15`, animationDelay: '2s' }}
           />
@@ -166,7 +167,7 @@ export default function PublicHome() {
               </div>
               <div className="flex gap-4">
                 {profile?.github_url && (
-                  <a href={profile.github_url} target="_blank" rel="noopener noreferrer" 
+                  <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
                     <Github className="h-5 w-5" />
                   </a>
@@ -196,15 +197,16 @@ export default function PublicHome() {
               <div className="relative">
                 {profile?.avatar_url && (
                   <img
-                    src={profile.avatar_url}
+                    src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.hero)}
                     alt={profile.full_name || ''}
+                    loading="lazy"
                     className="w-72 h-72 md:w-80 md:h-80 rounded-3xl object-cover shadow-2xl animate-float-slow"
                     style={{ boxShadow: `0 25px 50px -12px ${brandColor}40` }}
                   />
                 )}
                 {/* Floating skill badges */}
                 {topSkillNames[0] && (
-                  <Badge 
+                  <Badge
                     className="absolute -top-2 -left-4 animate-float text-white shadow-lg"
                     style={{ backgroundColor: brandColor }}
                   >
@@ -212,7 +214,7 @@ export default function PublicHome() {
                   </Badge>
                 )}
                 {topSkillNames[1] && (
-                  <Badge 
+                  <Badge
                     className="absolute top-8 -right-6 animate-float-delayed text-white shadow-lg"
                     style={{ backgroundColor: brandColor }}
                   >
@@ -220,7 +222,7 @@ export default function PublicHome() {
                   </Badge>
                 )}
                 {topSkillNames[2] && (
-                  <Badge 
+                  <Badge
                     className="absolute -bottom-2 left-8 animate-float text-white shadow-lg"
                     style={{ backgroundColor: brandColor, animationDelay: '0.3s' }}
                   >
@@ -228,7 +230,7 @@ export default function PublicHome() {
                   </Badge>
                 )}
                 {topSkillNames[3] && (
-                  <Badge 
+                  <Badge
                     className="absolute bottom-12 -right-8 animate-float-delayed text-white shadow-lg"
                     style={{ backgroundColor: brandColor }}
                   >
@@ -268,10 +270,11 @@ export default function PublicHome() {
                   <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
                     {project.image_url && (
                       <div className="relative overflow-hidden h-56">
-                        <img 
-                          src={project.image_url} 
-                          alt={project.title} 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        <img
+                          src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
+                          alt={project.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                           {project.live_url && (
@@ -469,7 +472,7 @@ export default function PublicHome() {
                 >
                   <Link to={`/p/${username}/blog/${featuredBlog.slug}`}>
                     <Card className="h-full hover:shadow-xl transition-all cursor-pointer group overflow-hidden">
-                      <div 
+                      <div
                         className="h-48 flex items-center justify-center"
                         style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
                       >
@@ -550,11 +553,11 @@ export default function PublicHome() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <Card 
+            <Card
               className="p-8 md:p-12 text-center overflow-hidden relative"
               style={{ background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}05)` }}
             >
-              <div 
+              <div
                 className="absolute inset-0 opacity-10"
                 style={{ background: `radial-gradient(circle at 30% 50%, ${brandColor}, transparent 50%)` }}
               />

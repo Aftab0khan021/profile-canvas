@@ -7,11 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { 
+import {
   GraduationCap, Award, Calendar, MapPin, ExternalLink, Phone, Mail, Download,
   Lightbulb, Target, Users, Zap, Briefcase, Code, Brain, Sparkles, Heart,
   CheckCircle2
 } from 'lucide-react';
+import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 
 // Default values if user hasn't created any
 const defaultHighlights = [
@@ -43,7 +44,7 @@ function AnimatedProgress({ value, brandColor }: AnimatedProgressProps) {
 
   return (
     <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-      <div 
+      <div
         className="h-full rounded-full transition-all duration-1000 ease-out"
         style={{ width: `${width}%`, backgroundColor: brandColor }}
       />
@@ -101,14 +102,15 @@ export default function PublicAbout() {
             {profile?.avatar_url && (
               <div className="flex-shrink-0">
                 <img
-                  src={profile.avatar_url}
+                  src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.avatar)}
                   alt={profile.full_name || ''}
+                  loading="lazy"
                   className="w-64 h-64 rounded-2xl object-cover shadow-xl"
                   style={{ boxShadow: `0 20px 40px -10px ${brandColor}30` }}
                 />
               </div>
             )}
-            
+
             {/* Right: Content */}
             <div className="flex-1">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">About Me</h1>
@@ -123,7 +125,7 @@ export default function PublicAbout() {
                   {pageSubtitle}
                 </p>
               )}
-              
+
               {/* Quick Contact */}
               <div className="flex flex-wrap gap-4 mb-6">
                 {profile?.phone && (
@@ -174,9 +176,9 @@ export default function PublicAbout() {
                         className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
                         style={{ background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)` }}
                       >
-                        <DynamicIcon 
-                          name={item.icon_name} 
-                          className="h-8 w-8" 
+                        <DynamicIcon
+                          name={item.icon_name}
+                          className="h-8 w-8"
                           fallback={<Sparkles className="h-8 w-8" style={{ color: brandColor }} />}
                         />
                       </div>
@@ -318,7 +320,7 @@ export default function PublicAbout() {
                         <Card className="transition-shadow hover:shadow-lg">
                           <CardContent className="pt-6">
                             <div className="flex items-start gap-4">
-                              <div 
+                              <div
                                 className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
                                 style={{ backgroundColor: `${brandColor}15` }}
                               >
@@ -409,11 +411,11 @@ export default function PublicAbout() {
                               {exp.is_current
                                 ? 'Present'
                                 : exp.end_date
-                                ? new Date(exp.end_date).toLocaleDateString('en-US', {
+                                  ? new Date(exp.end_date).toLocaleDateString('en-US', {
                                     month: 'short',
                                     year: 'numeric',
                                   })
-                                : ''}
+                                  : ''}
                             </div>
                             {exp.location && (
                               <div className="flex items-center gap-1">
@@ -541,7 +543,7 @@ export default function PublicAbout() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <Card 
+                  <Card
                     className="h-full transition-all hover:shadow-lg"
                     style={{ borderLeft: `4px solid ${brandColor}` }}
                   >
@@ -550,9 +552,9 @@ export default function PublicAbout() {
                         className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: `${brandColor}15` }}
                       >
-                        <DynamicIcon 
-                          name={item.icon_name} 
-                          className="h-6 w-6" 
+                        <DynamicIcon
+                          name={item.icon_name}
+                          className="h-6 w-6"
                           fallback={<Heart className="h-6 w-6" style={{ color: brandColor }} />}
                         />
                       </div>
@@ -574,7 +576,7 @@ export default function PublicAbout() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <Card 
+                  <Card
                     className="h-full transition-all hover:shadow-lg"
                     style={{ borderLeft: `4px solid ${brandColor}` }}
                   >
