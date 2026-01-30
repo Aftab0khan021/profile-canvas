@@ -188,7 +188,7 @@ export function useProjects() {
     onMutate: async (updates) => {
       await queryClient.cancelQueries({ queryKey: ['projects', user?.id] });
       const previousProjects = queryClient.getQueryData(['projects', user?.id]);
-      
+
       queryClient.setQueryData(['projects', user?.id], (old: Project[] | undefined) => {
         if (!old) return old;
         const sorted = [...old];
@@ -198,7 +198,7 @@ export function useProjects() {
         });
         return sorted.sort((a, b) => a.sort_order - b.sort_order);
       });
-      
+
       return { previousProjects };
     },
     onError: (error, _, context) => {
@@ -504,9 +504,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select('id, title, description, image_url, live_url, github_url, tech_stack, sort_order')
         .eq('user_id', userId)
-        .order('sort_order', { ascending: true });
+        .order('sort_order', { ascending: true })
+        .limit(20); // Limit to 20 projects for performance
       if (error) throw error;
       return data as Project[];
     },
@@ -519,9 +520,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('experience')
-        .select('*')
+        .select('id, company, role, location, start_date, end_date, is_current, description')
         .eq('user_id', userId)
-        .order('start_date', { ascending: false });
+        .order('start_date', { ascending: false })
+        .limit(15); // Limit to 15 experiences for performance
       if (error) throw error;
       return data as Experience[];
     },
@@ -534,9 +536,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('skills')
-        .select('*')
+        .select('id, category, skill_name, proficiency_level')
         .eq('user_id', userId)
-        .order('category', { ascending: true });
+        .order('proficiency_level', { ascending: false })
+        .limit(30); // Limit to top 30 skills for performance
       if (error) throw error;
       return data as Skill[];
     },
@@ -549,9 +552,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('testimonials')
-        .select('*')
+        .select('id, client_name, company, text, rating, created_at')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10); // Limit to 10 testimonials for performance
       if (error) throw error;
       return data as Testimonial[];
     },
@@ -564,9 +568,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('education')
-        .select('*')
+        .select('id, degree, field_of_study, institution, location, start_date, end_date, is_current, gpa')
         .eq('user_id', userId)
-        .order('start_date', { ascending: false });
+        .order('start_date', { ascending: false })
+        .limit(10); // Limit to 10 education entries for performance
       if (error) throw error;
       return data as Education[];
     },
@@ -579,9 +584,10 @@ export function usePublicPortfolioData(userId: string | undefined) {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('certifications')
-        .select('*')
+        .select('id, title, issuer, issue_date, credential_url, skills_learned')
         .eq('user_id', userId)
-        .order('issue_date', { ascending: false });
+        .order('issue_date', { ascending: false })
+        .limit(15); // Limit to 15 certifications for performance
       if (error) throw error;
       return data as Certification[];
     },
