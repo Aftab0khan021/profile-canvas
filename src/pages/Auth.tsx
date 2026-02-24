@@ -12,7 +12,7 @@ import { Loader2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { verifyTurnstileToken } from '@/integrations/supabase/turnstile';
+
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -117,18 +117,6 @@ export default function Auth() {
       return;
     }
 
-    // Verify Turnstile token server-side
-    const verification = await verifyTurnstileToken(loginTurnstileToken);
-    if (!verification.success) {
-      toast({
-        title: 'Security Verification Failed',
-        description: verification.error || 'Please try again',
-        variant: 'destructive',
-      });
-      loginTurnstileRef.current?.reset();
-      setLoginTurnstileToken(null);
-      return;
-    }
 
     setIsLoading(true);
     const { error } = await signIn(loginEmail, loginPassword, loginTurnstileToken);
@@ -175,18 +163,6 @@ export default function Auth() {
       return;
     }
 
-    // Verify Turnstile token server-side
-    const verification = await verifyTurnstileToken(signupTurnstileToken);
-    if (!verification.success) {
-      toast({
-        title: 'Security Verification Failed',
-        description: verification.error || 'Please try again',
-        variant: 'destructive',
-      });
-      signupTurnstileRef.current?.reset();
-      setSignupTurnstileToken(null);
-      return;
-    }
 
     setIsLoading(true);
     const { error } = await signUp(signupEmail, signupPassword, signupUsername, signupFullName, signupTurnstileToken);
