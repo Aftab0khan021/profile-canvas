@@ -24,7 +24,8 @@ const settingsSchema = z.object({
   linkedin_url: z.string().url('Must be a valid URL').refine(u => u.startsWith('https://'), 'Must start with https://').optional().or(z.literal('')),
   github_url: z.string().url('Must be a valid URL').refine(u => u.startsWith('https://'), 'Must start with https://').optional().or(z.literal('')),
   avatar_url: z.string().nullable().optional(),
-  resume_url: z.string().nullable().optional(),
+  // M-4: Validate resume_url must be https:// to prevent javascript: / http:// links on the public portfolio
+  resume_url: z.string().refine(u => !u || u.startsWith('https://'), 'Resume URL must start with https://').nullable().optional(),
   // M-6: Validate brand_color is a valid hex color to prevent CSS injection
   brand_color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/, 'Must be a valid hex color (e.g. #3b82f6)').optional(),
   template: z.string().optional(),

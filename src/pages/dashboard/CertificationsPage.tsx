@@ -33,6 +33,11 @@ export default function CertificationsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // M-3: Validate credential_url must start with https:// to prevent javascript: or http:// links
+    if (formData.credential_url && !formData.credential_url.startsWith('https://')) {
+      alert('Credential URL must start with https://');
+      return;
+    }
     const data = {
       ...formData,
       credential_url: formData.credential_url || null,
@@ -177,7 +182,8 @@ export default function CertificationsPage() {
                     ))}
                   </div>
                 )}
-                {cert.credential_url && (
+                {/* M-3: Render credential link only when it's a safe https:// URL */}
+                {cert.credential_url && cert.credential_url.startsWith('https://') && (
                   <Button size="sm" variant="outline" asChild>
                     <a href={cert.credential_url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-3 w-3 mr-1" />

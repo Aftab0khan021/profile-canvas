@@ -43,10 +43,11 @@ function SimpleMarkdownPreview({ content }: { content: string }) {
         if (line.startsWith('```')) return <hr key={i} className="border-dashed" />;
         if (line.trim() === '') return <br key={i} />;
         // Inline bold **text** and code `text`
+        // C-1: Only allow https?:// links to prevent javascript: XSS via dangerouslySetInnerHTML
         const html = line
           .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
           .replace(/`(.+?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
-          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary underline">$1</a>');
+          .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" class="text-primary underline" target="_blank" rel="noopener noreferrer">$1</a>');
         return <p key={i} dangerouslySetInnerHTML={{ __html: html }} />;
       })}
     </div>
@@ -114,6 +115,7 @@ export default function BlogPage() {
       // Only set published_at when transitioning draft → published (preserve original date)
       const existingBlog = blogs.find((b) => b.id === id);
       const isPublishing = updates.status === 'published' && !existingBlog?.published_at;
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('blogs')
         .update({
@@ -123,6 +125,7 @@ export default function BlogPage() {
             : { published_at: null }),
         })
         .eq('id', id)
+        .eq('user_id', user.id)  // M-2: defence-in-depth user_id filter
         .select()
         .single();
       if (error) throw error;
@@ -139,7 +142,12 @@ export default function BlogPage() {
 
   const deleteBlog = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('blogs').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('blogs')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id); // M-2: defence-in-depth user_id filter
       if (error) throw error;
     },
     onSuccess: () => {

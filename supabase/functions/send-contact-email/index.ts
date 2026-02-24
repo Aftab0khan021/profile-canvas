@@ -47,6 +47,8 @@ interface ContactEmailRequest {
   sender_email: string;
   message: string;
   recaptcha_token?: string;
+  // H-1: user_id of the portfolio owner so we can save the message server-side
+  portfolio_user_id?: string;
 }
 
 interface RecaptchaResponse {
@@ -165,7 +167,8 @@ serve(async (req: Request): Promise<Response> => {
       sender_name,
       sender_email,
       message,
-      recaptcha_token
+      recaptcha_token,
+      portfolio_user_id,
     }: ContactEmailRequest = await req.json();
 
     // M-2: Server-side input validation and length limits
@@ -321,6 +324,22 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     console.log("Email sent successfully:", responseData);
+
+    // H-1: Save message to DB via service_role after spam checks pass
+    // Client-side insert was removed because the anon INSERT policy was dropped (H-4).
+    if (portfolio_user_id) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { error: dbError } = await supabase.from("messages").insert({
+        user_id: portfolio_user_id,
+        sender_name: sender_name.trim(),
+        sender_email: sender_email.trim(),
+        content: message.trim(),
+      });
+      if (dbError) {
+        // Non-fatal — email already sent; log and continue
+        console.error("Failed to save message to DB:", dbError);
+      }
+    }
 
     return new Response(JSON.stringify({ success: true, data: responseData }), {
       status: 200,

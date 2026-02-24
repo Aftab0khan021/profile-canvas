@@ -70,10 +70,12 @@ export function useProfileItems() {
 
   const updateItem = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<ProfileItem> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('profile_items')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defence-in-depth user_id filter
         .select()
         .single();
       if (error) throw error;
@@ -90,7 +92,12 @@ export function useProfileItems() {
 
   const deleteItem = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('profile_items').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('profile_items')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id); // M-1: defence-in-depth user_id filter
       if (error) throw error;
     },
     onSuccess: () => {

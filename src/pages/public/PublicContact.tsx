@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPageContent } from '@/hooks/useProfileItems';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +98,9 @@ export default function PublicContact() {
           sender_email: contactForm.email,
           message: contactForm.message,
           recaptcha_token: recaptchaToken,
+          // H-1: Pass portfolio owner's user_id so edge function can persist the message
+          // via service_role (client-side anon INSERT policy was removed in security fix H-4)
+          portfolio_user_id: profile.id,
         }),
       });
 
@@ -144,7 +146,14 @@ export default function PublicContact() {
         return;
       }
 
-      // Success - save message to database only after spam check passed
+      // H-1: Message is now saved to DB server-side by the edge function.
+      // No client-side DB insert needed (anon INSERT policy was removed in H-4).
+
+      setSending(false);
+      setSent(true);
+      toast({ title: 'Message sent!', description: formSuccessMessage });
+      setContactForm({ name: '', email: '', message: '' });
+      setTimeout(() => setSent(false), 5000);
     } catch (error) {
       setSending(false);
       console.error('Network error:', error);
@@ -153,32 +162,15 @@ export default function PublicContact() {
         description: 'Failed to send message. Please try again.',
         variant: 'destructive'
       });
-      return;
     }
-
-    // Only save message to database if rate limit + spam check passed
-    const { error: dbError } = await supabase.from('messages').insert({
-      user_id: profile.id,
-      sender_name: contactForm.name,
-      sender_email: contactForm.email,
-      content: contactForm.message,
-    });
-
-    if (dbError) {
-      setSending(false);
-      toast({ title: 'Error', description: 'Failed to save message. Please try again.', variant: 'destructive' });
-      return;
-    }
-
-    setSending(false);
-    setSent(true);
-    toast({ title: 'Message sent!', description: formSuccessMessage });
-    setContactForm({ name: '', email: '', message: '' });
-    setTimeout(() => setSent(false), 5000);
   };
 
+  // L-3: Validate email format before rendering as mailto: href to prevent email header injection
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const safeEmail = EMAIL_REGEX.test(profile?.email ?? '') ? profile?.email : null;
+
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: profile?.email, href: `mailto:${profile?.email}` },
+    { icon: Mail, label: 'Email', value: safeEmail, href: safeEmail ? `mailto:${safeEmail}` : undefined },
     { icon: Phone, label: 'Phone', value: profile?.phone, href: `tel:${profile?.phone}` },
     { icon: Linkedin, label: 'LinkedIn', value: 'Connect with me', href: profile?.linkedin_url },
     { icon: Github, label: 'GitHub', value: 'View my code', href: profile?.github_url },

@@ -71,7 +71,11 @@ export default function PublicLayout() {
 
   // Derived data (safe to do here since we passed the early returns)
   const initials = profile.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
-  const brandColor = profile.brand_color || '#3b82f6';
+  // M-5: Validate brandColor is a safe hex value — prevents CSS injection via profile.brand_color
+  const SAFE_HEX = /^#[0-9a-fA-F]{3,8}$/;
+  const brandColor = SAFE_HEX.test(profile.brand_color ?? '') ? profile.brand_color! : '#3b82f6';
+  // M-4: Validate resume_url is an https:// link before rendering as anchor href
+  const safeResumeUrl = profile.resume_url?.startsWith('https://') ? profile.resume_url : null;
   const basePath = `/p/${username}`;
 
   const navItems = [
@@ -153,9 +157,9 @@ export default function PublicLayout() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            {profile.resume_url && (
+            {safeResumeUrl && (
               <Button size="sm" className="brand-btn hidden sm:flex" asChild>
-                <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                <a href={safeResumeUrl} target="_blank" rel="noopener noreferrer">
                   <Download className="h-4 w-4 mr-1" />Resume
                 </a>
               </Button>
@@ -191,9 +195,9 @@ export default function PublicLayout() {
                 {item.label}
               </Link>
             ))}
-            {profile.resume_url && (
+            {safeResumeUrl && (
               <a
-                href={profile.resume_url}
+                href={safeResumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted"
