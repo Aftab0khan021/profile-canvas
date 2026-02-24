@@ -66,55 +66,57 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system">
       <AuthProvider>
-        <RecaptchaProvider>
-          <TooltipProvider>
-            <Toaster />
-            <BrowserRouter>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/verify-email" element={<VerifyEmail />} />
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
 
-                  {/* Public Portfolio - Multi-page architecture */}
-                  <Route path="/p/:username" element={<PublicLayout />}>
-                    <Route index element={<PublicHome />} />
-                    <Route path="about" element={<PublicAbout />} />
-                    <Route path="projects" element={<PublicProjects />} />
-                    <Route path="projects/:projectId" element={<ProjectDetail />} />
-                    <Route path="experience" element={<PublicExperience />} />
-                    <Route path="skills" element={<PublicSkills />} />
-                    <Route path="blog" element={<PublicBlog />} />
-                    <Route path="contact" element={<PublicContact />} />
-                    <Route path="blog/:slug" element={<BlogPost />} />
-                  </Route>
+                {/* Public Portfolio — reCAPTCHA only loaded here (contact form) */}
+                <Route path="/p/:username" element={
+                  <RecaptchaProvider>
+                    <PublicLayout />
+                  </RecaptchaProvider>
+                }>
+                  <Route index element={<PublicHome />} />
+                  <Route path="about" element={<PublicAbout />} />
+                  <Route path="projects" element={<PublicProjects />} />
+                  <Route path="projects/:projectId" element={<ProjectDetail />} />
+                  <Route path="experience" element={<PublicExperience />} />
+                  <Route path="skills" element={<PublicSkills />} />
+                  <Route path="blog" element={<PublicBlog />} />
+                  <Route path="contact" element={<PublicContact />} />
+                  <Route path="blog/:slug" element={<BlogPost />} />
+                </Route>
 
-                  {/* Dashboard */}
-                  <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
-                    <Route index element={<DashboardHome />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="projects" element={<ProjectsPage />} />
-                    <Route path="experience" element={<ExperiencePage />} />
-                    <Route path="skills" element={<SkillsPage />} />
-                    <Route path="education" element={<EducationPage />} />
-                    <Route path="certifications" element={<CertificationsPage />} />
-                    <Route path="testimonials" element={<TestimonialsPage />} />
-                    <Route path="blog" element={<BlogPage />} />
-                    <Route path="messages" element={<MessagesPage />} />
-                    <Route path="resume" element={<ResumePage />} />
-                    <Route path="brand" element={<BrandPage />} />
-                    <Route path="content" element={<SiteContentPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
-                  </Route>
+                {/* Dashboard */}
+                <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
+                  <Route index element={<DashboardHome />} />
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="projects" element={<ProjectsPage />} />
+                  <Route path="experience" element={<ExperiencePage />} />
+                  <Route path="skills" element={<SkillsPage />} />
+                  <Route path="education" element={<EducationPage />} />
+                  <Route path="certifications" element={<CertificationsPage />} />
+                  <Route path="testimonials" element={<TestimonialsPage />} />
+                  <Route path="blog" element={<BlogPage />} />
+                  <Route path="messages" element={<MessagesPage />} />
+                  <Route path="resume" element={<ResumePage />} />
+                  <Route path="brand" element={<BrandPage />} />
+                  <Route path="content" element={<SiteContentPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
 
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </RecaptchaProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
