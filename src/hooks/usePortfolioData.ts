@@ -20,6 +20,9 @@ export interface Project {
   updated_at: string;
 }
 
+// Partial type used by public portfolio queries (only selected columns)
+export type PublicProject = Pick<Project, 'id' | 'title' | 'description' | 'image_url' | 'live_url' | 'github_url' | 'tech_stack' | 'sort_order'>;
+
 export interface Experience {
   id: string;
   user_id: string;
@@ -180,10 +183,15 @@ export function useProjects() {
 
   const reorderProjects = useMutation({
     mutationFn: async (updates: { id: string; sort_order: number }[]) => {
-      const promises = updates.map(({ id, sort_order }) =>
-        supabase.from('projects').update({ sort_order }).eq('id', id)
+      const results = await Promise.allSettled(
+        updates.map(({ id, sort_order }) =>
+          supabase.from('projects').update({ sort_order }).eq('id', id)
+        )
       );
-      await Promise.all(promises);
+      const failed = results.filter((r) => r.status === 'rejected');
+      if (failed.length > 0) {
+        throw new Error(`Failed to reorder ${failed.length} project(s). Please try again.`);
+      }
     },
     onMutate: async (updates) => {
       await queryClient.cancelQueries({ queryKey: ['projects', user?.id] });
@@ -509,7 +517,7 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .order('sort_order', { ascending: true })
         .limit(20); // Limit to 20 projects for performance
       if (error) throw error;
-      return data as Project[];
+      return data as PublicProject[];
     },
     enabled: !!userId,
   });

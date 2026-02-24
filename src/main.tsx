@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import * as Sentry from "@sentry/react";
@@ -16,8 +17,8 @@ if (sentryDsn && sentryDsn !== "your_sentry_dsn_here") {
         blockAllMedia: false,
       }),
     ],
-    // Performance Monitoring
-    tracesSampleRate: 1.0, // Capture 100% of transactions in development
+    // Performance Monitoring — 10% sampling in production, 100% in development
+    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
     // Session Replay
     replaysSessionSampleRate: 0.1, // 10% of sessions
     replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
@@ -32,7 +33,9 @@ if (sentryDsn && sentryDsn !== "your_sentry_dsn_here") {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <HelmetProvider>
-    <App />
-  </HelmetProvider>
+  <StrictMode>
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  </StrictMode>
 );

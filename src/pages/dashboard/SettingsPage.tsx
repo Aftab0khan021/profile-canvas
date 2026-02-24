@@ -56,7 +56,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (profile) {
-      const profileAny = profile as any;
       form.reset({
         full_name: profile.full_name || '',
         title: profile.title || '',
@@ -68,12 +67,13 @@ export default function SettingsPage() {
         avatar_url: profile.avatar_url,
         resume_url: profile.resume_url,
         brand_color: profile.brand_color || '#3b82f6',
-        template: profileAny.template || 'modern',
-        roles_text: (profileAny.roles || []).join(', '),
-        availability_status: profileAny.availability_status || 'Available for Opportunities',
+        template: profile.template || 'modern',
+        roles_text: (profile.roles || []).join(', '),
+        availability_status: profile.availability_status || 'Available for Opportunities',
       });
     }
-  }, [profile, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile]); // `form` intentionally excluded — it is not stable across renders
 
   const onSubmit = async (values: SettingsFormValues) => {
     // Convert comma-separated roles to array
@@ -95,7 +95,7 @@ export default function SettingsPage() {
       template: values.template || 'modern',
       roles: rolesArray,
       availability_status: values.availability_status || 'Available for Opportunities',
-    } as any);
+    });
   };
 
   if (isLoading) {
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="template"
@@ -352,9 +352,8 @@ export default function SettingsPage() {
                       >
                         <Label
                           htmlFor="modern"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
-                            field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                          }`}
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            }`}
                         >
                           <RadioGroupItem value="modern" id="modern" className="sr-only" />
                           <Layout className="h-8 w-8 mb-2" />
@@ -363,9 +362,8 @@ export default function SettingsPage() {
                         </Label>
                         <Label
                           htmlFor="minimal"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
-                            field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                          }`}
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            }`}
                         >
                           <RadioGroupItem value="minimal" id="minimal" className="sr-only" />
                           <Minimize2 className="h-8 w-8 mb-2" />
@@ -374,9 +372,8 @@ export default function SettingsPage() {
                         </Label>
                         <Label
                           htmlFor="professional"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
-                            field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                          }`}
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            }`}
                         >
                           <RadioGroupItem value="professional" id="professional" className="sr-only" />
                           <Briefcase className="h-8 w-8 mb-2" />

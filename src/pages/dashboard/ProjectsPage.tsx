@@ -20,16 +20,26 @@ export default function ProjectsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState({ 
-    title: '', 
-    description: '', 
-    image_url: '', 
-    live_url: '', 
-    github_url: '', 
-    tech_stack: '', 
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    image_url: string | null;
+    live_url: string;
+    github_url: string;
+    tech_stack: string;
+    key_features: string;
+    images: string[];
+    sort_order: number;
+  }>({
+    title: '',
+    description: '',
+    image_url: '',
+    live_url: '',
+    github_url: '',
+    tech_stack: '',
     key_features: '',
-    images: [] as string[],
-    sort_order: 0 
+    images: [],
+    sort_order: 0
   });
 
   const resetForm = () => {
@@ -39,8 +49,8 @@ export default function ProjectsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { 
-      ...formData, 
+    const data = {
+      ...formData,
       tech_stack: formData.tech_stack.split(',').map(s => s.trim()).filter(Boolean),
       key_features: formData.key_features.split('\n').map(s => s.trim()).filter(Boolean),
       images: formData.images
@@ -56,16 +66,16 @@ export default function ProjectsPage() {
 
   const openEdit = (project: Project) => {
     setEditingProject(project);
-    setFormData({ 
-      title: project.title, 
-      description: project.description || '', 
-      image_url: project.image_url || '', 
-      live_url: project.live_url || '', 
-      github_url: project.github_url || '', 
-      tech_stack: (project.tech_stack || []).join(', '), 
+    setFormData({
+      title: project.title,
+      description: project.description || '',
+      image_url: project.image_url || '',
+      live_url: project.live_url || '',
+      github_url: project.github_url || '',
+      tech_stack: (project.tech_stack || []).join(', '),
       key_features: (project.key_features || []).join('\n'),
       images: project.images || [],
-      sort_order: project.sort_order 
+      sort_order: project.sort_order
     });
     setIsOpen(true);
   };
@@ -82,10 +92,10 @@ export default function ProjectsPage() {
 
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
-    
+
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
-    
+
     if (sourceIndex === destinationIndex) return;
 
     const reorderedProjects = Array.from(projects);
@@ -151,7 +161,7 @@ export default function ProjectsPage() {
                     variant="image"
                   />
                 </div>
-                
+
                 {/* Gallery Images */}
                 <div className="space-y-2 p-3 border rounded-lg bg-muted/30">
                   <Label className="flex items-center gap-2">
@@ -214,10 +224,10 @@ export default function ProjectsPage() {
                 </div>
                 <div className="space-y-2 p-3 border rounded-lg bg-muted/30">
                   <Label>Features (one per line)</Label>
-                  <Textarea 
-                    value={formData.key_features} 
-                    onChange={(e) => setFormData(p => ({ ...p, key_features: e.target.value }))} 
-                    rows={4} 
+                  <Textarea
+                    value={formData.key_features}
+                    onChange={(e) => setFormData(p => ({ ...p, key_features: e.target.value }))}
+                    rows={4}
                     placeholder="Responsive design&#10;Modern UI/UX&#10;Performance optimized&#10;Real-time updates"
                   />
                   <p className="text-xs text-muted-foreground">These display as checkmarks on the project detail page</p>
@@ -241,8 +251,8 @@ export default function ProjectsPage() {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="projects">
             {(provided) => (
-              <div 
-                {...provided.droppableProps} 
+              <div
+                {...provided.droppableProps}
                 ref={provided.innerRef}
                 className="grid gap-4 md:grid-cols-2"
               >
@@ -256,10 +266,10 @@ export default function ProjectsPage() {
                       >
                         <Card className="h-full">
                           {project.image_url && (
-                            <img 
-                              src={project.image_url} 
-                              alt={project.title} 
-                              className="w-full h-40 object-cover rounded-t-lg" 
+                            <img
+                              src={project.image_url}
+                              alt={project.title}
+                              className="w-full h-40 object-cover rounded-t-lg"
                             />
                           )}
                           <CardHeader>
@@ -274,9 +284,9 @@ export default function ProjectsPage() {
                                 <span className="truncate">{project.title}</span>
                               </div>
                               <div className="flex gap-1 flex-shrink-0">
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
                                   onClick={() => setPreviewProject(project)}
                                   title="Preview"
                                 >
@@ -285,7 +295,15 @@ export default function ProjectsPage() {
                                 <Button variant="ghost" size="icon" onClick={() => openEdit(project)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => deleteProject.mutate(project.id)}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    if (confirm(`Delete "${project.title}"? This cannot be undone.`)) {
+                                      deleteProject.mutate(project.id);
+                                    }
+                                  }}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -301,14 +319,14 @@ export default function ProjectsPage() {
                             <div className="flex gap-2">
                               {project.live_url && (
                                 <Button size="sm" variant="outline" asChild>
-                                  <a href={project.live_url} target="_blank" rel="noopener">
+                                  <a href={project.live_url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="h-3 w-3 mr-1" />Live
                                   </a>
                                 </Button>
                               )}
                               {project.github_url && (
                                 <Button size="sm" variant="outline" asChild>
-                                  <a href={project.github_url} target="_blank" rel="noopener">
+                                  <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                                     <Github className="h-3 w-3 mr-1" />Code
                                   </a>
                                 </Button>

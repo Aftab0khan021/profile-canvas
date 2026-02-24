@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Loader2, Menu, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import NotFound from '@/pages/NotFound';
 
 // Types for outlet context
 interface PublicLayoutContext {
@@ -27,7 +28,7 @@ export default function PublicLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // --- FIXED: HOOKS MOVED TO TOP LEVEL (Before any return) ---
-  
+
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   // Safe useMemo calls that handle null profile
@@ -65,11 +66,7 @@ export default function PublicLayout() {
   }
 
   if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Portfolio not found.</p>
-      </div>
-    );
+    return <NotFound />;
   }
 
   // Derived data (safe to do here since we passed the early returns)
@@ -96,8 +93,8 @@ export default function PublicLayout() {
   const seoTitle = profile.full_name && profile.title
     ? `${profile.full_name} - ${profile.title} | Portfolio`
     : profile.full_name
-    ? `${profile.full_name} | Portfolio`
-    : 'Developer Portfolio';
+      ? `${profile.full_name} | Portfolio`
+      : 'Developer Portfolio';
 
   const seoDescription = profile.bio
     ? profile.bio.length > 160 ? profile.bio.slice(0, 157) + '...' : profile.bio

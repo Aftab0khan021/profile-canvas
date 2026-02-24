@@ -44,7 +44,7 @@ export function ImageUpload({
     }
 
     setUploading(true);
-    
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `${user.id}/${fileName}`;
@@ -70,16 +70,28 @@ export function ImageUpload({
     onChange(publicUrl);
     setUploading(false);
     toast({ title: 'Upload successful' });
+    // Reset input so the same file can be re-selected
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const handleRemove = async () => {
     if (value) {
-      // Extract file path from URL
-      const url = new URL(value);
-      const pathParts = url.pathname.split('/');
-      const filePath = pathParts.slice(-2).join('/');
-      
-      await supabase.storage.from(bucket).remove([filePath]);
+      try {
+        // Extract file path by splitting on the bucket name in the URL
+        // e.g. .../storage/v1/object/public/<bucket>/<userId>/<filename>
+        const url = new URL(value);
+        const bucketIndex = url.pathname.indexOf(`/${bucket}/`);
+        if (bucketIndex !== -1) {
+          const filePath = url.pathname.slice(bucketIndex + bucket.length + 2);
+          const { error: removeError } = await supabase.storage.from(bucket).remove([filePath]);
+          if (removeError) {
+            console.error('Failed to delete file from storage:', removeError);
+            toast({ title: 'Warning', description: 'File removed from view but storage cleanup failed.', variant: 'destructive' });
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing storage URL:', err);
+      }
     }
     onChange(null);
   };

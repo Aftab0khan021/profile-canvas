@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { FolderOpen, Briefcase, MessageSquare, ExternalLink, ArrowRight, Eye, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis } from 'recharts';
 import { useMemo } from 'react';
 
 export default function DashboardHome() {
   const { profile } = useProfile();
   const { projects } = useProjects();
   const { experience } = useExperience();
-  const { messages, unreadCount } = useMessages();
+  const { unreadCount } = useMessages();
   const { analytics, isLoading: analyticsLoading } = useAnalytics();
 
   // Format chart data for recharts
@@ -238,15 +238,19 @@ export default function DashboardHome() {
         </Card>
       </div>
 
-      {!profile?.bio && (
+      {(!profile?.bio || !profile?.avatar_url || !profile?.title) && (
         <Card className="border-dashed">
           <CardHeader>
             <CardTitle className="text-lg">Complete your profile</CardTitle>
-            <CardDescription>Add your bio, title, and social links to make your portfolio stand out.</CardDescription>
+            <CardDescription>
+              {!profile?.avatar_url && 'Add a profile photo. '}
+              {!profile?.title && 'Add a professional title. '}
+              {!profile?.bio && 'Write a bio to help visitors learn about you.'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline">
-              <Link to="/dashboard/profile">Edit Profile</Link>
+              <Link to="/dashboard/settings">Complete Profile</Link>
             </Button>
           </CardContent>
         </Card>

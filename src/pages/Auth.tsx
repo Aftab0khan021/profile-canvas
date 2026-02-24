@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
@@ -15,12 +16,12 @@ import { verifyTurnstileToken } from '@/integrations/supabase/turnstile';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   username: z.string()
     .min(3, 'Username must be at least 3 characters')
     .max(20, 'Username must be less than 20 characters')
@@ -41,8 +42,8 @@ export default function Auth() {
   const [justSignedUp, setJustSignedUp] = useState(false);
   const [loginTurnstileToken, setLoginTurnstileToken] = useState<string | null>(null);
   const [signupTurnstileToken, setSignupTurnstileToken] = useState<string | null>(null);
-  const loginTurnstileRef = useRef<any>(null);
-  const signupTurnstileRef = useRef<any>(null);
+  const loginTurnstileRef = useRef<TurnstileInstance>(null);
+  const signupTurnstileRef = useRef<TurnstileInstance>(null);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();

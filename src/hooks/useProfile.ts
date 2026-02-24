@@ -17,6 +17,10 @@ export interface Profile {
   linkedin_url: string | null;
   github_url: string | null;
   brand_color: string | null;
+  // Extended profile fields
+  template: string | null;
+  roles: string[] | null;
+  availability_status: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -30,7 +34,7 @@ export function useProfile() {
     queryKey: ['profile', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')

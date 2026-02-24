@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Pencil, Trash2, FileText, Loader2, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { type Blog } from '@/hooks/usePortfolioData';
@@ -27,6 +28,30 @@ const blogSchema = z.object({
 });
 
 type BlogFormValues = z.infer<typeof blogSchema>;
+
+/** Render a very basic markdown preview without external deps */
+function SimpleMarkdownPreview({ content }: { content: string }) {
+  if (!content) return <p className="text-muted-foreground text-sm italic">No content to preview...</p>;
+  // Process line by line for headers, code, and basic inline styles
+  const lines = content.split('\n');
+  return (
+    <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed space-y-1">
+      {lines.map((line, i) => {
+        if (line.startsWith('### ')) return <h3 key={i} className="text-base font-semibold mt-3 mb-1">{line.slice(4)}</h3>;
+        if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold mt-4 mb-1">{line.slice(3)}</h2>;
+        if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold mt-4 mb-2">{line.slice(2)}</h1>;
+        if (line.startsWith('```')) return <hr key={i} className="border-dashed" />;
+        if (line.trim() === '') return <br key={i} />;
+        // Inline bold **text** and code `text`
+        const html = line
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/`(.+?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
+          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary underline">$1</a>');
+        return <p key={i} dangerouslySetInnerHTML={{ __html: html }} />;
+      })}
+    </div>
+  );
+}
 
 function generateSlug(title: string): string {
   return title
@@ -86,11 +111,16 @@ export default function BlogPage() {
 
   const updateBlog = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Blog> & { id: string }) => {
+      // Only set published_at when transitioning draft → published (preserve original date)
+      const existingBlog = blogs.find((b) => b.id === id);
+      const isPublishing = updates.status === 'published' && !existingBlog?.published_at;
       const { data, error } = await supabase
         .from('blogs')
         .update({
           ...updates,
-          published_at: updates.status === 'published' ? new Date().toISOString() : null,
+          ...(updates.status === 'published'
+            ? { published_at: isPublishing ? new Date().toISOString() : existingBlog?.published_at }
+            : { published_at: null }),
         })
         .eq('id', id)
         .select()
@@ -243,14 +273,27 @@ export default function BlogPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Write your article content here... (Markdown supported)"
-                          rows={12}
-                          className="font-mono text-sm"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Tabs defaultValue="write">
+                        <TabsList className="mb-2">
+                          <TabsTrigger value="write">Write</TabsTrigger>
+                          <TabsTrigger value="preview">Preview</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="write">
+                          <FormControl>
+                            <Textarea
+                              placeholder="Write your article content here... (Markdown supported)"
+                              rows={12}
+                              className="font-mono text-sm"
+                              {...field}
+                            />
+                          </FormControl>
+                        </TabsContent>
+                        <TabsContent value="preview">
+                          <div className="min-h-[200px] p-3 border rounded-md bg-muted/30 overflow-auto">
+                            <SimpleMarkdownPreview content={field.value || ''} />
+                          </div>
+                        </TabsContent>
+                      </Tabs>
                       <FormMessage />
                     </FormItem>
                   )}

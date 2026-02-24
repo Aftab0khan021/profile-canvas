@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Linkedin, Github, MapPin, Send, Loader2, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
+import { Mail, Phone, Linkedin, Github, Send, Loader2, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
 
 export default function PublicContact() {
   const { profile, brandColor } = usePublicLayoutContext();
@@ -44,88 +44,98 @@ export default function PublicContact() {
 
     setSending(true);
 
-    // Get reCAPTCHA token
+    // Get reCAPTCHA token — abort if unavailable (no silent bypass)
     let recaptchaToken = '';
-    if (executeRecaptcha) {
-      try {
-        recaptchaToken = await executeRecaptcha('contact_form');
-      } catch (error) {
-        console.error('reCAPTCHA error:', error);
-        // Continue without token if reCAPTCHA fails
-      }
+    if (!executeRecaptcha) {
+      setSending(false);
+      toast({
+        title: 'Security check unavailable',
+        description: 'Please refresh the page and try again.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    try {
+      recaptchaToken = await executeRecaptcha('contact_form');
+    } catch (error) {
+      setSending(false);
+      console.error('reCAPTCHA error:', error);
+      toast({
+        title: 'Security check failed',
+        description: 'Please refresh the page and try again.',
+        variant: 'destructive'
+      });
+      return;
     }
 
-    // IMPORTANT: Check rate limit FIRST by calling Edge Function
-    // This prevents saving spam messages to database
-    if (profile.email) {
-      // Use raw fetch instead of Supabase client to access 429 response body
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    // IMPORTANT: Always require spam check via Edge Function before saving to DB.
+    // If no email is configured, block submission entirely.
+    if (!profile.email) {
+      setSending(false);
+      toast({
+        title: 'Contact unavailable',
+        description: 'This portfolio does not have a contact email configured.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-      try {
-        const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-            'apikey': supabaseAnonKey,
-          },
-          body: JSON.stringify({
-            recipient_email: profile.email,
-            recipient_name: profile.full_name || 'Portfolio Owner',
-            sender_name: contactForm.name,
-            sender_email: contactForm.email,
-            message: contactForm.message,
-            recaptcha_token: recaptchaToken,
-          }),
-        });
+    // Use raw fetch to access 429 response body which Supabase client swallows
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-        const responseData = await response.json();
+    try {
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({
+          recipient_email: profile.email,
+          recipient_name: profile.full_name || 'Portfolio Owner',
+          sender_name: contactForm.name,
+          sender_email: contactForm.email,
+          message: contactForm.message,
+          recaptcha_token: recaptchaToken,
+        }),
+      });
 
-        // Check if rate limited (429 status)
-        if (response.status === 429) {
-          setSending(false);
+      const responseData = await response.json();
 
-          const remainingSeconds = responseData.remainingTime || 120;
-          setRateLimited(true);
-          setCooldownTime(remainingSeconds);
-
-          // Countdown timer
-          const interval = setInterval(() => {
-            setCooldownTime((prev) => {
-              if (prev <= 1) {
-                clearInterval(interval);
-                setRateLimited(false);
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-
-          toast({
-            title: 'Message limit reached',
-            description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
-            variant: 'destructive'
-          });
-          return; // Don't save message if rate limited
-        }
-
-        // Check for other errors
-        if (!response.ok) {
-          setSending(false);
-          console.error('Edge Function error:', responseData);
-          toast({
-            title: 'Error',
-            description: 'Failed to send message. Please try again.',
-            variant: 'destructive'
-          });
-          return;
-        }
-
-        // Success - continue to save message
-      } catch (error) {
+      // Check if rate limited (429 status)
+      if (response.status === 429) {
         setSending(false);
-        console.error('Network error:', error);
+
+        const remainingSeconds = responseData.remainingTime || 120;
+        setRateLimited(true);
+        setCooldownTime(remainingSeconds);
+
+        // Countdown timer
+        const interval = setInterval(() => {
+          setCooldownTime((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setRateLimited(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        toast({
+          title: 'Message limit reached',
+          description: `You've reached your message limit. Please wait ${remainingSeconds} seconds before sending another message.`,
+          variant: 'destructive'
+        });
+        return; // Don't save message if rate limited
+      }
+
+      // Check for other errors
+      if (!response.ok) {
+        setSending(false);
+        console.error('Edge Function error:', responseData);
         toast({
           title: 'Error',
           description: 'Failed to send message. Please try again.',
@@ -133,9 +143,20 @@ export default function PublicContact() {
         });
         return;
       }
+
+      // Success - save message to database only after spam check passed
+    } catch (error) {
+      setSending(false);
+      console.error('Network error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+        variant: 'destructive'
+      });
+      return;
     }
 
-    // Only save message to database if rate limit check passed
+    // Only save message to database if rate limit + spam check passed
     const { error: dbError } = await supabase.from('messages').insert({
       user_id: profile.id,
       sender_name: contactForm.name,

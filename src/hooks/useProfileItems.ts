@@ -155,15 +155,20 @@ export function usePageContent() {
   const saveAllContent = useMutation({
     mutationFn: async (updates: { page_slug: string; section_key: string; content_value: string }[]) => {
       if (!user?.id) throw new Error('Not authenticated');
-      const promises = updates.map(({ page_slug, section_key, content_value }) =>
-        supabase
-          .from('page_content')
-          .upsert(
-            { user_id: user.id, page_slug, section_key, content_value },
-            { onConflict: 'user_id,page_slug,section_key' }
-          )
+      const results = await Promise.allSettled(
+        updates.map(({ page_slug, section_key, content_value }) =>
+          supabase
+            .from('page_content')
+            .upsert(
+              { user_id: user.id, page_slug, section_key, content_value },
+              { onConflict: 'user_id,page_slug,section_key' }
+            )
+        )
       );
-      await Promise.all(promises);
+      const failed = results.filter((r) => r.status === 'rejected');
+      if (failed.length > 0) {
+        throw new Error(`Failed to save ${failed.length} content section(s). Please try again.`);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pageContent', user?.id] });
