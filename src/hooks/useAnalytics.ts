@@ -37,14 +37,6 @@ export function useAnalytics() {
         };
       }
 
-      const { data: views, error } = await supabase
-        .from('portfolio_views')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('viewed_at', { ascending: false });
-
-      if (error) throw error;
-
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekStart = new Date(todayStart);
@@ -52,7 +44,19 @@ export function useAnalytics() {
       const monthStart = new Date(todayStart);
       monthStart.setDate(monthStart.getDate() - 30);
 
-      const viewsData = views as PortfolioView[];
+      // M-5: Fetch only last 30 days of data with a hard cap to avoid memory exhaustion on popular portfolios.
+      // Full historical aggregation should be done server-side via a DB RPC function.
+      const { data: views, error } = await supabase
+        .from('portfolio_views')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('viewed_at', monthStart.toISOString())
+        .order('viewed_at', { ascending: false })
+        .limit(5000);
+
+      if (error) throw error;
+
+      const viewsData = (views ?? []) as PortfolioView[];
 
       const viewsToday = viewsData.filter(
         (v) => new Date(v.viewed_at) >= todayStart
@@ -126,8 +130,13 @@ export function useTrackView() {
         user_id: userId,
         page_path: pagePath,
         referrer: document.referrer || null,
-        user_agent: navigator.userAgent || null,
+        // L-3: Store only a coarse browser family, not the full User-Agent string.
+        // Full UA strings are considered personal data under GDPR.
+        user_agent: navigator.userAgent
+          ? navigator.userAgent.replace(/\s*\(.*?\)/g, '').split('/')[0] || null
+          : null,
       });
+
       if (error) throw error;
     },
   });

@@ -20,15 +20,18 @@ const settingsSchema = z.object({
   bio: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
-  linkedin_url: z.string().url().optional().or(z.literal('')),
-  github_url: z.string().url().optional().or(z.literal('')),
+  // M-7: Require https:// to prevent javascript:, http://, ftp:// links on the public portfolio
+  linkedin_url: z.string().url('Must be a valid URL').refine(u => u.startsWith('https://'), 'Must start with https://').optional().or(z.literal('')),
+  github_url: z.string().url('Must be a valid URL').refine(u => u.startsWith('https://'), 'Must start with https://').optional().or(z.literal('')),
   avatar_url: z.string().nullable().optional(),
   resume_url: z.string().nullable().optional(),
-  brand_color: z.string().optional(),
+  // M-6: Validate brand_color is a valid hex color to prevent CSS injection
+  brand_color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/, 'Must be a valid hex color (e.g. #3b82f6)').optional(),
   template: z.string().optional(),
   roles_text: z.string().optional(),
   availability_status: z.string().optional(),
 });
+
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 

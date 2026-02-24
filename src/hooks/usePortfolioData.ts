@@ -149,10 +149,12 @@ export function useProjects() {
 
   const updateProject = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Project> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('projects')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defense-in-depth — RLS enforces this too
         .select()
         .single();
       if (error) throw error;
@@ -169,7 +171,8 @@ export function useProjects() {
 
   const deleteProject = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('projects').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('projects').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -264,10 +267,12 @@ export function useExperience() {
 
   const updateExperience = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Experience> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('experience')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defense-in-depth
         .select()
         .single();
       if (error) throw error;
@@ -284,7 +289,8 @@ export function useExperience() {
 
   const deleteExperience = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('experience').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('experience').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -342,7 +348,8 @@ export function useSkills() {
 
   const deleteSkill = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('skills').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('skills').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -400,10 +407,12 @@ export function useTestimonials() {
 
   const updateTestimonial = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Testimonial> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('testimonials')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defense-in-depth
         .select()
         .single();
       if (error) throw error;
@@ -420,7 +429,8 @@ export function useTestimonials() {
 
   const deleteTestimonial = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('testimonials').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('testimonials').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -474,10 +484,12 @@ export function useMessages() {
 
   const markAsRead = useMutation({
     mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { error } = await supabase
         .from('messages')
         .update({ is_read: true })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // M-1: defense-in-depth
       if (error) throw error;
     },
     onSuccess: () => {
@@ -487,7 +499,8 @@ export function useMessages() {
 
   const deleteMessage = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('messages').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('messages').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -648,10 +661,12 @@ export function useEducation() {
 
   const updateEducation = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Education> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('education')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defense-in-depth
         .select()
         .single();
       if (error) throw error;
@@ -668,7 +683,8 @@ export function useEducation() {
 
   const deleteEducation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('education').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('education').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -726,10 +742,12 @@ export function useCertifications() {
 
   const updateCertification = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Certification> & { id: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('certifications')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id) // M-1: defense-in-depth
         .select()
         .single();
       if (error) throw error;
@@ -746,7 +764,8 @@ export function useCertifications() {
 
   const deleteCertification = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('certifications').delete().eq('id', id);
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase.from('certifications').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {

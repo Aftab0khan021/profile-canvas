@@ -14,6 +14,7 @@ export default function VerifyEmail() {
     const [isResending, setIsResending] = useState(false);
     const [cooldown, setCooldown] = useState(0);
     const [isChecking, setIsChecking] = useState(true);
+    const [pollExpired, setPollExpired] = useState(false);
 
     // Check if user is already verified
     useEffect(() => {
@@ -54,11 +55,22 @@ export default function VerifyEmail() {
         checkVerification();
     }, [user, navigate, toast]);
 
-    // Poll for verification status every 5 seconds
+    // M-3: Poll for verification status every 5 seconds, max 60 attempts (5 minutes)
     useEffect(() => {
         if (isChecking) return;
 
+        let attempts = 0;
+        const MAX_ATTEMPTS = 60;
+
         const interval = setInterval(async () => {
+            attempts++;
+
+            if (attempts >= MAX_ATTEMPTS) {
+                clearInterval(interval);
+                setPollExpired(true);
+                return;
+            }
+
             const { data: { user: refreshedUser } } = await supabase.auth.getUser();
 
             if (refreshedUser?.email_confirmed_at) {
@@ -116,11 +128,12 @@ export default function VerifyEmail() {
     };
 
     const handleLogout = async () => {
-        // Clear pending email
+        // L-1: Always clear the pending email on sign-out to prevent stale email leaking to future sessions
         localStorage.removeItem('pendingVerificationEmail');
         await signOut();
         navigate('/auth');
     };
+
 
     // Get email to display
     const displayEmail = user?.email || localStorage.getItem('pendingVerificationEmail');
@@ -182,7 +195,9 @@ export default function VerifyEmail() {
                                 <div className="text-sm">
                                     <p className="font-medium mb-1">Auto-refresh enabled</p>
                                     <p className="text-muted-foreground">
-                                        This page will automatically redirect once verified
+                                        {pollExpired
+                                            ? 'Auto-check timed out. Please refresh this page or click the link in your email.'
+                                            : 'This page will automatically redirect once verified'}
                                     </p>
                                 </div>
                             </div>

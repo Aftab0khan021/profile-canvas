@@ -1,9 +1,20 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// H-2: Restrict CORS to known origins — not a wildcard
+const ALLOWED_ORIGINS = [
+    'https://portfolio-hubs.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:8080',
+];
+
+function getCorsHeaders(req: Request): Record<string, string> {
+    const origin = req.headers.get('Origin') || '';
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+    return {
+        'Access-Control-Allow-Origin': allowedOrigin,
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    };
+}
 
 interface TurnstileVerifyResponse {
     success: boolean;
@@ -13,6 +24,8 @@ interface TurnstileVerifyResponse {
 }
 
 serve(async (req) => {
+    const corsHeaders = getCorsHeaders(req);
+
     // Handle CORS preflight requests
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders });

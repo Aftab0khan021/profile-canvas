@@ -27,11 +27,12 @@ export default function ResetPassword() {
     const { toast } = useToast();
 
     useEffect(() => {
-        // Check if we have a valid recovery session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
+        // H-1: Only allow access when Supabase fires PASSWORD_RECOVERY — not for any active session.
+        // A logged-in user navigating here directly gets bounced to /forgot-password.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
                 setIsValidSession(true);
-            } else {
+            } else if (!session) {
                 toast({
                     title: 'Invalid or Expired Link',
                     description: 'Please request a new password reset link.',
@@ -40,6 +41,7 @@ export default function ResetPassword() {
                 setTimeout(() => navigate('/forgot-password'), 3000);
             }
         });
+        return () => subscription.unsubscribe();
     }, [navigate, toast]);
 
     const handleSubmit = async (e: React.FormEvent) => {

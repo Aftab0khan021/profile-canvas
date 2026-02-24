@@ -1,32 +1,27 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePublicProfile } from '@/hooks/useProfile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Loader2, 
-  Clock, 
-  Heart, 
-  Bookmark, 
+import {
+  ArrowLeft,
+  Calendar,
+  Loader2,
+  Clock,
   Share2,
-  User,
-  ArrowRight
+  User
 } from 'lucide-react';
 import { format } from 'date-fns';
+
 
 export default function BlogPost() {
   const { username, slug } = useParams<{ username: string; slug: string }>();
   const { data: profile, isLoading: profileLoading } = usePublicProfile(username || '');
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const { data: blog, isLoading: blogLoading } = useQuery({
     queryKey: ['publicBlog', profile?.id, slug],
@@ -65,7 +60,10 @@ export default function BlogPost() {
   });
 
   const isLoading = profileLoading || blogLoading;
-  const brandColor = profile?.brand_color || '#3b82f6';
+  // C-2: Validate brandColor is a safe hex value before injecting into <style> tag.
+  // An attacker could store `red; } body { display: none; } .x {` as their brand color.
+  const rawBrandColor = profile?.brand_color || '#3b82f6';
+  const brandColor = /^#[0-9a-fA-F]{3,8}$/.test(rawBrandColor) ? rawBrandColor : '#3b82f6';
 
   // Calculate read time
   const readTime = useMemo(() => {
@@ -75,10 +73,6 @@ export default function BlogPost() {
     return Math.ceil(wordCount / wordsPerMinute);
   }, [blog?.content]);
 
-  // Demo tags
-  const tags = useMemo(() => {
-    return ['Technology', 'Web Development', 'Tutorial'];
-  }, []);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -154,21 +148,21 @@ export default function BlogPost() {
       </header>
 
       {/* Hero Image Placeholder */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
         className="pt-14"
       >
-        <div 
+        <div
           className="w-full h-64 md:h-96"
-          style={{ 
-            background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)` 
+          style={{
+            background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)`
           }}
         >
           <div className="container mx-auto h-full flex items-center justify-center">
             <div className="text-center">
-              <div 
+              <div
                 className="h-20 w-20 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ backgroundColor: `${brandColor}20` }}
               >
@@ -182,26 +176,13 @@ export default function BlogPost() {
       <article className="pb-20 px-4">
         <div className="container mx-auto max-w-3xl">
           {/* Article Header */}
-          <motion.header 
+          <motion.header
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="py-8 -mt-20 relative z-10"
           >
             <Card className="p-8">
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {tags.map((tag) => (
-                  <Badge 
-                    key={tag} 
-                    variant="secondary"
-                    style={{ backgroundColor: `${brandColor}15`, color: brandColor }}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
               {/* Title */}
               <h1 className="text-3xl md:text-4xl font-bold mb-6">{blog.title}</h1>
 
@@ -233,33 +214,14 @@ export default function BlogPost() {
                 </div>
               </div>
 
-              {/* Interaction Buttons */}
+              {/* Share Button */}
               <div className="flex items-center gap-3">
-                <Button
-                  variant={liked ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setLiked(!liked)}
-                  style={liked ? { backgroundColor: brandColor } : undefined}
-                  className={liked ? 'text-white' : ''}
-                >
-                  <Heart className={`h-4 w-4 mr-2 ${liked ? 'fill-current' : ''}`} />
-                  Like
-                </Button>
-                <Button
-                  variant={saved ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSaved(!saved)}
-                  style={saved ? { backgroundColor: brandColor } : undefined}
-                  className={saved ? 'text-white' : ''}
-                >
-                  <Bookmark className={`h-4 w-4 mr-2 ${saved ? 'fill-current' : ''}`} />
-                  Save
-                </Button>
                 <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </Button>
               </div>
+
             </Card>
           </motion.header>
 
@@ -292,8 +254,8 @@ export default function BlogPost() {
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                   <Avatar className="h-16 w-16">
                     <AvatarImage src={profile.avatar_url || ''} />
-                    <AvatarFallback 
-                      style={{ backgroundColor: brandColor }} 
+                    <AvatarFallback
+                      style={{ backgroundColor: brandColor }}
                       className="text-white text-xl"
                     >
                       {initials}
@@ -304,8 +266,8 @@ export default function BlogPost() {
                     <p className="text-sm text-muted-foreground mb-3">
                       {profile.bio || profile.title || 'Author'}
                     </p>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="text-white"
                       style={{ backgroundColor: brandColor }}
                       asChild
@@ -341,10 +303,10 @@ export default function BlogPost() {
                     <Link to={`/p/${username}/blog/${relatedBlog.slug}`}>
                       <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
                         <CardHeader className="pb-2">
-                          <div 
+                          <div
                             className="h-32 rounded-lg mb-3 flex items-center justify-center"
-                            style={{ 
-                              background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` 
+                            style={{
+                              background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)`
                             }}
                           >
                             <span className="text-3xl">📄</span>
