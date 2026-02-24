@@ -131,7 +131,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signIn(loginEmail, loginPassword);
+    const { error } = await signIn(loginEmail, loginPassword, loginTurnstileToken);
     setIsLoading(false);
 
     if (error) {
@@ -189,7 +189,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupUsername, signupFullName);
+    const { error } = await signUp(signupEmail, signupPassword, signupUsername, signupFullName, signupTurnstileToken);
     setIsLoading(false);
 
     if (error) {
