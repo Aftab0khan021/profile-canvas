@@ -13,7 +13,7 @@ interface SEOProps {
 export function SEO({
   title,
   description = 'The fastest way for developers to build a professional portfolio website.',
-  image = 'https://lovable.dev/opengraph-image-p98pqg.png',
+  image = '/og-image.png',
   url,
   type = 'website',
   schema,
