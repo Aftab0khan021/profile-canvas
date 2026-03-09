@@ -21,7 +21,7 @@ const webAppSchema = {
   "@type": "WebApplication",
   "name": "FolioX",
   "description": "Build a stunning developer portfolio in minutes. Import from GitHub, showcase your projects, and get hired faster. No coding required.",
-  "url": "https://foliox.lovable.app",
+  "url": "https://portfolio-hubs.vercel.app/",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
   "offers": {

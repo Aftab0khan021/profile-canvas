@@ -104,7 +104,7 @@ export default function PublicLayout() {
     ? profile.bio.length > 160 ? profile.bio.slice(0, 157) + '...' : profile.bio
     : `View ${profile.full_name || 'this developer'}'s portfolio showcasing projects, skills, and experience.`;
 
-  const seoImage = profile.avatar_url || 'https://lovable.dev/opengraph-image-p98pqg.png';
+  const seoImage = profile.avatar_url || 'og-image.png';
 
   return (
     <div className="min-h-screen bg-background">
