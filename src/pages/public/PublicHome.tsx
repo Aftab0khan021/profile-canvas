@@ -99,6 +99,10 @@ export default function PublicHome() {
   const basePath = `/p/${username}`;
   const featuredProjects = projects.slice(0, 2);
   const featuredBlog = blogs[0];
+
+  // Truncate skill names for floating badges — keep them short & clean
+  const truncateBadge = (name: string, max = 12) =>
+    name.length > max ? name.slice(0, max).trimEnd() + '…' : name;
   const recentBlogs = blogs.slice(1, 3);
 
   return (
@@ -223,37 +227,41 @@ export default function PublicHome() {
                     </div>
                   )}
                 </div>
-                {/* Floating skill badges */}
+                {/* Floating skill badges — truncated to stay compact */}
                 {topSkillNames[0] && (
                   <Badge
-                    className="absolute -top-2 -left-4 animate-float text-white shadow-lg"
+                    className="absolute -top-2 -left-4 animate-float text-white shadow-lg max-w-[90px] truncate block"
                     style={{ backgroundColor: brandColor }}
+                    title={topSkillNames[0]}
                   >
-                    {topSkillNames[0]}
+                    {truncateBadge(topSkillNames[0])}
                   </Badge>
                 )}
                 {topSkillNames[1] && (
                   <Badge
-                    className="absolute top-8 -right-6 animate-float-delayed text-white shadow-lg"
+                    className="absolute top-8 -right-6 animate-float-delayed text-white shadow-lg max-w-[90px] truncate block"
                     style={{ backgroundColor: brandColor }}
+                    title={topSkillNames[1]}
                   >
-                    {topSkillNames[1]}
+                    {truncateBadge(topSkillNames[1])}
                   </Badge>
                 )}
                 {topSkillNames[2] && (
                   <Badge
-                    className="absolute -bottom-2 left-8 animate-float text-white shadow-lg"
+                    className="absolute -bottom-2 left-8 animate-float text-white shadow-lg max-w-[90px] truncate block"
                     style={{ backgroundColor: brandColor, animationDelay: '0.3s' }}
+                    title={topSkillNames[2]}
                   >
-                    {topSkillNames[2]}
+                    {truncateBadge(topSkillNames[2])}
                   </Badge>
                 )}
                 {topSkillNames[3] && (
                   <Badge
-                    className="absolute bottom-12 -right-8 animate-float-delayed text-white shadow-lg"
+                    className="absolute bottom-12 -right-8 animate-float-delayed text-white shadow-lg max-w-[90px] truncate block"
                     style={{ backgroundColor: brandColor }}
+                    title={topSkillNames[3]}
                   >
-                    {topSkillNames[3]}
+                    {truncateBadge(topSkillNames[3])}
                   </Badge>
                 )}
               </div>
