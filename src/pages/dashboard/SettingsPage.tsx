@@ -354,35 +354,69 @@ export default function SettingsPage() {
                         onValueChange={field.onChange}
                         className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2"
                       >
+                        {/* Modern */}
                         <Label
                           htmlFor="modern"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                            }`}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
                           <RadioGroupItem value="modern" id="modern" className="sr-only" />
-                          <Layout className="h-8 w-8 mb-2" />
-                          <span className="font-medium">Modern</span>
-                          <span className="text-xs text-muted-foreground text-center mt-1">Clean centered layout</span>
+                          {/* Wireframe preview */}
+                          <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex items-center justify-between p-2 gap-2">
+                            <div className="flex-1 space-y-1">
+                              <div className="h-2 bg-muted-foreground/30 rounded w-3/4" />
+                              <div className="h-1.5 bg-muted-foreground/20 rounded w-full" />
+                              <div className="h-1.5 bg-muted-foreground/20 rounded w-5/6" />
+                              <div className="flex gap-1 mt-1">
+                                <div className="h-4 w-12 bg-primary/60 rounded-full" />
+                                <div className="h-4 w-10 bg-muted-foreground/20 rounded-full" />
+                              </div>
+                            </div>
+                            <div className="w-12 h-12 rounded-full bg-primary/30 flex-shrink-0" />
+                          </div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Layout className="h-4 w-4" />
+                            <span className="font-medium">Modern</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">Hero left, animated image right, floating skill badges</span>
                         </Label>
+
+                        {/* Minimal */}
                         <Label
                           htmlFor="minimal"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                            }`}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
                           <RadioGroupItem value="minimal" id="minimal" className="sr-only" />
-                          <Minimize2 className="h-8 w-8 mb-2" />
-                          <span className="font-medium">Minimal</span>
-                          <span className="text-xs text-muted-foreground text-center mt-1">Large typography, simple</span>
+                          <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex flex-col items-center justify-center gap-1 p-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/30" />
+                            <div className="h-2 bg-muted-foreground/30 rounded w-2/3" />
+                            <div className="h-1.5 bg-muted-foreground/20 rounded w-1/2" />
+                          </div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Minimize2 className="h-4 w-4" />
+                            <span className="font-medium">Minimal</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">Centered avatar, large typography, clean whitespace</span>
                         </Label>
+
+                        {/* Professional */}
                         <Label
                           htmlFor="professional"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
-                            }`}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
                           <RadioGroupItem value="professional" id="professional" className="sr-only" />
-                          <Briefcase className="h-8 w-8 mb-2" />
-                          <span className="font-medium">Professional</span>
-                          <span className="text-xs text-muted-foreground text-center mt-1">Sidebar navigation</span>
+                          <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex items-center gap-2 p-2">
+                            <div className="w-10 h-10 rounded-lg bg-primary/30 flex-shrink-0" />
+                            <div className="flex-1 space-y-1">
+                              <div className="h-2 bg-muted-foreground/30 rounded w-3/4" />
+                              <div className="h-1.5 bg-muted-foreground/20 rounded w-full" />
+                              <div className="h-1.5 bg-muted-foreground/20 rounded w-5/6" />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Briefcase className="h-4 w-4" />
+                            <span className="font-medium">Professional</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">Image left, text right, compact corporate layout</span>
                         </Label>
                       </RadioGroup>
                     </FormControl>

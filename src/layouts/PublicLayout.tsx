@@ -14,6 +14,7 @@ interface PublicLayoutContext {
   brandColor: string;
   initials: string;
   username: string;
+  template: 'modern' | 'minimal' | 'professional';
 }
 
 // Hook to access the public layout context from child pages
@@ -77,6 +78,10 @@ export default function PublicLayout() {
   // M-4: Validate resume_url is an https:// link before rendering as anchor href
   const safeResumeUrl = profile.resume_url?.startsWith('https://') ? profile.resume_url : null;
   const basePath = `/p/${username}`;
+  // Derive template (default to 'modern' if unset)
+  const rawTemplate = (profile as unknown as Record<string, unknown>).template as string | null;
+  const template: 'modern' | 'minimal' | 'professional' =
+    rawTemplate === 'minimal' || rawTemplate === 'professional' ? rawTemplate : 'modern';
 
   const navItems = [
     { to: basePath, label: 'Home', end: true },
@@ -211,7 +216,7 @@ export default function PublicLayout() {
 
       {/* Main Content */}
       <main className="pt-14">
-        <Outlet context={{ profile, brandColor, initials, username: username || '' } satisfies PublicLayoutContext} />
+        <Outlet context={{ profile, brandColor, initials, username: username || '', template } satisfies PublicLayoutContext} />
       </main>
 
       {/* Footer */}

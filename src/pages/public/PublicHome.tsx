@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 
 export default function PublicHome() {
-  const { profile, brandColor, username } = usePublicLayoutContext();
+  const { profile, brandColor, username, template } = usePublicLayoutContext();
   const { projects, skills, testimonials, isLoading } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
   const trackView = useTrackView();
@@ -109,6 +109,232 @@ export default function PublicHome() {
 
   if (isLoading && !profile) return <HeroSkeleton />;
 
+  // ===== MINIMAL TEMPLATE HERO =====
+  if (template === 'minimal') {
+    return (
+      <>
+        {/* MINIMAL: Centered, clean, no noise */}
+        <section className="py-32 px-4 text-center">
+          <div className="container mx-auto max-w-2xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+              {profile?.avatar_url ? (
+                <img
+                  src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.avatar)}
+                  alt={profile.full_name || ''}
+                  className="w-28 h-28 rounded-full object-cover mx-auto mb-8"
+                  style={{ boxShadow: `0 0 0 4px ${brandColor}50` }}
+                />
+              ) : (
+                <div
+                  className="w-28 h-28 rounded-full mx-auto mb-8 flex items-center justify-center text-white text-4xl font-bold"
+                  style={{ background: brandColor }}
+                >
+                  {profile?.full_name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?'}
+                </div>
+              )}
+              <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
+                {profile?.full_name}
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-6" style={{ color: brandColor }}>
+                {profile?.title}
+              </p>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-xl mx-auto">
+                {profile?.bio}
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button size="lg" style={{ backgroundColor: brandColor }} className="text-white" asChild>
+                  <Link to={`${basePath}/projects`}>View My Work</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link to={`${basePath}/contact`}>Contact Me</Link>
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* MINIMAL: Simple skill tags */}
+        {skills.length > 0 && (
+          <section className="py-16 px-4 border-t">
+            <div className="container mx-auto max-w-2xl text-center">
+              <h2 className="text-sm uppercase tracking-widest text-muted-foreground mb-6">Skills</h2>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {skills.slice(0, 18).map((s) => (
+                  <Badge key={s.id} variant="outline" className="px-3 py-1 text-sm">
+                    {s.skill_name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* MINIMAL: Featured projects grid */}
+        {featuredProjects.length > 0 && (
+          <section className="py-16 px-4">
+            <div className="container mx-auto max-w-3xl">
+              <h2 className="text-sm uppercase tracking-widest text-muted-foreground mb-8 text-center">Selected Work</h2>
+              <div className="grid gap-6">
+                {featuredProjects.map((project) => (
+                  <Link key={project.id} to={`${basePath}/projects`}>
+                    <Card className="hover:border-foreground/30 transition-colors">
+                      <CardHeader>
+                        <CardTitle>{project.title}</CardTitle>
+                        <CardDescription className="line-clamp-2">{project.description}</CardDescription>
+                      </CardHeader>
+                      {project.tech_stack && project.tech_stack.length > 0 && (
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2">
+                            {project.tech_stack.slice(0, 5).map((t) => (
+                              <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              <div className="text-center mt-8">
+                <Button variant="outline" asChild>
+                  <Link to={`${basePath}/projects`}>All Projects</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
+      </>
+    );
+  }
+
+  // ===== PROFESSIONAL TEMPLATE HERO =====
+  if (template === 'professional') {
+    return (
+      <>
+        {/* PROFESSIONAL: Image left, text right — compact corporate feel */}
+        <section className="py-16 px-4 border-b">
+          <div className="container mx-auto max-w-5xl">
+            <div className="flex flex-col md:flex-row gap-12 items-center">
+              {/* Left: Avatar */}
+              <div className="flex-shrink-0">
+                {profile?.avatar_url ? (
+                  <img
+                    src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.avatar)}
+                    alt={profile.full_name || ''}
+                    className="w-48 h-48 rounded-2xl object-cover"
+                    style={{ boxShadow: `4px 4px 0 ${brandColor}` }}
+                  />
+                ) : (
+                  <div
+                    className="w-48 h-48 rounded-2xl flex items-center justify-center text-white text-5xl font-bold"
+                    style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}cc)` }}
+                  >
+                    {profile?.full_name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?'}
+                  </div>
+                )}
+              </div>
+              {/* Right: Content */}
+              <div className="flex-1">
+                <div className="inline-block px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider mb-3"
+                  style={{ backgroundColor: `${brandColor}15`, color: brandColor }}>
+                  {availabilityStatus}
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-2 leading-tight">{profile?.full_name}</h1>
+                <p className="text-lg mb-4" style={{ color: brandColor }}>{profile?.title}</p>
+                <p className="text-muted-foreground leading-relaxed mb-6 max-w-lg">{profile?.bio}</p>
+                <div className="flex flex-wrap gap-3 mb-6">
+                  <Button style={{ backgroundColor: brandColor }} className="text-white" asChild>
+                    <Link to={`${basePath}/projects`}>View Projects</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to={`${basePath}/contact`}>Get in Touch</Link>
+                  </Button>
+                  {profile?.resume_url && (
+                    <Button variant="ghost" asChild>
+                      <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-4 w-4 mr-2" />Resume
+                      </a>
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  {profile?.github_url && (
+                    <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors"><Github className="h-5 w-5" /></a>
+                  )}
+                  {profile?.linkedin_url && (
+                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors"><Linkedin className="h-5 w-5" /></a>
+                  )}
+                  {profile?.email && (
+                    <a href={`mailto:${profile.email}`}
+                      className="text-muted-foreground hover:text-foreground transition-colors"><Mail className="h-5 w-5" /></a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROFESSIONAL: Competencies bar */}
+        {topCategories.length > 0 && (
+          <section className="py-10 px-4 border-b bg-muted/20">
+            <div className="container mx-auto max-w-5xl">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {topCategories.map(([category, catSkills]) => (
+                  <div key={category}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-semibold">{category}</span>
+                      <span className="text-xs text-muted-foreground">{catSkills.length} skills</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {catSkills.slice(0, 3).map((s) => (
+                        <Badge key={s.id} variant="outline" className="text-xs">{s.skill_name}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* PROFESSIONAL: Projects table-like list */}
+        {featuredProjects.length > 0 && (
+          <section className="py-12 px-4">
+            <div className="container mx-auto max-w-5xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Selected Projects</h2>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`${basePath}/projects`}>View All <ArrowRight className="h-3 w-3 ml-1" /></Link>
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {projects.slice(0, 4).map((project) => (
+                  <Link key={project.id} to={`${basePath}/projects`}>
+                    <div className="flex items-center gap-4 p-4 rounded-lg border hover:bg-muted/40 transition-colors group">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold group-hover:text-foreground">{project.title}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        {project.tech_stack?.slice(0, 3).map((t) => (
+                          <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                        ))}
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </>
+    );
+  }
+
+  // ===== MODERN TEMPLATE (default) ====
   return (
     <>
       {/* Hero Section with Animated Background */}
