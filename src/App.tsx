@@ -32,6 +32,7 @@ const CertificationsPage = lazy(() => import("./pages/dashboard/CertificationsPa
 const ResumePage = lazy(() => import("./pages/dashboard/ResumePage"));
 const BrandPage = lazy(() => import("./pages/dashboard/BrandPage"));
 const SiteContentPage = lazy(() => import("./pages/dashboard/SiteContentPage"));
+const TrashPage = lazy(() => import("./pages/dashboard/TrashPage"));
 
 // Lazy load public pages (loaded on demand)
 const PublicLayout = lazy(() => import("./layouts/PublicLayout"));
@@ -110,6 +111,7 @@ const App = () => (
                   <Route path="brand" element={<BrandPage />} />
                   <Route path="content" element={<SiteContentPage />} />
                   <Route path="settings" element={<SettingsPage />} />
+                  <Route path="trash" element={<TrashPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

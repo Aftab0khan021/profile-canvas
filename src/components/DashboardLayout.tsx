@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   Sparkles, LayoutDashboard, User, FolderOpen, Briefcase,
-  Lightbulb, MessageSquare, Settings, LogOut, ExternalLink, Menu, X, Quote, FileText, GraduationCap, Award, FileDown, Heart, Palette
+  Lightbulb, MessageSquare, Settings, LogOut, ExternalLink, Menu, X, Quote, FileText, GraduationCap, Award, FileDown, Heart, Palette, Trash2
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,7 @@ const navItems = [
   { to: '/dashboard/brand', icon: Heart, label: 'Brand & Identity' },
   { to: '/dashboard/content', icon: Palette, label: 'Site Content' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
+  { to: '/dashboard/trash', icon: Trash2, label: 'Trash' },
 ];
 
 export default function DashboardLayout() {

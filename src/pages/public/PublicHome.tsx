@@ -4,6 +4,8 @@ import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
 import { usePublicProfileItems, usePublicPageContent } from '@/hooks/useProfileItems';
 import { useTrackView } from '@/hooks/useAnalytics';
 import { supabase } from '@/integrations/supabase/client';
+import { HeroSkeleton } from '@/components/PublicPageSkeleton';
+import { stripMarkdown } from '@/components/MarkdownRenderer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +22,7 @@ import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 
 export default function PublicHome() {
   const { profile, brandColor, username } = usePublicLayoutContext();
-  const { projects, skills, testimonials } = usePublicPortfolioData(profile?.id);
+  const { projects, skills, testimonials, isLoading } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
   const trackView = useTrackView();
   const hasTracked = useRef(false);
@@ -104,6 +106,8 @@ export default function PublicHome() {
   const truncateBadge = (name: string, max = 12) =>
     name.length > max ? name.slice(0, max).trimEnd() + '…' : name;
   const recentBlogs = blogs.slice(1, 3);
+
+  if (isLoading && !profile) return <HeroSkeleton />;
 
   return (
     <>
@@ -227,10 +231,10 @@ export default function PublicHome() {
                     </div>
                   )}
                 </div>
-                {/* Floating skill badges — truncated to stay compact */}
+                {/* Floating skill badges — evenly spaced outside the circle */}
                 {topSkillNames[0] && (
                   <Badge
-                    className="absolute -top-2 -left-4 animate-float text-white shadow-lg max-w-[90px] truncate block"
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 animate-float text-white shadow-lg max-w-[100px] truncate block"
                     style={{ backgroundColor: brandColor }}
                     title={topSkillNames[0]}
                   >
@@ -239,7 +243,7 @@ export default function PublicHome() {
                 )}
                 {topSkillNames[1] && (
                   <Badge
-                    className="absolute top-8 -right-6 animate-float-delayed text-white shadow-lg max-w-[90px] truncate block"
+                    className="absolute top-1/2 -right-14 -translate-y-1/2 animate-float-delayed text-white shadow-lg max-w-[100px] truncate block"
                     style={{ backgroundColor: brandColor }}
                     title={topSkillNames[1]}
                   >
@@ -248,8 +252,8 @@ export default function PublicHome() {
                 )}
                 {topSkillNames[2] && (
                   <Badge
-                    className="absolute -bottom-2 left-8 animate-float text-white shadow-lg max-w-[90px] truncate block"
-                    style={{ backgroundColor: brandColor, animationDelay: '0.3s' }}
+                    className="absolute -bottom-6 left-1/2 -translate-x-1/2 animate-float text-white shadow-lg max-w-[100px] truncate block"
+                    style={{ backgroundColor: brandColor, animationDelay: '0.5s' }}
                     title={topSkillNames[2]}
                   >
                     {truncateBadge(topSkillNames[2])}
@@ -257,8 +261,8 @@ export default function PublicHome() {
                 )}
                 {topSkillNames[3] && (
                   <Badge
-                    className="absolute bottom-12 -right-8 animate-float-delayed text-white shadow-lg max-w-[90px] truncate block"
-                    style={{ backgroundColor: brandColor }}
+                    className="absolute top-1/2 -left-14 -translate-y-1/2 animate-float-delayed text-white shadow-lg max-w-[100px] truncate block"
+                    style={{ backgroundColor: brandColor, animationDelay: '0.8s' }}
                     title={topSkillNames[3]}
                   >
                     {truncateBadge(topSkillNames[3])}

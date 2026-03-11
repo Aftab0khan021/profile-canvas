@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePublicProfile } from '@/hooks/useProfile';
@@ -230,17 +231,13 @@ export default function BlogPost() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="prose prose-slate dark:prose-invert max-w-none py-8"
+            className="py-8"
           >
-            {blog.content?.split('\n').map((paragraph, i) => (
-              paragraph.trim() ? (
-                <p key={i} className="mb-4 text-lg leading-relaxed">
-                  {paragraph}
-                </p>
-              ) : (
-                <br key={i} />
-              )
-            ))}
+            <MarkdownRenderer
+              content={blog.content || ''}
+              variant="blog"
+              className="text-foreground"
+            />
           </motion.div>
 
           {/* Author Bio */}

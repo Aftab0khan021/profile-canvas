@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Trash2, Lightbulb, Loader2 } from 'lucide-react';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
+import { Plus, Trash2, Lightbulb, Loader2, Pencil } from 'lucide-react';
 
 const skillSchema = z.object({
   skill_name: z.string().min(1, 'Skill name is required'),
@@ -25,8 +26,10 @@ type SkillFormValues = z.infer<typeof skillSchema>;
 const categories = ['Frontend', 'Backend', 'Database', 'DevOps', 'Tools', 'Design', 'Other'];
 
 export default function SkillsPage() {
-  const { skills, isLoading, createSkill, deleteSkill } = useSkills();
+  const { skills, isLoading, createSkill, updateSkill, deleteSkill, trashSkill } = useSkills();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Skill | null>(null);
 
   const form = useForm<SkillFormValues>({
     resolver: zodResolver(skillSchema),
@@ -37,20 +40,34 @@ export default function SkillsPage() {
     },
   });
 
-  const onSubmit = async (values: SkillFormValues) => {
-    await createSkill.mutateAsync({
-      skill_name: values.skill_name,
-      category: values.category,
-      proficiency_level: values.proficiency_level,
-    });
-    form.reset();
-    setDialogOpen(false);
+  const openCreateDialog = () => {
+    setEditingId(null);
+    form.reset({ skill_name: '', category: 'Frontend', proficiency_level: 50 });
+    setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this skill?')) {
-      await deleteSkill.mutateAsync(id);
+  const openEditDialog = (skill: Skill) => {
+    setEditingId(skill.id);
+    form.reset({
+      skill_name: skill.skill_name,
+      category: skill.category,
+      proficiency_level: skill.proficiency_level,
+    });
+    setDialogOpen(true);
+  };
+
+  const onSubmit = async (values: SkillFormValues) => {
+    if (editingId) {
+      await updateSkill.mutateAsync({ id: editingId, ...values });
+    } else {
+      await createSkill.mutateAsync({
+        skill_name: values.skill_name,
+        category: values.category,
+        proficiency_level: values.proficiency_level,
+      });
     }
+    form.reset();
+    setDialogOpen(false);
   };
 
   // Group skills by category
@@ -77,15 +94,17 @@ export default function SkillsPage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4 mr-2" />
               Add Skill
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Add Skill</DialogTitle>
-              <DialogDescription>Add a new skill to your portfolio.</DialogDescription>
+              <DialogTitle>{editingId ? 'Edit Skill' : 'Add Skill'}</DialogTitle>
+              <DialogDescription>
+                {editingId ? 'Update skill name, category, or proficiency.' : 'Add a new skill to your portfolio.'}
+              </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -108,7 +127,7 @@ export default function SkillsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
@@ -144,9 +163,11 @@ export default function SkillsPage() {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit" disabled={createSkill.isPending}>
-                    {createSkill.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Add Skill
+                  <Button type="submit" disabled={createSkill.isPending || updateSkill.isPending}>
+                    {(createSkill.isPending || updateSkill.isPending) && (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    )}
+                    {editingId ? 'Update Skill' : 'Add Skill'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -163,7 +184,7 @@ export default function SkillsPage() {
             <p className="text-muted-foreground text-center mb-4">
               Add your technical skills to showcase your expertise.
             </p>
-            <Button onClick={() => setDialogOpen(true)}>
+            <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4 mr-2" />
               Add Skill
             </Button>
@@ -184,9 +205,24 @@ export default function SkillsPage() {
                   <div key={skill.id} className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{skill.skill_name}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground">{skill.proficiency_level}%</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDelete(skill.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => openEditDialog(skill)}
+                          title="Edit skill"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => setDeleteTarget(skill)}
+                          title="Delete skill"
+                        >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </Button>
                       </div>
@@ -199,6 +235,21 @@ export default function SkillsPage() {
           ))}
         </div>
       )}
+
+      {/* Delete confirmation dialog */}
+      <DeleteConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        itemLabel={deleteTarget?.skill_name ?? ''}
+        onSoftDelete={async () => {
+          if (deleteTarget) await trashSkill.mutateAsync(deleteTarget.id);
+          setDeleteTarget(null);
+        }}
+        onHardDelete={async () => {
+          if (deleteTarget) await deleteSkill.mutateAsync(deleteTarget.id);
+          setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 }

@@ -250,7 +250,7 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline">
-              <Link to="/dashboard/settings">Complete Profile</Link>
+              <Link to="/dashboard/settings">Go to Settings</Link>
             </Button>
           </CardContent>
         </Card>

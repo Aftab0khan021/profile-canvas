@@ -120,6 +120,7 @@ export function useProjects() {
         .from('projects')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)  // exclude soft-deleted
         .order('sort_order', { ascending: true });
       if (error) throw error;
       return data as Project[];
@@ -177,7 +178,28 @@ export function useProjects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', user?.id] });
-      toast({ title: 'Project deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Project permanently deleted' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const trashProject = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('projects')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Project moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
     },
     onError: (error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -221,7 +243,7 @@ export function useProjects() {
     },
   });
 
-  return { projects, isLoading, createProject, updateProject, deleteProject, reorderProjects };
+  return { projects, isLoading, createProject, updateProject, deleteProject, trashProject, reorderProjects };
 }
 
 // Experience hooks
@@ -238,6 +260,7 @@ export function useExperience() {
         .from('experience')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)
         .order('start_date', { ascending: false });
       if (error) throw error;
       return data as Experience[];
@@ -295,14 +318,34 @@ export function useExperience() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experience', user?.id] });
-      toast({ title: 'Experience deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Experience permanently deleted' });
     },
     onError: (error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
-  return { experience, isLoading, createExperience, updateExperience, deleteExperience };
+  const trashExperience = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('experience')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id).eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['experience', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Experience moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { experience, isLoading, createExperience, updateExperience, deleteExperience, trashExperience };
 }
 
 // Skills hooks
@@ -319,6 +362,7 @@ export function useSkills() {
         .from('skills')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)
         .order('category', { ascending: true });
       if (error) throw error;
       return data as Skill[];
@@ -346,6 +390,28 @@ export function useSkills() {
     },
   });
 
+  const updateSkill = useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; skill_name?: string; category?: string; proficiency_level?: number }) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { data, error } = await supabase
+        .from('skills')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['skills', user?.id] });
+      toast({ title: 'Skill updated successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const deleteSkill = useMutation({
     mutationFn: async (id: string) => {
       if (!user?.id) throw new Error('Not authenticated');
@@ -354,14 +420,34 @@ export function useSkills() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skills', user?.id] });
-      toast({ title: 'Skill deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Skill permanently deleted' });
     },
     onError: (error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
-  return { skills, isLoading, createSkill, deleteSkill };
+  const trashSkill = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('skills')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id).eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['skills', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Skill moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { skills, isLoading, createSkill, updateSkill, deleteSkill, trashSkill };
 }
 
 // Testimonials hooks
@@ -519,7 +605,7 @@ export function useMessages() {
 
 // Public portfolio data hooks
 export function usePublicPortfolioData(userId: string | undefined) {
-  const { data: projects = [] } = useQuery({
+  const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['publicProjects', userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -527,8 +613,9 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('projects')
         .select('id, title, description, image_url, live_url, github_url, tech_stack, sort_order')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('sort_order', { ascending: true })
-        .limit(20); // Limit to 20 projects for performance
+        .limit(20);
       if (error) throw error;
       return data as PublicProject[];
     },
@@ -543,15 +630,16 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('experience')
         .select('id, company, role, location, start_date, end_date, is_current, description')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('start_date', { ascending: false })
-        .limit(15); // Limit to 15 experiences for performance
+        .limit(15);
       if (error) throw error;
       return data as Experience[];
     },
     enabled: !!userId,
   });
 
-  const { data: skills = [] } = useQuery({
+  const { data: skills = [], isLoading: skillsLoading } = useQuery({
     queryKey: ['publicSkills', userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -559,8 +647,9 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('skills')
         .select('id, category, skill_name, proficiency_level')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('proficiency_level', { ascending: false })
-        .limit(30); // Limit to top 30 skills for performance
+        .limit(30);
       if (error) throw error;
       return data as Skill[];
     },
@@ -615,7 +704,7 @@ export function usePublicPortfolioData(userId: string | undefined) {
     enabled: !!userId,
   });
 
-  return { projects, experience, skills, testimonials, education, certifications };
+  return { projects, experience, skills, testimonials, education, certifications, isLoading: projectsLoading || skillsLoading };
 }
 
 // Education hooks

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           content: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           published_at: string | null
           slug: string
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           published_at?: string | null
           slug: string
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           published_at?: string | null
           slug?: string
@@ -62,6 +65,7 @@ export type Database = {
         Row: {
           created_at: string
           credential_url: string | null
+          deleted_at: string | null
           id: string
           issue_date: string
           issuer: string
@@ -73,6 +77,7 @@ export type Database = {
         Insert: {
           created_at?: string
           credential_url?: string | null
+          deleted_at?: string | null
           id?: string
           issue_date: string
           issuer: string
@@ -84,6 +89,7 @@ export type Database = {
         Update: {
           created_at?: string
           credential_url?: string | null
+          deleted_at?: string | null
           id?: string
           issue_date?: string
           issuer?: string
@@ -98,6 +104,7 @@ export type Database = {
         Row: {
           created_at: string
           degree: string
+          deleted_at: string | null
           description: string | null
           end_date: string | null
           field_of_study: string
@@ -113,6 +120,7 @@ export type Database = {
         Insert: {
           created_at?: string
           degree: string
+          deleted_at?: string | null
           description?: string | null
           end_date?: string | null
           field_of_study: string
@@ -128,6 +136,7 @@ export type Database = {
         Update: {
           created_at?: string
           degree?: string
+          deleted_at?: string | null
           description?: string | null
           end_date?: string | null
           field_of_study?: string
@@ -146,6 +155,7 @@ export type Database = {
         Row: {
           company: string
           created_at: string
+          deleted_at: string | null
           description: string | null
           end_date: string | null
           id: string
@@ -159,6 +169,7 @@ export type Database = {
         Insert: {
           company: string
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
@@ -172,6 +183,7 @@ export type Database = {
         Update: {
           company?: string
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
@@ -386,6 +398,7 @@ export type Database = {
       projects: {
         Row: {
           created_at: string
+          deleted_at: string | null
           description: string | null
           github_url: string | null
           id: string
@@ -401,6 +414,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           github_url?: string | null
           id?: string
@@ -416,6 +430,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           github_url?: string | null
           id?: string
@@ -443,6 +458,7 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          deleted_at: string | null
           id: string
           proficiency_level: number | null
           skill_name: string
@@ -451,6 +467,7 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           proficiency_level?: number | null
           skill_name: string
@@ -459,6 +476,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           proficiency_level?: number | null
           skill_name?: string
@@ -479,6 +497,7 @@ export type Database = {
           client_name: string
           company: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           rating: number | null
           text: string
@@ -488,6 +507,7 @@ export type Database = {
           client_name: string
           company?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           rating?: number | null
           text: string
@@ -497,6 +517,7 @@ export type Database = {
           client_name?: string
           company?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           rating?: number | null
           text?: string
