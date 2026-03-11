@@ -53,7 +53,7 @@ function AnimatedProgress({ value, brandColor }: AnimatedProgressProps) {
 }
 
 export default function PublicAbout() {
-  const { profile, brandColor } = usePublicLayoutContext();
+  const { profile, brandColor, template } = usePublicLayoutContext();
   const { education, certifications, experience, skills } = usePublicPortfolioData(profile?.id);
   const { highlights: dynamicHighlights, values: dynamicValues } = usePublicProfileItems(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);

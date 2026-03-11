@@ -14,7 +14,7 @@ import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 type ViewMode = 'grid' | 'list';
 
 export default function PublicProjects() {
-  const { profile, brandColor, username } = usePublicLayoutContext();
+  const { profile, brandColor, template, username } = usePublicLayoutContext();
   const { projects } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +58,94 @@ export default function PublicProjects() {
     });
   }, [projects, searchQuery, selectedCategory]);
 
+  // ─── MINIMAL TEMPLATE ───
+  if (template === 'minimal') {
+    return (
+      <>
+        <section className="py-20 px-4 text-center border-b">
+          <div className="container mx-auto max-w-2xl">
+            <h1 className="text-4xl font-bold mb-3">Projects</h1>
+            <p className="text-muted-foreground">{heroSubtitle}</p>
+          </div>
+        </section>
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-3xl space-y-8">
+            {filteredProjects.length === 0 && <p className="text-center text-muted-foreground py-12">{emptyStateMessage}</p>}
+            {filteredProjects.map((project) => (
+              <div key={project.id} className="border-b pb-8 last:border-0">
+                <Link to={`/p/${username}/projects/${project.id}`}>
+                  <h2 className="text-xl font-semibold hover:underline mb-2">{project.title}</h2>
+                </Link>
+                <p className="text-muted-foreground text-sm mb-3">{project.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  {(project.tech_stack || []).map(t => (
+                    <span key={t} className="text-xs px-2 py-0.5 border rounded-full">{t}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── PROFESSIONAL TEMPLATE ───
+  if (template === 'professional') {
+    return (
+      <>
+        <section className="py-10 px-4 border-b bg-muted/20">
+          <div className="container mx-auto max-w-5xl">
+            <h1 className="text-3xl font-bold mb-1">Projects</h1>
+            <p className="text-muted-foreground text-sm">{heroSubtitle}</p>
+          </div>
+        </section>
+        <section className="py-8 px-4">
+          <div className="container mx-auto max-w-5xl">
+            {/* Compact search bar */}
+            <div className="relative mb-6 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+            </div>
+            {filteredProjects.length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">{emptyStateMessage}</p>
+            ) : (
+              <div className="space-y-3">
+                {filteredProjects.map((project) => (
+                  <div key={project.id} className="border rounded-lg overflow-hidden flex items-center gap-4 p-4 hover:bg-muted/30 transition-colors">
+                    {project.image_url ? (
+                      <img src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.thumbnail)} alt={project.title} className="w-16 h-16 rounded object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-16 h-16 rounded flex-shrink-0 flex items-center justify-center" style={{ background: `${brandColor}15` }}>
+                        <FolderOpen className="h-6 w-6" style={{ color: brandColor }} />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/p/${username}/projects/${project.id}`}>
+                        <h3 className="font-semibold hover:underline truncate">{project.title}</h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {(project.tech_stack || []).slice(0, 4).map(t => (
+                          <span key={t} className="text-xs px-1.5 py-0.5 bg-muted rounded">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      {project.live_url && <a href={project.live_url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 text-muted-foreground hover:text-foreground" /></a>}
+                      {project.github_url && <a href={project.github_url} target="_blank" rel="noopener noreferrer"><Github className="h-4 w-4 text-muted-foreground hover:text-foreground" /></a>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── MODERN TEMPLATE (default) ───
   return (
     <>
       {/* Header */}

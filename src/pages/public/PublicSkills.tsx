@@ -39,7 +39,7 @@ const defaultSoftSkills = [
 ];
 
 export default function PublicSkills() {
-  const { profile, brandColor } = usePublicLayoutContext();
+  const { profile, brandColor, template } = usePublicLayoutContext();
   const { skills, experience } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
   const { items: profileItems } = usePublicProfileItems(profile?.id);
@@ -99,6 +99,110 @@ export default function PublicSkills() {
   const getCategoryColor = (category: string) => {
     return categoryColors[category] || { from: brandColor, to: `${brandColor}80` };
   };
+
+  // ───── MINIMAL TEMPLATE ─────
+  if (template === 'minimal') {
+    return (
+      <>
+        <section className="py-20 px-4 text-center border-b">
+          <div className="container mx-auto max-w-2xl">
+            <h1 className="text-4xl font-bold mb-3">Skills</h1>
+            <p className="text-muted-foreground">{heroSubtitle}</p>
+          </div>
+        </section>
+
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-3xl space-y-10">
+            {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
+              <div key={category}>
+                <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-4">{category}</h2>
+                <div className="flex flex-wrap gap-2">
+                  {categorySkills.map((skill) => (
+                    <div key={skill.id} className="flex items-center gap-2 px-3 py-1.5 border rounded-full text-sm">
+                      <span>{skill.skill_name}</span>
+                      <span className="text-xs text-muted-foreground">{skill.proficiency_level}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {Object.keys(skillsByCategory).length === 0 && (
+              <p className="text-center text-muted-foreground py-12">No skills added yet.</p>
+            )}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ───── PROFESSIONAL TEMPLATE ─────
+  if (template === 'professional') {
+    return (
+      <>
+        <section className="py-10 px-4 border-b bg-muted/20">
+          <div className="container mx-auto max-w-5xl flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-1">Technical Skills</h1>
+              <p className="text-muted-foreground text-sm">{heroSubtitle}</p>
+            </div>
+            <div className="hidden md:flex gap-6 text-center">
+              <div><p className="text-2xl font-bold" style={{ color: brandColor }}>{stats.totalTechnical}+</p><p className="text-xs text-muted-foreground">Skills</p></div>
+              <div><p className="text-2xl font-bold" style={{ color: brandColor }}>{Object.keys(skillsByCategory).length}</p><p className="text-xs text-muted-foreground">Categories</p></div>
+              <div><p className="text-2xl font-bold" style={{ color: brandColor }}>{stats.yearsExperience}+</p><p className="text-xs text-muted-foreground">Years Exp.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-5xl">
+            {Object.keys(skillsByCategory).length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">No skills added yet.</p>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
+                  <div key={category} className="border rounded-lg overflow-hidden">
+                    <div className="px-4 py-3 border-b bg-muted/30 flex items-center gap-2">
+                      <Code className="h-4 w-4" style={{ color: brandColor }} />
+                      <span className="font-semibold text-sm">{category}</span>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {categorySkills.map((skill) => (
+                        <div key={skill.id}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="font-medium">{skill.skill_name}</span>
+                            <span className="text-muted-foreground">{animatedProgress[skill.id] || 0}%</span>
+                          </div>
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-1000"
+                              style={{ width: `${animatedProgress[skill.id] || 0}%`, backgroundColor: brandColor }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="py-8 px-4 border-t">
+          <div className="container mx-auto max-w-5xl">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Additional Competencies</h2>
+            <div className="flex flex-wrap gap-2">
+              {additionalCompetencies.map((comp) => (
+                <span key={comp} className="px-3 py-1 border rounded text-sm">{comp}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ───── MODERN TEMPLATE (default) ─────
 
   return (
     <>

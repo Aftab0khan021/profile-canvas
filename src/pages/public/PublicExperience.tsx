@@ -15,7 +15,7 @@ import {
 import { format } from 'date-fns';
 
 export default function PublicExperience() {
-  const { profile, brandColor } = usePublicLayoutContext();
+  const { profile, brandColor, template } = usePublicLayoutContext();
   const { experience } = usePublicPortfolioData(profile?.id);
   const { getContent } = usePublicPageContent(profile?.id);
 
@@ -47,6 +47,79 @@ export default function PublicExperience() {
     return ['Leadership', 'Problem Solving', 'Agile', 'Communication'];
   };
 
+  // ─── MINIMAL TEMPLATE ───
+  if (template === 'minimal') {
+    return (
+      <>
+        <section className="py-20 px-4 text-center border-b">
+          <div className="container mx-auto max-w-2xl">
+            <h1 className="text-4xl font-bold mb-3">Experience</h1>
+            <p className="text-muted-foreground">{heroSubtitle}</p>
+          </div>
+        </section>
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-2xl space-y-10">
+            {sortedExperience.length === 0 && <p className="text-center text-muted-foreground">No experience added yet.</p>}
+            {sortedExperience.map((exp) => (
+              <div key={exp.id} className="border-b pb-8 last:border-0">
+                <div className="flex items-start justify-between gap-4 mb-1">
+                  <h2 className="text-lg font-semibold">{exp.role}</h2>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap mt-1">
+                    {format(new Date(exp.start_date), 'MMM yyyy')} – {exp.is_current ? 'Present' : exp.end_date ? format(new Date(exp.end_date), 'MMM yyyy') : 'Present'}
+                  </span>
+                </div>
+                <p className="text-sm" style={{ color: brandColor }}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</p>
+                {exp.description && <p className="text-sm text-muted-foreground mt-2">{exp.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── PROFESSIONAL TEMPLATE ───
+  if (template === 'professional') {
+    return (
+      <>
+        <section className="py-10 px-4 border-b bg-muted/20">
+          <div className="container mx-auto max-w-5xl">
+            <h1 className="text-3xl font-bold mb-1">Professional Experience</h1>
+            <p className="text-muted-foreground text-sm">{heroSubtitle}</p>
+          </div>
+        </section>
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-5xl space-y-4">
+            {sortedExperience.length === 0 && <p className="text-center text-muted-foreground py-12">No experience added yet.</p>}
+            {sortedExperience.map((exp) => (
+              <div key={exp.id} className="border rounded-lg p-5">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      {exp.is_current && <Badge className="text-xs text-green-700 bg-green-100 border-green-200">Current</Badge>}
+                      <span className="font-bold text-lg">{exp.role}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm" style={{ color: brandColor }}>
+                      <Building2 className="h-3.5 w-3.5" />
+                      <span className="font-medium">{exp.company}</span>
+                      {exp.location && <><MapPin className="h-3 w-3 text-muted-foreground" /><span className="text-muted-foreground">{exp.location}</span></>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {format(new Date(exp.start_date), 'MMM yyyy')} – {exp.is_current ? 'Present' : exp.end_date ? format(new Date(exp.end_date), 'MMM yyyy') : 'Present'}
+                  </div>
+                </div>
+                {exp.description && <p className="text-sm text-muted-foreground">{exp.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── MODERN TEMPLATE (default) ───
   return (
     <>
       {/* Header */}

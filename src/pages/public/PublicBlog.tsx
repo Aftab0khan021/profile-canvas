@@ -13,7 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
 export default function PublicBlog() {
-  const { profile, brandColor, username } = usePublicLayoutContext();
+  const { profile, brandColor, template, username } = usePublicLayoutContext();
   const { getContent } = usePublicPageContent(profile?.id);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -52,6 +52,77 @@ export default function PublicBlog() {
   const featuredBlog = filteredBlogs[0];
   const restBlogs = filteredBlogs.slice(1);
 
+  // ─── MINIMAL TEMPLATE ───
+  if (template === 'minimal') {
+    return (
+      <>
+        <section className="py-20 px-4 text-center border-b">
+          <div className="container mx-auto max-w-2xl">
+            <h1 className="text-4xl font-bold mb-3">Writing</h1>
+            <p className="text-muted-foreground">{heroSubtitle}</p>
+          </div>
+        </section>
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-2xl space-y-8">
+            {filteredBlogs.length === 0 && <p className="text-center text-muted-foreground py-12">{emptyStateMessage}</p>}
+            {filteredBlogs.map((blog) => (
+              <div key={blog.id} className="border-b pb-8 last:border-0">
+                <time className="text-xs text-muted-foreground block mb-1">
+                  {format(new Date(blog.published_at || blog.created_at), 'MMMM d, yyyy')}
+                </time>
+                <Link to={`/p/${username}/blog/${blog.slug}`}>
+                  <h2 className="text-xl font-semibold hover:underline mb-2">{blog.title}</h2>
+                </Link>
+                <p className="text-muted-foreground text-sm line-clamp-2">{blog.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── PROFESSIONAL TEMPLATE ───
+  if (template === 'professional') {
+    return (
+      <>
+        <section className="py-10 px-4 border-b bg-muted/20">
+          <div className="container mx-auto max-w-5xl flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-1">Articles & Insights</h1>
+              <p className="text-muted-foreground text-sm">{heroSubtitle}</p>
+            </div>
+            <div className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 w-48" />
+            </div>
+          </div>
+        </section>
+        <section className="py-8 px-4">
+          <div className="container mx-auto max-w-5xl">
+            {filteredBlogs.length === 0 && <p className="text-center text-muted-foreground py-12">{emptyStateMessage}</p>}
+            <div className="space-y-3">
+              {filteredBlogs.map((blog) => (
+                <Link key={blog.id} to={`/p/${username}/blog/${blog.slug}`}>
+                  <div className="border rounded-lg p-4 flex items-start justify-between hover:bg-muted/30 transition-colors gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold hover:underline mb-1">{blog.title}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-1">{blog.content}</p>
+                    </div>
+                    <time className="text-xs text-muted-foreground whitespace-nowrap mt-1">
+                      {format(new Date(blog.published_at || blog.created_at), 'MMM d, yyyy')}
+                    </time>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ─── MODERN TEMPLATE (default) ───
   return (
     <>
       {/* Header */}
