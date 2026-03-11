@@ -4,8 +4,6 @@ import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
 import { usePublicProfileItems, usePublicPageContent } from '@/hooks/useProfileItems';
 import { useTrackView } from '@/hooks/useAnalytics';
 import { supabase } from '@/integrations/supabase/client';
-import { HeroSkeleton } from '@/components/PublicPageSkeleton';
-import { stripMarkdown } from '@/components/MarkdownRenderer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
