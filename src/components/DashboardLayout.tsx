@@ -8,7 +8,7 @@ import {
   Sparkles, LayoutDashboard, User, FolderOpen, Briefcase,
   Lightbulb, MessageSquare, Settings, LogOut, ExternalLink, Menu, X, Quote, FileText, GraduationCap, Award, FileDown, Heart, Palette, Trash2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -35,6 +35,12 @@ export default function DashboardLayout() {
   const { unreadCount } = useMessages();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Prevent body scroll while in dashboard (only main <main> should scroll)
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">

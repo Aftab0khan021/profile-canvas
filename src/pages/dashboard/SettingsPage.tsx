@@ -10,8 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ColorPicker } from '@/components/ColorPicker';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { Loader2, Save, Layout, Minimize2, Briefcase, Sparkles } from 'lucide-react';
 
 const settingsSchema = z.object({
@@ -104,8 +102,11 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6 max-w-2xl animate-pulse">
+        <div className="h-8 bg-muted rounded w-1/4" />
+        <div className="h-48 bg-muted rounded" />
+        <div className="h-48 bg-muted rounded" />
+        <div className="h-48 bg-muted rounded" />
       </div>
     );
   }
@@ -349,18 +350,16 @@ export default function SettingsPage() {
                   <FormItem>
                     <FormLabel>Portfolio Template</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2"
-                      >
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                        {/* Hidden input to store value */}
+                        <input type="hidden" {...field} />
+
                         {/* Modern */}
-                        <Label
-                          htmlFor="modern"
-                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+                        <button
+                          type="button"
+                          onClick={() => field.onChange('modern')}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all text-left ${field.value === 'modern' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
-                          <RadioGroupItem value="modern" id="modern" className="sr-only" />
-                          {/* Wireframe preview */}
                           <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex items-center justify-between p-2 gap-2">
                             <div className="flex-1 space-y-1">
                               <div className="h-2 bg-muted-foreground/30 rounded w-3/4" />
@@ -378,14 +377,14 @@ export default function SettingsPage() {
                             <span className="font-medium">Modern</span>
                           </div>
                           <span className="text-xs text-muted-foreground">Hero left, animated image right, floating skill badges</span>
-                        </Label>
+                        </button>
 
                         {/* Minimal */}
-                        <Label
-                          htmlFor="minimal"
-                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+                        <button
+                          type="button"
+                          onClick={() => field.onChange('minimal')}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all text-left ${field.value === 'minimal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
-                          <RadioGroupItem value="minimal" id="minimal" className="sr-only" />
                           <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex flex-col items-center justify-center gap-1 p-2">
                             <div className="w-8 h-8 rounded-full bg-primary/30" />
                             <div className="h-2 bg-muted-foreground/30 rounded w-2/3" />
@@ -396,14 +395,14 @@ export default function SettingsPage() {
                             <span className="font-medium">Minimal</span>
                           </div>
                           <span className="text-xs text-muted-foreground">Centered avatar, large typography, clean whitespace</span>
-                        </Label>
+                        </button>
 
                         {/* Professional */}
-                        <Label
-                          htmlFor="professional"
-                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all ${field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+                        <button
+                          type="button"
+                          onClick={() => field.onChange('professional')}
+                          className={`flex flex-col rounded-lg border-2 p-4 cursor-pointer transition-all text-left ${field.value === 'professional' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                         >
-                          <RadioGroupItem value="professional" id="professional" className="sr-only" />
                           <div className="w-full h-20 rounded bg-muted/50 mb-3 overflow-hidden flex items-center gap-2 p-2">
                             <div className="w-10 h-10 rounded-lg bg-primary/30 flex-shrink-0" />
                             <div className="flex-1 space-y-1">
@@ -417,8 +416,8 @@ export default function SettingsPage() {
                             <span className="font-medium">Professional</span>
                           </div>
                           <span className="text-xs text-muted-foreground">Image left, text right, compact corporate layout</span>
-                        </Label>
-                      </RadioGroup>
+                        </button>
+                      </div>
                     </FormControl>
                     <FormDescription>Choose how your public portfolio is displayed</FormDescription>
                     <FormMessage />

@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Scroll containment base — ensures h-screen works correctly.
+   Dashboard scroll is managed via useEffect in DashboardLayout.
+   Public portfolio pages use natural document scroll. */
+html, body, #root {
+  height: 100%;
+}
+
 /* 
  * FOLIOX Design System
  * Clean, minimalist portfolio builder aesthetic
