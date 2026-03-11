@@ -195,15 +195,34 @@ export default function PublicHome() {
               className="relative flex justify-center"
             >
               <div className="relative">
-                {profile?.avatar_url && (
-                  <img
-                    src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.hero)}
-                    alt={profile.full_name || ''}
-                    loading="lazy"
-                    className="w-72 h-72 md:w-80 md:h-80 rounded-3xl object-cover shadow-2xl animate-float-slow"
-                    style={{ boxShadow: `0 25px 50px -12px ${brandColor}40` }}
-                  />
-                )}
+                {/* Avatar: photo or initials fallback */}
+                <div
+                  className="w-72 h-72 md:w-80 md:h-80 rounded-full overflow-hidden animate-float-slow flex-shrink-0"
+                  style={{
+                    boxShadow: `0 0 0 5px ${brandColor}40, 0 25px 50px -12px ${brandColor}60`,
+                  }}
+                >
+                  {profile?.avatar_url ? (
+                    <img
+                      src={getOptimizedImageUrl(profile.avatar_url, IMAGE_PRESETS.hero)}
+                      alt={profile.full_name || ''}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center text-white text-6xl font-bold select-none"
+                      style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}99)` }}
+                    >
+                      {profile?.full_name
+                        ?.split(' ')
+                        .map((n: string) => n[0])
+                        .slice(0, 2)
+                        .join('')
+                        .toUpperCase() || '?'}
+                    </div>
+                  )}
+                </div>
                 {/* Floating skill badges */}
                 {topSkillNames[0] && (
                   <Badge
