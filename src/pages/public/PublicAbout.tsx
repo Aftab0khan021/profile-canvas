@@ -101,7 +101,7 @@ export default function PublicAbout() {
             {/* Left: Image or Initials Fallback */}
             <div className="flex-shrink-0">
               <div
-                className="w-56 h-56 rounded-full overflow-hidden"
+                className="w-72 h-72 rounded-full overflow-hidden"
                 style={{
                   boxShadow: `0 0 0 4px ${brandColor}40, 0 20px 40px -10px ${brandColor}50`,
                 }}
