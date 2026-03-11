@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component, ErrorInfo, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -53,6 +53,38 @@ const PageLoader = () => (
   </div>
 );
 
+// Error boundary to catch runtime crashes and show a helpful message
+class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[App Error Boundary]', error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center gap-4">
+          <div className="text-4xl">⚠️</div>
+          <h1 className="text-xl font-bold">Something went wrong</h1>
+          <p className="text-muted-foreground text-sm max-w-md">{this.state.error.message}</p>
+          <button
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
+            onClick={() => { this.setState({ error: null }); window.location.reload(); }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,7 +102,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
+            <AppErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
@@ -116,7 +149,8 @@ const App = () => (
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Suspense>
+              </Suspense>
+            </AppErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
