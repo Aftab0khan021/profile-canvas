@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ProjectPreviewModal } from '@/components/ProjectPreviewModal';
 import { Separator } from '@/components/ui/separator';
+import { maskStorageUrl } from '@/lib/storageUrl';
 
 export default function ProjectsPage() {
   const { projects, isLoading, createProject, updateProject, deleteProject, reorderProjects } = useProjects();
@@ -172,7 +173,7 @@ export default function ProjectsPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {formData.images.map((img, index) => (
                       <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border">
-                        <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
+                        <img src={maskStorageUrl(img)} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
@@ -267,7 +268,7 @@ export default function ProjectsPage() {
                         <Card className="h-full">
                           {project.image_url && (
                             <img
-                              src={project.image_url}
+                              src={maskStorageUrl(project.image_url)}
                               alt={project.title}
                               className="w-full h-40 object-cover rounded-t-lg"
                             />

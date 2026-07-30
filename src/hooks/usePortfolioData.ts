@@ -208,9 +208,10 @@ export function useProjects() {
 
   const reorderProjects = useMutation({
     mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      if (!user?.id) throw new Error('Not authenticated');
       const results = await Promise.allSettled(
         updates.map(({ id, sort_order }) =>
-          supabase.from('projects').update({ sort_order }).eq('id', id)
+          supabase.from('projects').update({ sort_order }).eq('id', id).eq('user_id', user.id) // BUG-6: defense-in-depth
         )
       );
       const failed = results.filter((r) => r.status === 'rejected');
@@ -530,10 +531,13 @@ export function useTestimonials() {
 
   const bulkDeleteTestimonials = useMutation({
     mutationFn: async (ids: string[]) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      // SEC-4: Added user_id filter to prevent IDOR
       const { error } = await supabase
         .from('testimonials')
         .delete()
-        .in('id', ids);
+        .in('id', ids)
+        .eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -544,7 +548,28 @@ export function useTestimonials() {
     },
   });
 
-  return { testimonials, isLoading, createTestimonial, updateTestimonial, deleteTestimonial, bulkDeleteTestimonials };
+  // BUG-4: Add trashTestimonial mutation (soft delete)
+  const trashTestimonial = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('testimonials')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Testimonial moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { testimonials, isLoading, createTestimonial, updateTestimonial, deleteTestimonial, bulkDeleteTestimonials, trashTestimonial };
 }
 
 // Messages hooks
@@ -639,7 +664,7 @@ export function usePublicPortfolioData(userId: string | undefined) {
     enabled: !!userId,
   });
 
-  const { data: skills = [], isLoading: skillsLoading } = useQuery({
+  const { data: skills = [], isLoading: skillsLoading } = useQuery<Skill[]>({
     queryKey: ['publicSkills', userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -656,6 +681,7 @@ export function usePublicPortfolioData(userId: string | undefined) {
     enabled: !!userId,
   });
 
+  // PERF-2: Added .is('deleted_at', null) to all public queries below
   const { data: testimonials = [] } = useQuery({
     queryKey: ['publicTestimonials', userId],
     queryFn: async () => {
@@ -664,8 +690,9 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('testimonials')
         .select('id, client_name, company, text, rating, created_at')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
-        .limit(10); // Limit to 10 testimonials for performance
+        .limit(10);
       if (error) throw error;
       return data as Testimonial[];
     },
@@ -680,8 +707,9 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('education')
         .select('id, degree, field_of_study, institution, location, start_date, end_date, is_current, gpa')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('start_date', { ascending: false })
-        .limit(10); // Limit to 10 education entries for performance
+        .limit(10);
       if (error) throw error;
       return data as Education[];
     },
@@ -696,15 +724,16 @@ export function usePublicPortfolioData(userId: string | undefined) {
         .from('certifications')
         .select('id, title, issuer, issue_date, credential_url, skills_learned')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('issue_date', { ascending: false })
-        .limit(15); // Limit to 15 certifications for performance
+        .limit(15);
       if (error) throw error;
       return data as Certification[];
     },
     enabled: !!userId,
   });
 
-  return { projects, experience, skills, testimonials, education, certifications, isLoading: projectsLoading || skillsLoading };
+  return { projects, experience, skills, testimonials, education, certifications, isLoading: projectsLoading || skillsLoading };  // isLoading covers the two slowest queries; individual lists default to [] until ready
 }
 
 // Education hooks
@@ -721,6 +750,7 @@ export function useEducation() {
         .from('education')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)  // exclude soft-deleted
         .order('start_date', { ascending: false });
       if (error) throw error;
       return data as Education[];
@@ -778,14 +808,36 @@ export function useEducation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['education', user?.id] });
-      toast({ title: 'Education deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Education permanently deleted' });
     },
     onError: (error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
-  return { education, isLoading, createEducation, updateEducation, deleteEducation };
+  // BUG-4: Add trashEducation mutation (soft delete)
+  const trashEducation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('education')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['education', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Education moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { education, isLoading, createEducation, updateEducation, deleteEducation, trashEducation };
 }
 
 // Certifications hooks
@@ -802,6 +854,7 @@ export function useCertifications() {
         .from('certifications')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)  // exclude soft-deleted
         .order('issue_date', { ascending: false });
       if (error) throw error;
       return data as Certification[];
@@ -859,12 +912,34 @@ export function useCertifications() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['certifications', user?.id] });
-      toast({ title: 'Certification deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Certification permanently deleted' });
     },
     onError: (error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
-  return { certifications, isLoading, createCertification, updateCertification, deleteCertification };
+  // BUG-4: Add trashCertification mutation (soft delete)
+  const trashCertification = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('certifications')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certifications', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['trash', user?.id] });
+      toast({ title: 'Certification moved to Trash', description: 'Restorable for 30 days from the Trash section.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  return { certifications, isLoading, createCertification, updateCertification, deleteCertification, trashCertification };
 }

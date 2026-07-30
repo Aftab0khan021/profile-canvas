@@ -1,9 +1,30 @@
 {
   "rewrites": [
     {
-        
+      "source": "/img/:path*",
+      "destination": "https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/object/public/portfolio-images/:path*"
+    },
+    {
+      "source": "/files/:path*",
+      "destination": "https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/object/public/portfolio-files/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/img/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/files/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
     }
   ]
 }

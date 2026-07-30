@@ -13,7 +13,7 @@ if (sentryDsn && sentryDsn !== "your_sentry_dsn_here") {
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
-        maskAllText: false,
+        maskAllText: true,   // CQ-5: Mask PII in session replays
         blockAllMedia: false,
       }),
     ],
@@ -27,9 +27,7 @@ if (sentryDsn && sentryDsn !== "your_sentry_dsn_here") {
     // Release tracking
     release: import.meta.env.VITE_APP_VERSION || "development",
   });
-  console.log("✅ Sentry initialized");
-} else {
-  console.warn("⚠️ Sentry DSN not configured - error monitoring disabled");
+  // C-3: removed console.log("Sentry initialized") — reveals monitoring stack
 }
 
 createRoot(document.getElementById("root")!).render(

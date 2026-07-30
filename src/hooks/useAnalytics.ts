@@ -12,7 +12,7 @@ export interface PortfolioView {
 }
 
 export interface AnalyticsData {
-  totalViews: number;
+  viewsLast30Days: number;  // renamed from totalViews — only covers last 30 days, not all-time
   viewsToday: number;
   viewsThisWeek: number;
   viewsThisMonth: number;
@@ -28,7 +28,7 @@ export function useAnalytics() {
     queryFn: async (): Promise<AnalyticsData> => {
       if (!user?.id) {
         return {
-          totalViews: 0,
+          viewsLast30Days: 0,
           viewsToday: 0,
           viewsThisWeek: 0,
           viewsThisMonth: 0,
@@ -103,7 +103,7 @@ export function useAnalytics() {
       }));
 
       return {
-        totalViews: viewsData.length,
+        viewsLast30Days: viewsData.length,
         viewsToday,
         viewsThisWeek,
         viewsThisMonth,

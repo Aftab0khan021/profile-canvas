@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
+import { maskStorageUrl } from '@/lib/storageUrl';
 
 export default function PublicHome() {
   const { profile, brandColor, username, template } = usePublicLayoutContext();
@@ -251,7 +252,7 @@ export default function PublicHome() {
                   </Button>
                   {profile?.resume_url && (
                     <Button variant="ghost" asChild>
-                      <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                      <a href={maskStorageUrl(profile.resume_url)} target="_blank" rel="noopener noreferrer">
                         <Download className="h-4 w-4 mr-2" />Resume
                       </a>
                     </Button>
@@ -393,7 +394,7 @@ export default function PublicHome() {
                 </Button>
                 {profile?.resume_url && (
                   <Button size="lg" variant="outline" className="gap-2" asChild>
-                    <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                    <a href={maskStorageUrl(profile.resume_url)} target="_blank" rel="noopener noreferrer">
                       <Download className="h-4 w-4" /> Resume
                     </a>
                   </Button>

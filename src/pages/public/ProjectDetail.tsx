@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { maskStorageUrl } from '@/lib/storageUrl';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -29,13 +30,15 @@ export default function ProjectDetail() {
     [projects, projectId]
   );
   
-  // Use gallery images if available, fallback to cover image
+  // Use gallery images if available, fallback to cover image.
+  // All URLs are masked through maskStorageUrl so Supabase internals are never exposed.
   const images = useMemo(() => {
     if (!project) return [];
-    const galleryImages = project.images || [];
+    const galleryImages = (project.images || []).map(maskStorageUrl).filter(Boolean) as string[];
     if (galleryImages.length > 0) return galleryImages;
     // Fallback to single cover image
-    return project.image_url ? [project.image_url] : [];
+    const cover = maskStorageUrl(project.image_url);
+    return cover ? [cover] : [];
   }, [project]);
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

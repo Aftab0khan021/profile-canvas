@@ -21,9 +21,20 @@ export function MarkdownRenderer({
   const isPreview = variant === 'preview';
   const lines = content.split('\n');
 
+  /** Escape HTML special chars to prevent XSS via dangerouslySetInnerHTML */
+  const escapeHtml = (str: string): string =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
   const renderInline = (text: string) => {
-    // Strip or render inline Markdown
-    const html = text
+    // SEC-5: Escape HTML FIRST, then apply markdown transforms on the safe string.
+    // This prevents injected <script>, <img onerror=...>, etc. from executing.
+    const safe = escapeHtml(text);
+    const html = safe
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`(.+?)`/g, `<code class="${isPreview ? 'text-xs' : 'text-sm'} bg-muted px-1.5 py-0.5 rounded font-mono">$1</code>`)

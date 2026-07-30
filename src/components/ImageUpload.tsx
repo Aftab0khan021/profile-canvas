@@ -5,6 +5,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload, X, Image as ImageIcon, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
+
+// CQ-3: Allowed MIME types to prevent uploading executables or dangerous file types
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml'];
+const ALLOWED_FILE_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf'];
 
 interface ImageUploadProps {
   value?: string | null;
@@ -43,10 +48,22 @@ export function ImageUpload({
       return;
     }
 
+    // CQ-3: Validate MIME type before uploading
+    const allowedTypes = variant === 'file' ? ALLOWED_FILE_TYPES : ALLOWED_IMAGE_TYPES;
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: `Allowed types: ${allowedTypes.map(t => t.split('/')[1]).join(', ')}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setUploading(true);
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
+    // Use randomUUID to avoid filename collisions on rapid uploads (Date.now has ms precision only)
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
     const filePath = `${user.id}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -85,14 +102,27 @@ export function ImageUpload({
           const filePath = url.pathname.slice(bucketIndex + bucket.length + 2);
           const { error: removeError } = await supabase.storage.from(bucket).remove([filePath]);
           if (removeError) {
-            console.error('Failed to delete file from storage:', removeError);
-            toast({ title: 'Warning', description: 'File removed from view but storage cleanup failed.', variant: 'destructive' });
+            logger.error('Failed to delete file from storage', removeError);
+            // Do NOT clear onChange — keep the file visible so the user knows it still exists
+            toast({
+              title: 'Remove failed',
+              description: 'Could not delete the file from storage. Please try again.',
+              variant: 'destructive',
+            });
+            return; // ← stop here, don't call onChange(null)
           }
         }
       } catch (err) {
-        console.error('Error parsing storage URL:', err);
+        logger.error('Error parsing storage URL', err);
+        toast({
+          title: 'Remove failed',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        });
+        return; // ← stop here too
       }
     }
+    // Only reached when storage removal succeeded (or there was no file to remove)
     onChange(null);
   };
 

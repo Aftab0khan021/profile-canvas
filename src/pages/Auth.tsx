@@ -12,6 +12,7 @@ import { Loader2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { logger } from '@/lib/logger';
 
 
 const loginSchema = z.object({
@@ -77,7 +78,7 @@ export default function Auth() {
           .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
-          console.error('Error checking username:', error);
+          logger.error('Username check failed', error);
           setUsernameAvailable(null);
         } else {
           setUsernameAvailable(!data);

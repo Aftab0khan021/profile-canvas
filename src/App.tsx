@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecaptchaProvider } from "@/components/RecaptchaProvider";
+import { logger } from "@/lib/logger";
 
 // Eager load critical routes (auth, landing)
 import Landing from "./pages/Landing";
@@ -63,7 +64,8 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
     return { error };
   }
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[App Error Boundary]', error, info);
+    // C-8: Log only in dev, report to Sentry in prod — no console output in production
+    logger.error('Uncaught application error', error, { componentStack: info.componentStack ?? undefined });
   }
   render() {
     if (this.state.error) {
@@ -71,7 +73,8 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
         <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center gap-4">
           <div className="text-4xl">⚠️</div>
           <h1 className="text-xl font-bold">Something went wrong</h1>
-          <p className="text-muted-foreground text-sm max-w-md">{this.state.error.message}</p>
+          {/* CQ-4: Show a generic message — never expose raw error.message to users */}
+          <p className="text-muted-foreground text-sm max-w-md">An unexpected error occurred. Please try reloading the page.</p>
           <button
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
             onClick={() => { this.setState({ error: null }); window.location.reload(); }}

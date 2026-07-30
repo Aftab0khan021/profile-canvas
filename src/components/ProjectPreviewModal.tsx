@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Github, X } from 'lucide-react';
 import { Project } from '@/hooks/usePortfolioData';
+import { maskStorageUrl } from '@/lib/storageUrl';
 
 interface ProjectPreviewModalProps {
   project: Project | null;
@@ -32,7 +33,7 @@ export function ProjectPreviewModal({
           {project.image_url ? (
             <div className="relative aspect-video bg-muted">
               <img
-                src={project.image_url}
+                src={maskStorageUrl(project.image_url)}
                 alt={project.title}
                 className="w-full h-full object-cover"
               />

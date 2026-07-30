@@ -13,6 +13,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
+import { maskStorageUrl } from '@/lib/storageUrl';
 
 // Default values if user hasn't created any
 const defaultHighlights = [
@@ -162,7 +163,7 @@ export default function PublicAbout() {
 
               {profile?.resume_url && (
                 <Button style={{ backgroundColor: brandColor }} className="text-white gap-2" asChild>
-                  <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                  <a href={maskStorageUrl(profile.resume_url)} target="_blank" rel="noopener noreferrer">
                     <Download className="h-4 w-4" /> Download Resume
                   </a>
                 </Button>

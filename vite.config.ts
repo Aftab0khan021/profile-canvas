@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    sourcemap: true, // Enable source maps for Sentry
+    sourcemap: 'hidden', // Generate maps for Sentry upload but don't serve them publicly
     rollupOptions: {
       output: {
         manualChunks: {

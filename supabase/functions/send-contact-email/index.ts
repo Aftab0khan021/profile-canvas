@@ -208,12 +208,11 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("RESEND_API_KEY is not configured");
     }
 
-    // Get client IP address
-    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    // Get client IP — prefer CF-Connecting-IP (set by Cloudflare edge, not spoofable)
+    // SEC-3: X-Forwarded-For is client-controlled and was previously used, enabling rate-limit bypass.
+    const clientIp = req.headers.get("cf-connecting-ip") ||
       req.headers.get("x-real-ip") ||
       "unknown";
-
-    console.log("Request from IP:", clientIp);
 
     // 1. Verify reCAPTCHA token
     const recaptchaResult = await verifyRecaptcha(recaptcha_token || "");

@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { maskStorageUrl } from '@/lib/storageUrl';
 
 export interface ImageTransformOptions {
     width?: number;
@@ -8,21 +9,23 @@ export interface ImageTransformOptions {
 }
 
 /**
- * Get optimized image URL from Supabase Storage with transformations
- * @param path - Image path in storage or full URL
+ * Get optimized image URL from Supabase Storage with transformations.
+ * The returned URL is always a clean proxy path — the Supabase project ID
+ * and bucket name are never exposed to the user.
+ *
+ * @param path - Image path in storage or full Supabase URL
  * @param options - Transformation options
- * @returns Optimized image URL or original URL as fallback
+ * @returns Masked, optimized image URL
  */
 export function getOptimizedImageUrl(
     path: string | null | undefined,
     options: ImageTransformOptions = {}
 ): string {
-    // Return placeholder if no path
     if (!path) return '/placeholder.svg';
 
-    // If it's already a full URL (http/https), return it as-is
-    // Supabase transformations only work on storage paths, not external URLs
-    if (path.startsWith('http://') || path.startsWith('https://')) {
+    // Non-Supabase external URL (github, cdn, etc.) — return unchanged
+    if ((path.startsWith('http://') || path.startsWith('https://')) &&
+        !path.includes('supabase.co')) {
         return path;
     }
 
@@ -33,24 +36,31 @@ export function getOptimizedImageUrl(
         format = 'webp'
     } = options;
 
+    // If it's a full Supabase URL, extract just the storage path for the SDK call
+    const STORAGE_OBJECT_PREFIX =
+        'https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/object/public/portfolio-images/';
+    let storagePath = path;
+    if (path.startsWith(STORAGE_OBJECT_PREFIX)) {
+        storagePath = path.slice(STORAGE_OBJECT_PREFIX.length);
+    }
+
     try {
-        // Try to get optimized URL from Supabase storage
         const { data } = supabase.storage
             .from('portfolio-images')
-            .getPublicUrl(path, {
+            .getPublicUrl(storagePath, {
                 transform: {
                     width,
                     height,
                     quality,
-                    format: format as 'origin', // Type assertion for Supabase compatibility
+                    format: format as 'origin',
                 },
             });
 
-        return data.publicUrl;
-    } catch (error) {
-        console.error('Error getting optimized image URL:', error);
-        // Fallback to original path if transformation fails
-        return path;
+        // Always mask — never expose the raw Supabase URL
+        return maskStorageUrl(data.publicUrl) || maskStorageUrl(path) || '/placeholder.svg';
+    } catch {
+        // Silently fall back to masked original URL
+        return maskStorageUrl(path) || '/placeholder.svg';
     }
 }
 
@@ -66,17 +76,13 @@ export const IMAGE_PRESETS = {
 } as const;
 
 /**
- * Get responsive srcset for an image
- * @param path - Image path in storage
- * @param sizes - Array of widths to generate
- * @returns srcset string
+ * Get responsive srcset for an image (all URLs masked)
  */
 export function getResponsiveSrcSet(
     path: string | null | undefined,
     sizes: number[] = [400, 800, 1200, 1600]
 ): string {
     if (!path) return '';
-
     return sizes
         .map(width => {
             const url = getOptimizedImageUrl(path, { width, format: 'webp' });

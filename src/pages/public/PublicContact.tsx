@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Mail, Phone, Linkedin, Github, Send, Loader2, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export default function PublicContact() {
   const { profile, brandColor } = usePublicLayoutContext();
@@ -59,6 +60,7 @@ export default function PublicContact() {
     } catch (error) {
       setSending(false);
       console.error('reCAPTCHA error:', error);
+      logger.error('reCAPTCHA verification failed', error);
       toast({
         title: 'Security check failed',
         description: 'Please refresh the page and try again.',
@@ -137,7 +139,7 @@ export default function PublicContact() {
       // Check for other errors
       if (!response.ok) {
         setSending(false);
-        console.error('Edge Function error:', responseData);
+        logger.error('Edge Function error', new Error(`Status ${response.status}`));
         toast({
           title: 'Error',
           description: 'Failed to send message. Please try again.',
@@ -156,7 +158,7 @@ export default function PublicContact() {
       setTimeout(() => setSent(false), 5000);
     } catch (error) {
       setSending(false);
-      console.error('Network error:', error);
+      logger.error('Contact form network error', error);
       toast({
         title: 'Error',
         description: 'Failed to send message. Please try again.',
@@ -169,9 +171,13 @@ export default function PublicContact() {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const safeEmail = EMAIL_REGEX.test(profile?.email ?? '') ? profile?.email : null;
 
+  // SEC-6: Validate phone number format before rendering as tel: href
+  const PHONE_REGEX = /^[+\d][\d\s()-]{5,20}$/;
+  const safePhone = PHONE_REGEX.test(profile?.phone ?? '') ? profile?.phone : null;
+
   const contactInfo = [
     { icon: Mail, label: 'Email', value: safeEmail, href: safeEmail ? `mailto:${safeEmail}` : undefined },
-    { icon: Phone, label: 'Phone', value: profile?.phone, href: `tel:${profile?.phone}` },
+    { icon: Phone, label: 'Phone', value: safePhone, href: safePhone ? `tel:${safePhone}` : undefined },
     { icon: Linkedin, label: 'LinkedIn', value: 'Connect with me', href: profile?.linkedin_url },
     { icon: Github, label: 'GitHub', value: 'View my code', href: profile?.github_url },
   ].filter(item => item.value || item.href);

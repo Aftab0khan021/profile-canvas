@@ -1,5 +1,6 @@
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { ReactNode } from 'react';
+import { logger } from '@/lib/logger';
 
 interface RecaptchaProviderProps {
     children: ReactNode;
@@ -9,7 +10,7 @@ export function RecaptchaProvider({ children }: RecaptchaProviderProps) {
     const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
     if (!recaptchaSiteKey) {
-        console.warn('reCAPTCHA site key not found. CAPTCHA protection is disabled.');
+        logger.warn('reCAPTCHA site key not found. CAPTCHA protection is disabled.');
         return <>{children}</>;
     }
 

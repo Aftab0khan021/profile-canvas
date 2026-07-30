@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { logger } from '@/lib/logger';
 
 export interface TurnstileVerificationResult {
     success: boolean;
@@ -13,7 +14,7 @@ export async function verifyTurnstileToken(token: string): Promise<TurnstileVeri
         });
 
         if (error) {
-            console.error('Error calling verify-turnstile function:', error);
+            logger.error('Turnstile verification call failed', error);
             return {
                 success: false,
                 error: 'Failed to verify security check',
@@ -22,7 +23,7 @@ export async function verifyTurnstileToken(token: string): Promise<TurnstileVeri
 
         return data;
     } catch (error) {
-        console.error('Exception verifying Turnstile token:', error);
+        logger.error('Exception verifying Turnstile token', error);
         return {
             success: false,
             error: 'Failed to verify security check',
