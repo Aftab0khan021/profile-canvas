@@ -186,7 +186,7 @@ export default function EducationPage() {
           <div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" />
         </div>
       ) : education.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState
             icon={GraduationCap}
             title="No education added yet"
@@ -196,7 +196,7 @@ export default function EducationPage() {
       ) : (
         <div className="space-y-3">
           {education.map((edu) => (
-            <div key={edu.id} className="group flex gap-4 p-5 rounded-xl border border-border bg-card hover:border-border/80 transition-colors duration-150">
+            <div key={edu.id} className="group flex gap-4 p-5 bento-card">
               <div className="h-10 w-10 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
                 <GraduationCap className="h-5 w-5 text-violet-500" />
               </div>

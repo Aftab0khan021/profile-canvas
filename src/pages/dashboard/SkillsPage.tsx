@@ -169,7 +169,7 @@ export default function SkillsPage() {
     >
 
       {skills.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState
             icon={Lightbulb}
             title="No skills added yet"
@@ -184,7 +184,7 @@ export default function SkillsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
-            <div key={category} className="rounded-xl border border-border bg-card overflow-hidden">
+            <div key={category} className="bento-card overflow-hidden p-0">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
                 <span className="font-display font-semibold text-sm">{category}</span>
                 <span className="font-mono text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-muted">{categorySkills.length}</span>

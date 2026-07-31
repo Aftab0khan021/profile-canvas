@@ -188,7 +188,7 @@ export default function TestimonialsPage() {
       {isLoading ? (
         <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
       ) : testimonials.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState icon={Quote} title="No testimonials yet" body="Add your first testimonial to showcase client feedback." />
         </div>
       ) : (

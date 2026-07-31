@@ -33,7 +33,7 @@ export default function MessagesPage() {
       maxWidth="xl"
     >
       {messages.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState
             icon={MessageSquare}
             title="No messages yet"

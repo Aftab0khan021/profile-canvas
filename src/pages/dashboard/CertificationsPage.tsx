@@ -137,13 +137,13 @@ export default function CertificationsPage() {
       {isLoading ? (
         <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
       ) : certifications.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState icon={Award} title="No certifications yet" body="Add your professional certifications to build credibility." />
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {certifications.map((cert) => (
-            <div key={cert.id} className="group flex gap-3 p-4 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
+            <div key={cert.id} className="group flex gap-3 p-4 bento-card">
               <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
                 <Award className="h-5 w-5 text-amber-500" />
               </div>

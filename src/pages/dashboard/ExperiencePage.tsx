@@ -226,7 +226,7 @@ export default function ExperiencePage() {
     >
 
       {experience.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState
             icon={Briefcase}
             title="No experience added yet"
@@ -241,7 +241,7 @@ export default function ExperiencePage() {
       ) : (
         <div className="space-y-3">
           {experience.map((exp) => (
-            <div key={exp.id} className="group flex gap-4 p-5 rounded-xl border border-border bg-card hover:border-border/80 transition-colors duration-150">
+            <div key={exp.id} className="group flex gap-4 p-5 bento-card transition-colors duration-150">
               {/* Timeline dot */}
               <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-violet-500 ring-4 ring-violet-500/10" />

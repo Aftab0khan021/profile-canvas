@@ -334,7 +334,7 @@ export default function BlogPage() {
     >
 
       {blogs.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card">
+        <div className="bento-card">
           <EmptyState
             icon={FileText}
             title="No blog posts yet"

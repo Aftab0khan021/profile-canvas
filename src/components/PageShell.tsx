@@ -31,16 +31,16 @@ export function PageShell({
   }[maxWidth];
 
   return (
-    <div className={cn('space-y-6 animate-fade-in', maxW, className)}>
-      {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+    <div className={cn('space-y-5 animate-fade-in', maxW, className)}>
+      {/* Page header — matches DashboardHome section header style */}
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-[22px] font-bold tracking-tight leading-tight">{title}</h1>
+          <h1 className="font-display text-xl font-bold tracking-tight">{title}</h1>
           {description && (
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{description}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           )}
         </div>
-        {action && <div className="shrink-0 mt-0.5">{action}</div>}
+        {action && <div className="shrink-0">{action}</div>}
       </div>
       {children}
     </div>
@@ -59,20 +59,17 @@ interface SectionProps {
 
 export function Section({ title, description, children, className, action, noPad }: SectionProps) {
   return (
-    <div className={cn('rounded-xl border border-border bg-card', className)}>
+    <div className={cn('bento-card', className)}>
       {(title || description || action) && (
-        <div className={cn(
-          'flex items-start justify-between gap-3 px-5 py-4',
-          'border-b border-border/60'
-        )}>
+        <div className="flex items-center justify-between gap-3 mb-4">
           <div>
-            {title && <h2 className="font-display text-[15px] font-semibold leading-snug">{title}</h2>}
+            {title && <h2 className="text-sm font-semibold">{title}</h2>}
             {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
       )}
-      <div className={noPad ? '' : 'p-5'}>{children}</div>
+      <div>{children}</div>
     </div>
   );
 }
@@ -104,11 +101,11 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-      <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mb-4">
-        <Icon className="h-6 w-6 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
+      <div className="h-12 w-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
+        <Icon className="h-6 w-6 text-violet-500" />
       </div>
-      <h3 className="font-display font-semibold text-base mb-1.5">{title}</h3>
+      <h3 className="font-display font-semibold text-[15px] mb-1.5">{title}</h3>
       <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{body}</p>
       {action && <div className="mt-5">{action}</div>}
     </div>
@@ -124,11 +121,14 @@ export function Chip({ children, className }: { children: ReactNode; className?:
   );
 }
 
-/** Spinning loader for full page states */
+/** Full-page spinner — matches DashboardHome loading style */
 export function PageLoader() {
   return (
     <div className="flex items-center justify-center h-48">
-      <div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" />
+      <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        <div className="h-4 w-4 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
+        Loading...
+      </div>
     </div>
   );
 }
