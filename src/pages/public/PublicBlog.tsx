@@ -201,8 +201,8 @@ export default function PublicBlog() {
                   transition={{ duration: 0.5 }}
                   className="mb-12"
                 >
-                  <Link to={`/p/${username}/blog/${featuredBlog.slug}`}>
-                    <Card className="overflow-hidden hover:shadow-2xl transition-all cursor-pointer group">
+                <Link to={`/p/${username}/blog/${featuredBlog.slug}`}>
+                    <div className="bento-card overflow-hidden hover:shadow-2xl transition-all cursor-pointer group p-0">
                       <div className="grid md:grid-cols-2">
                         <div 
                           className="h-64 md:h-auto flex items-center justify-center"
@@ -210,22 +210,22 @@ export default function PublicBlog() {
                         >
                           <FileText className="h-24 w-24 opacity-30" style={{ color: brandColor }} />
                         </div>
-                        <CardContent className="pt-8 pb-8 flex flex-col justify-center">
-                          <Badge 
-                            className="w-fit mb-4 text-white"
+                        <div className="p-8 flex flex-col justify-center">
+                          <span 
+                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold text-white w-fit mb-4"
                             style={{ backgroundColor: brandColor }}
                           >
                             Featured Article
-                          </Badge>
-                          <h2 className="font-bold text-2xl md:text-3xl mb-4 group-hover:underline">
+                          </span>
+                          <h2 className="font-display font-bold text-2xl md:text-3xl mb-4 group-hover:underline tracking-tight">
                             {featuredBlog.title}
                           </h2>
-                          <p className="text-muted-foreground line-clamp-3 mb-6 text-lg">
+                          <p className="text-muted-foreground line-clamp-3 mb-6 text-sm leading-relaxed">
                             {featuredBlog.content}
                           </p>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Calendar className="h-4 w-4" />
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Calendar className="h-3.5 w-3.5" />
                               <time dateTime={featuredBlog.published_at || featuredBlog.created_at}>
                                 {format(
                                   new Date(featuredBlog.published_at || featuredBlog.created_at),
@@ -234,15 +234,15 @@ export default function PublicBlog() {
                               </time>
                             </div>
                             <Button 
-                              className="text-white gap-2"
-                              style={{ backgroundColor: brandColor }}
+                              size="sm"
+                              className="btn-gradient h-8 px-4 text-xs gap-1.5"
                             >
-                              Read Article <ArrowRight className="h-4 w-4" />
+                              Read Article <ArrowRight className="h-3.5 w-3.5" />
                             </Button>
                           </div>
-                        </CardContent>
+                        </div>
                       </div>
-                    </Card>
+                    </div>
                   </Link>
                 </motion.div>
               )}
@@ -259,18 +259,18 @@ export default function PublicBlog() {
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
                       <Link to={`/p/${username}/blog/${blog.slug}`}>
-                        <Card className="h-full hover:shadow-lg transition-all cursor-pointer group overflow-hidden">
+                        <div className="bento-card h-full cursor-pointer group overflow-hidden p-0">
                           <div 
-                            className="h-32 flex items-center justify-center"
+                            className="h-28 flex items-center justify-center"
                             style={{ background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}05)` }}
                           >
-                            <FileText className="h-12 w-12 opacity-30" style={{ color: brandColor }} />
+                            <FileText className="h-10 w-10 opacity-30" style={{ color: brandColor }} />
                           </div>
-                          <CardContent className="pt-6">
-                            <h3 className="font-bold text-lg mb-2 group-hover:underline line-clamp-2">
+                          <div className="p-4">
+                            <h3 className="font-semibold text-sm mb-2 group-hover:underline line-clamp-2">
                               {blog.title}
                             </h3>
-                            <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
+                            <p className="text-muted-foreground text-xs line-clamp-3 mb-3 leading-relaxed">
                               {blog.content}
                             </p>
                             <div className="flex items-center justify-between">
@@ -284,14 +284,14 @@ export default function PublicBlog() {
                                 )}
                               </time>
                               <span
-                                className="text-sm font-medium flex items-center gap-1"
+                                className="text-xs font-semibold flex items-center gap-1"
                                 style={{ color: brandColor }}
                               >
                                 Read <ArrowRight className="h-3 w-3" />
                               </span>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       </Link>
                     </motion.div>
                   ))}

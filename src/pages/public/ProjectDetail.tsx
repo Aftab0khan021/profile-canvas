@@ -253,60 +253,50 @@ export default function ProjectDetail() {
             >
               {/* Key Features */}
               {keyFeatures.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5" style={{ color: brandColor }} />
-                      Key Features
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {keyFeatures.map((feature, index) => (
-                        <motion.li
-                          key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
-                          className="flex items-start gap-3"
-                        >
-                          <CheckCircle2 
-                            className="h-5 w-5 mt-0.5 flex-shrink-0" 
-                            style={{ color: brandColor }} 
-                          />
-                          <span>{feature}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                <div className="bento-card">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle2 className="h-4 w-4" style={{ color: brandColor }} />
+                    <h3 className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground">Key Features</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {keyFeatures.map((feature, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                        className="flex items-start gap-2.5 text-sm"
+                      >
+                        <CheckCircle2 
+                          className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" 
+                          style={{ color: brandColor }} 
+                        />
+                        <span className="text-muted-foreground text-xs leading-relaxed">{feature}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {/* Technologies Used */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Technologies Used</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {(project.tech_stack || []).map((tech, index) => (
-                      <motion.div
-                        key={tech}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
-                      >
-                        <Badge 
-                          variant="secondary" 
-                          className="text-sm py-1.5 px-3"
-                        >
-                          {tech}
-                        </Badge>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bento-card">
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground">Technologies Used</h3>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(project.tech_stack || []).map((tech, index) => (
+                    <motion.span
+                      key={tech}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
+                      className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground"
+                    >
+                      {tech}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
             </motion.div>
 
             {/* Right Column */}
@@ -317,105 +307,77 @@ export default function ProjectDetail() {
               className="space-y-6"
             >
               {/* Timeline */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" style={{ color: brandColor }} />
-                    Timeline
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div 
-                      className="p-4 rounded-xl"
-                      style={{ backgroundColor: `${brandColor}10` }}
-                    >
-                      <p className="text-sm text-muted-foreground mb-1">Started</p>
-                      <p className="font-semibold">
-                        {new Date(project.created_at).toLocaleDateString('en-US', { 
-                          month: 'long', 
-                          day: 'numeric',
-                          year: 'numeric' 
-                        })}
-                      </p>
-                    </div>
-                    <div 
-                      className="p-4 rounded-xl"
-                      style={{ backgroundColor: `${brandColor}10` }}
-                    >
-                      <p className="text-sm text-muted-foreground mb-1">Completed</p>
-                      <p className="font-semibold">
-                        {new Date(project.updated_at).toLocaleDateString('en-US', { 
-                          month: 'long', 
-                          day: 'numeric',
-                          year: 'numeric' 
-                        })}
-                      </p>
-                    </div>
+              <div className="bento-card">
+                <div className="flex items-center gap-2 mb-3">
+                  <Calendar className="h-4 w-4" style={{ color: brandColor }} />
+                  <h3 className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground">Timeline</h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: `${brandColor}10` }}>
+                    <p className="text-xs text-muted-foreground mb-0.5">Started</p>
+                    <p className="text-sm font-semibold">
+                      {new Date(project.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: `${brandColor}10` }}>
+                    <p className="text-xs text-muted-foreground mb-0.5">Last Updated</p>
+                    <p className="text-sm font-semibold">
+                      {new Date(project.updated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               {/* Project Links */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <LinkIcon className="h-5 w-5" style={{ color: brandColor }} />
-                    Project Links
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {project.live_url && (
-                      <a
-                        href={project.live_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group"
+              <div className="bento-card">
+                <div className="flex items-center gap-2 mb-3">
+                  <LinkIcon className="h-4 w-4" style={{ color: brandColor }} />
+                  <h3 className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground">Project Links</h3>
+                </div>
+                <div className="space-y-2">
+                  {project.live_url && (
+                    <a
+                      href={project.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition-colors group"
+                    >
+                      <div 
+                        className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: `${brandColor}20` }}
                       >
-                        <div 
-                          className="h-10 w-10 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${brandColor}20` }}
-                        >
-                          <ExternalLink className="h-5 w-5" style={{ color: brandColor }} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">Live Demo</p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {project.live_url}
-                          </p>
-                        </div>
-                      </a>
-                    )}
-                    {project.github_url && (
-                      <a
-                        href={project.github_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group"
+                        <ExternalLink className="h-4 w-4" style={{ color: brandColor }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm">Live Demo</p>
+                        <p className="text-xs text-muted-foreground truncate">{project.live_url}</p>
+                      </div>
+                    </a>
+                  )}
+                  {project.github_url && (
+                    <a
+                      href={project.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition-colors group"
+                    >
+                      <div 
+                        className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: `${brandColor}20` }}
                       >
-                        <div 
-                          className="h-10 w-10 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${brandColor}20` }}
-                        >
-                          <Github className="h-5 w-5" style={{ color: brandColor }} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">Source Code</p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {project.github_url}
-                          </p>
-                        </div>
-                      </a>
-                    )}
-                    {!project.live_url && !project.github_url && (
-                      <p className="text-muted-foreground text-center py-4">
-                        No external links available
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                        <Github className="h-4 w-4" style={{ color: brandColor }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm">Source Code</p>
+                        <p className="text-xs text-muted-foreground truncate">{project.github_url}</p>
+                      </div>
+                    </a>
+                  )}
+                  {!project.live_url && !project.github_url && (
+                    <p className="text-muted-foreground text-xs text-center py-3">No external links available</p>
+                  )}
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>

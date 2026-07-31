@@ -281,9 +281,9 @@ export default function PublicProjects() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card className="overflow-hidden group h-full flex flex-col">
+                  <div className="bento-card overflow-hidden group h-full flex flex-col p-0">
                     {/* Image with Overlay */}
-                    <div className="relative overflow-hidden h-56">
+                    <div className="relative overflow-hidden h-48">
                       {project.image_url ? (
                         <img
                           src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
@@ -296,53 +296,43 @@ export default function PublicProjects() {
                           className="w-full h-full flex items-center justify-center"
                           style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
                         >
-                          <FolderOpen className="h-16 w-16 text-muted-foreground/50" />
+                          <FolderOpen className="h-14 w-14 text-muted-foreground/50" />
                         </div>
                       )}
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        <Button
-                          size="sm"
-                          className="text-white"
-                          style={{ backgroundColor: brandColor }}
-                          asChild
-                        >
+                        <Button size="sm" className="btn-gradient text-xs h-8" asChild>
                           <Link to={`/p/${username}/projects/${project.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
+                            <Eye className="h-3.5 w-3.5 mr-1.5" />
                             View Details
                           </Link>
                         </Button>
                         {project.github_url && (
-                          <Button size="sm" variant="secondary" asChild>
+                          <Button size="sm" variant="secondary" className="text-xs h-8" asChild>
                             <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4 mr-2" />
+                              <Github className="h-3.5 w-3.5 mr-1.5" />
                               Code
                             </a>
                           </Button>
                         )}
                       </div>
                     </div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-xl">{project.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">
-                        {project.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col justify-end">
+                    <div className="p-4 flex-1 flex flex-col">
+                      <p className="font-semibold text-sm mb-1">{project.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed flex-1">{project.description}</p>
                       <div className="flex flex-wrap gap-1">
                         {(project.tech_stack || []).map((t) => (
-                          <Badge
+                          <span
                             key={t}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-secondary/80"
+                            className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
                             onClick={() => setSelectedCategory(t)}
                           >
                             {t}
-                          </Badge>
+                          </span>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -357,68 +347,62 @@ export default function PublicProjects() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                 >
-                  <Card className="overflow-hidden group hover:shadow-lg transition-shadow">
+                  <div className="bento-card overflow-hidden group p-0">
                     <div className="flex flex-col md:flex-row">
                       {/* Image */}
-                      <div className="relative overflow-hidden w-full md:w-64 h-48 md:h-auto flex-shrink-0">
+                      <div className="relative overflow-hidden w-full md:w-56 h-40 md:h-auto flex-shrink-0">
                         {project.image_url ? (
                           <img
                             src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
                             alt={project.title}
                             loading="lazy"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div
                             className="w-full h-full flex items-center justify-center"
                             style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
                           >
-                            <FolderOpen className="h-12 w-12 text-muted-foreground/50" />
+                            <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
                           </div>
                         )}
                       </div>
                       {/* Content */}
-                      <div className="flex-1 p-6">
-                        <h3 className="font-bold text-xl mb-2">{project.title}</h3>
-                        <p className="text-muted-foreground mb-4">
+                      <div className="flex-1 p-4">
+                        <h3 className="font-semibold text-sm mb-1">{project.title}</h3>
+                        <p className="text-xs text-muted-foreground mb-3 leading-relaxed line-clamp-2">
                           {project.description}
                         </p>
-                        <div className="flex flex-wrap gap-1 mb-4">
+                        <div className="flex flex-wrap gap-1 mb-3">
                           {(project.tech_stack || []).map((t) => (
-                            <Badge
+                            <span
                               key={t}
-                              variant="secondary"
-                              className="cursor-pointer hover:bg-secondary/80"
+                              className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
                               onClick={() => setSelectedCategory(t)}
                             >
                               {t}
-                            </Badge>
+                            </span>
                           ))}
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            style={{ backgroundColor: brandColor }}
-                            className="text-white"
-                            asChild
-                          >
+                          <Button size="sm" className="btn-gradient h-7 text-xs" asChild>
                             <Link to={`/p/${username}/projects/${project.id}`}>
                               <Eye className="h-3 w-3 mr-1" />
                               View Details
                             </Link>
                           </Button>
                           {project.github_url && (
-                            <Button size="sm" variant="outline" asChild>
+                            <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
                               <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                                 <Github className="h-3 w-3 mr-1" />
-                                Source Code
+                                Source
                               </a>
                             </Button>
                           )}
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </motion.div>
               ))}
             </div>
