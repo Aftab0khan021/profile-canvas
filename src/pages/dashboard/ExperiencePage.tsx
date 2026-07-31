@@ -222,7 +222,8 @@ export default function ExperiencePage() {
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
+      }
+    >
 
       {experience.length === 0 ? (
         <div className="rounded-xl border border-border bg-card">
