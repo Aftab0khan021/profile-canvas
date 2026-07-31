@@ -503,71 +503,66 @@ export default function PublicHome() {
 
       {/* Featured Projects Preview */}
       {projects.length > 0 && (
-        <section className="py-20 px-4 border-t">
+        <section className="py-20 px-4 border-t border-border/40">
           <div className="container mx-auto max-w-5xl">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <h2 className="text-3xl font-bold mb-2">Featured Projects</h2>
-                <p className="text-muted-foreground">A selection of my recent work</p>
+                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Selected Work</p>
+                <h2 className="font-display text-3xl font-bold tracking-tight">Featured Projects</h2>
               </div>
-              <Button variant="ghost" asChild>
-                <Link to={`${basePath}/projects`} className="gap-1">
-                  View All <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link to={`${basePath}/projects`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-5">
               {featuredProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
-                    {project.image_url && (
-                      <div className="relative overflow-hidden h-56">
-                        <img
-                          src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                          {project.live_url && (
-                            <Button size="sm" className="text-white" style={{ backgroundColor: brandColor }} asChild>
-                              <a href={project.live_url} target="_blank" rel="noopener noreferrer">
-                                View Demo
+                  <motion.div
+                    key={project.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <div className="group rounded-xl overflow-hidden border border-border bg-card hover:border-violet-500/30 transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(107,33,232,0.12),0_8px_32px_-8px_rgba(107,33,232,0.18)] h-full flex flex-col">
+                      {project.image_url && (
+                        <div className="relative overflow-hidden h-48">
+                          <img
+                            src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
+                            alt={project.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          <div className="absolute bottom-3 left-3 flex gap-2">
+                            {project.live_url && (
+                              <a href={project.live_url} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold hover:bg-white/20 transition-colors">
+                                <ExternalLink className="h-3 w-3" /> Live Demo
                               </a>
-                            </Button>
-                          )}
-                          {project.github_url && (
-                            <Button size="sm" variant="secondary" asChild>
-                              <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                                <Github className="h-4 w-4" />
+                            )}
+                            {project.github_url && (
+                              <a href={project.github_url} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold hover:bg-white/20 transition-colors">
+                                <Github className="h-3 w-3" /> GitHub
                               </a>
-                            </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-5 flex-1 flex flex-col">
+                        <h3 className="font-display font-bold text-lg mb-1.5">{project.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{project.description}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(project.tech_stack || []).slice(0, 4).map((t) => (
+                            <span key={t} className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">{t}</span>
+                          ))}
+                          {(project.tech_stack || []).length > 4 && (
+                            <span className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">+{(project.tech_stack || []).length - 4}</span>
                           )}
                         </div>
                       </div>
-                    )}
-                    <CardHeader>
-                      <CardTitle className="text-xl">{project.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">{project.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-1">
-                        {(project.tech_stack || []).slice(0, 4).map((t) => (
-                          <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
-                        ))}
-                        {(project.tech_stack || []).length > 4 && (
-                          <Badge variant="outline" className="text-xs">+{(project.tech_stack || []).length - 4}</Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                    </div>
+                  </motion.div>
               ))}
             </div>
           </div>
@@ -576,20 +571,18 @@ export default function PublicHome() {
 
       {/* Skills Preview with Progress Bars */}
       {skills.length > 0 && (
-        <section className="py-20 px-4 border-t">
+        <section className="py-20 px-4 border-t border-border/40">
           <div className="container mx-auto max-w-5xl">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <h2 className="text-3xl font-bold mb-2">Skills & Expertise</h2>
-                <p className="text-muted-foreground">Technologies I work with</p>
+                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Expertise</p>
+                <h2 className="font-display text-3xl font-bold tracking-tight">Skills & Technologies</h2>
               </div>
-              <Button variant="ghost" asChild>
-                <Link to={`${basePath}/about`} className="gap-1">
-                  View All <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link to={`${basePath}/about`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-5">
               {topCategories.map(([category, categorySkills], catIndex) => (
                 <motion.div
                   key={category}
@@ -598,41 +591,29 @@ export default function PublicHome() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: catIndex * 0.1 }}
                 >
-                  <Card className="h-full">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Code className="h-5 w-5" style={{ color: brandColor }} />
-                        {category}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                  <div className="bento-card h-full">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="h-7 w-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${brandColor}20` }}>
+                        <Code className="h-3.5 w-3.5" style={{ color: brandColor }} />
+                      </div>
+                      <h3 className="text-sm font-semibold">{category}</h3>
+                    </div>
+                    <div className="space-y-3">
                       {categorySkills.slice(0, 4).map((skill) => (
                         <div key={skill.id}>
-                          <div className="flex justify-between text-sm mb-1">
+                          <div className="flex justify-between text-xs mb-1">
                             <span className="font-medium">{skill.skill_name}</span>
                             <span className="text-muted-foreground">{skill.proficiency_level}%</span>
                           </div>
-                          <Progress value={skill.proficiency_level} className="h-2" />
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${skill.proficiency_level}%`, backgroundColor: brandColor }} />
+                          </div>
                         </div>
                       ))}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
-            </div>
-            {/* Soft Skills Cloud */}
-            <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground mb-4">Soft Skills</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {skills
-                  .filter(s => s.category.toLowerCase().includes('soft'))
-                  .slice(0, 8)
-                  .map((skill) => (
-                    <Badge key={skill.id} variant="outline" className="px-3 py-1">
-                      {skill.skill_name}
-                    </Badge>
-                  ))}
-              </div>
             </div>
           </div>
         </section>
@@ -640,63 +621,56 @@ export default function PublicHome() {
 
       {/* Testimonials Carousel */}
       {testimonials.length > 0 && (
-        <section className="py-20 px-4 border-t" style={{ backgroundColor: `${brandColor}05` }}>
+        <section className="py-20 px-4 border-t border-border/40" style={{ backgroundColor: `${brandColor}06` }}>
           <div className="container mx-auto max-w-3xl">
-            <h2 className="text-3xl font-bold text-center mb-12">What People Say</h2>
+            <div className="text-center mb-10">
+              <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Social Proof</p>
+              <h2 className="font-display text-3xl font-bold tracking-tight">What People Say</h2>
+            </div>
             <div className="relative">
-              <Card className="p-8 md:p-12">
-                <CardContent className="text-center p-0">
-                  <Quote className="h-12 w-12 mx-auto mb-6 opacity-20" style={{ color: brandColor }} />
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentTestimonial}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <p className="text-xl md:text-2xl italic mb-6 text-foreground/90">
-                        "{testimonials[currentTestimonial]?.text}"
-                      </p>
-                      <div className="flex items-center justify-center gap-1 mb-4">
-                        {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
-                          <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                      <p className="font-semibold text-lg">{testimonials[currentTestimonial]?.client_name}</p>
-                      {testimonials[currentTestimonial]?.company && (
-                        <p className="text-muted-foreground">{testimonials[currentTestimonial]?.company}</p>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-              {testimonials.length > 1 && (
-                <div className="flex justify-center gap-4 mt-6">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+              <div className="bento-card p-8 md:p-12 text-center">
+                <Quote className="h-10 w-10 mx-auto mb-6 opacity-20" style={{ color: brandColor }} />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentTestimonial}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
                   >
+                    <p className="text-xl md:text-2xl italic mb-6 text-foreground/90 leading-relaxed">
+                      "{testimonials[currentTestimonial]?.text}"
+                    </p>
+                    <div className="flex items-center justify-center gap-1 mb-4">
+                      {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="font-semibold text-base">{testimonials[currentTestimonial]?.client_name}</p>
+                    {testimonials[currentTestimonial]?.company && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{testimonials[currentTestimonial]?.company}</p>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              {testimonials.length > 1 && (
+                <div className="flex justify-center gap-4 mt-5">
+                  <button onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                    className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
                     <ChevronLeft className="h-4 w-4" />
-                  </Button>
+                  </button>
                   <div className="flex items-center gap-2">
                     {testimonials.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentTestimonial(i)}
-                        className="w-2 h-2 rounded-full transition-colors"
-                        style={{ backgroundColor: i === currentTestimonial ? brandColor : 'hsl(var(--muted))' }}
+                      <button key={i} onClick={() => setCurrentTestimonial(i)}
+                        className="w-2 h-2 rounded-full transition-all duration-300"
+                        style={{ backgroundColor: i === currentTestimonial ? brandColor : 'hsl(var(--muted))', transform: i === currentTestimonial ? 'scale(1.4)' : 'scale(1)' }}
                       />
                     ))}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
-                  >
+                  <button onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                    className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
                     <ChevronRight className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>
@@ -706,20 +680,18 @@ export default function PublicHome() {
 
       {/* Blog Preview - Featured Layout */}
       {blogs.length > 0 && (
-        <section className="py-20 px-4 border-t">
+        <section className="py-20 px-4 border-t border-border/40">
           <div className="container mx-auto max-w-5xl">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <h2 className="text-3xl font-bold mb-2">Latest Insights</h2>
-                <p className="text-muted-foreground">Thoughts and tutorials</p>
+                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Writing</p>
+                <h2 className="font-display text-3xl font-bold tracking-tight">Latest Insights</h2>
               </div>
-              <Button variant="ghost" asChild>
-                <Link to={`${basePath}/blog`} className="gap-1">
-                  View All <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link to={`${basePath}/blog`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-5">
               {/* Featured Article */}
               {featuredBlog && (
                 <motion.div
@@ -729,33 +701,35 @@ export default function PublicHome() {
                   transition={{ duration: 0.5 }}
                 >
                   <Link to={`/p/${username}/blog/${featuredBlog.slug}`}>
-                    <Card className="h-full hover:shadow-xl transition-all cursor-pointer group overflow-hidden">
+                    <div className="group bento-card overflow-hidden h-full flex flex-col p-0">
                       <div
-                        className="h-48 flex items-center justify-center"
-                        style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
+                        className="h-44 flex items-center justify-center relative overflow-hidden"
+                        style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}06)` }}
                       >
-                        <FileText className="h-16 w-16 opacity-30" style={{ color: brandColor }} />
+                        <FileText className="h-14 w-14 opacity-25" style={{ color: brandColor }} />
+                        <div className="absolute top-3 left-3">
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white" style={{ backgroundColor: brandColor }}>Featured</span>
+                        </div>
                       </div>
-                      <CardContent className="pt-6">
-                        <Badge variant="secondary" className="mb-3">Featured</Badge>
-                        <h3 className="font-bold text-2xl mb-3 group-hover:underline">{featuredBlog.title}</h3>
-                        <p className="text-muted-foreground line-clamp-3 mb-4">{featuredBlog.content}</p>
+                      <div className="p-5 flex-1 flex flex-col">
+                        <h3 className="font-display font-bold text-xl mb-2 group-hover:underline">{featuredBlog.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{featuredBlog.content}</p>
                         <div className="flex items-center justify-between">
-                          <time className="text-sm text-muted-foreground">
+                          <time className="text-xs text-muted-foreground">
                             {format(new Date(featuredBlog.published_at || featuredBlog.created_at), 'MMMM d, yyyy')}
                           </time>
-                          <span className="text-sm font-medium flex items-center gap-1" style={{ color: brandColor }}>
-                            Read Article <ArrowRight className="h-4 w-4" />
+                          <span className="text-xs font-semibold flex items-center gap-1" style={{ color: brandColor }}>
+                            Read <ArrowRight className="h-3 w-3" />
                           </span>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </Link>
                 </motion.div>
               )}
 
               {/* Recent Articles List */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {recentBlogs.map((blog, index) => (
                   <motion.div
                     key={blog.id}
@@ -765,35 +739,27 @@ export default function PublicHome() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
                     <Link to={`/p/${username}/blog/${blog.slug}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer group">
-                        <CardContent className="pt-6">
-                          <div className="flex items-start gap-4">
-                            <div
-                              className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: `${brandColor}15` }}
-                            >
-                              <FileText className="h-6 w-6" style={{ color: brandColor }} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-lg mb-1 group-hover:underline truncate">
-                                {blog.title}
-                              </h3>
-                              <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
-                                {blog.content}
-                              </p>
-                              <time className="text-xs text-muted-foreground">
-                                {format(new Date(blog.published_at || blog.created_at), 'MMMM d, yyyy')}
-                              </time>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <div className="group bento-card flex gap-4 p-4">
+                        <div
+                          className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: `${brandColor}15` }}
+                        >
+                          <FileText className="h-5 w-5" style={{ color: brandColor }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm mb-0.5 group-hover:underline truncate">{blog.title}</h3>
+                          <p className="text-muted-foreground text-xs line-clamp-1 mb-1">{blog.content}</p>
+                          <time className="text-[11px] text-muted-foreground">
+                            {format(new Date(blog.published_at || blog.created_at), 'MMM d, yyyy')}
+                          </time>
+                        </div>
+                      </div>
                     </Link>
                   </motion.div>
                 ))}
                 {recentBlogs.length === 0 && featuredBlog && (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <p>More articles coming soon...</p>
+                    <p className="text-sm">More articles coming soon...</p>
                   </div>
                 )}
               </div>
@@ -802,8 +768,8 @@ export default function PublicHome() {
         </section>
       )}
 
-      {/* Contact CTA Section */}
-      <section className="py-20 px-4 border-t">
+      {/* Contact CTA */}
+      <section className="py-20 px-4 border-t border-border/40">
         <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -811,26 +777,29 @@ export default function PublicHome() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <Card
-              className="p-8 md:p-12 text-center overflow-hidden relative"
-              style={{ background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}05)` }}
+            <div
+              className="bento-card p-10 md:p-14 text-center relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${brandColor}12, ${brandColor}04)` }}
             >
               <div
                 className="absolute inset-0 opacity-10"
-                style={{ background: `radial-gradient(circle at 30% 50%, ${brandColor}, transparent 50%)` }}
+                style={{ background: `radial-gradient(circle at 30% 50%, ${brandColor}, transparent 60%)` }}
               />
-              <CardContent className="relative z-10 p-0">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">{ctaTitle}</h2>
-                <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
+              <div className="relative z-10">
+                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Let's Connect</p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 tracking-tight">{ctaTitle}</h2>
+                <p className="text-muted-foreground text-base mb-8 max-w-lg mx-auto leading-relaxed">
                   {ctaDescription}
                 </p>
-                <Button size="lg" style={{ backgroundColor: brandColor }} className="text-white gap-2" asChild>
-                  <Link to={`${basePath}/contact`}>
-                    <Mail className="h-4 w-4" /> Start a Project
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+                <Link
+                  to={`${basePath}/contact`}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold hover:-translate-y-0.5 transition-all duration-200 shadow-lg"
+                  style={{ backgroundColor: brandColor }}
+                >
+                  <Mail className="h-4 w-4" /> Start a Project
+                </Link>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
