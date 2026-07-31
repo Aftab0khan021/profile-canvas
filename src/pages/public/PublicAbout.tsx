@@ -132,7 +132,8 @@ export default function PublicAbout() {
 
             {/* Right: Content */}
             <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">About Me</h1>
+              <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">About</p>
+              <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">About Me</h1>
               <p className="text-xl mb-2" style={{ color: brandColor }}>
                 {profile?.title || 'Creative Professional'}
               </p>
@@ -174,9 +175,12 @@ export default function PublicAbout() {
       </section>
 
       {/* What Defines Me - 4 Column Grid (Dynamic or Default) */}
-      <section className="py-16 px-4 border-t">
+      <section className="py-16 px-4 border-t border-border/40">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">What Defines Me</h2>
+          <div className="flex items-center gap-2 mb-8">
+            <Sparkles className="h-4 w-4" style={{ color: brandColor }} />
+            <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">What Defines Me</h2>
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {highlights ? (
               // Dynamic highlights from database
@@ -187,24 +191,22 @@ export default function PublicAbout() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ y: -8 }}
+                  whileHover={{ y: -4 }}
                 >
-                  <Card className="text-center h-full transition-shadow hover:shadow-xl">
-                    <CardContent className="pt-8 pb-6">
-                      <div
-                        className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                        style={{ background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)` }}
-                      >
-                        <DynamicIcon
-                          name={item.icon_name}
-                          className="h-8 w-8"
-                          fallback={<Sparkles className="h-8 w-8" style={{ color: brandColor }} />}
-                        />
-                      </div>
-                      <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="bento-card text-center h-full">
+                    <div
+                      className="h-12 w-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+                      style={{ backgroundColor: `${brandColor}18` }}
+                    >
+                      <DynamicIcon
+                        name={item.icon_name}
+                        className="h-6 w-6"
+                        fallback={<Sparkles className="h-6 w-6" style={{ color: brandColor }} />}
+                      />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                  </div>
                 </motion.div>
               ))
             ) : (
@@ -216,20 +218,18 @@ export default function PublicAbout() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ y: -8 }}
+                  whileHover={{ y: -4 }}
                 >
-                  <Card className="text-center h-full transition-shadow hover:shadow-xl">
-                    <CardContent className="pt-8 pb-6">
-                      <div
-                        className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                        style={{ background: `linear-gradient(135deg, ${item.color}30, ${item.color}10)` }}
-                      >
-                        <item.icon className="h-8 w-8" style={{ color: item.color }} />
-                      </div>
-                      <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="bento-card text-center h-full">
+                    <div
+                      className="h-12 w-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+                      style={{ backgroundColor: `${item.color}18` }}
+                    >
+                      <item.icon className="h-6 w-6" style={{ color: item.color }} />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                  </div>
                 </motion.div>
               ))
             )}
@@ -241,7 +241,10 @@ export default function PublicAbout() {
       {topSkills.length > 0 && (
         <section className="py-16 px-4 border-t">
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-3xl font-bold text-center mb-12">Skills Overview</h2>
+            <div className="flex items-center gap-2 mb-8">
+              <Zap className="h-4 w-4" style={{ color: brandColor }} />
+              <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Skills Overview</h2>
+            </div>
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
               {topSkills.map((skill, index) => (
                 <motion.div
@@ -271,10 +274,10 @@ export default function PublicAbout() {
               {/* Education */}
               {education.length > 0 && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <GraduationCap className="h-7 w-7" style={{ color: brandColor }} />
-                    Education
-                  </h2>
+                  <div className="flex items-center gap-2 mb-6">
+                    <GraduationCap className="h-5 w-5" style={{ color: brandColor }} />
+                    <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Education</h2>
+                  </div>
                   <div className="space-y-6">
                     {education.map((edu, index) => (
                       <motion.div
@@ -285,34 +288,32 @@ export default function PublicAbout() {
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                         whileHover={{ x: 5 }}
                       >
-                        <Card className="transition-shadow hover:shadow-lg">
-                          <CardContent className="pt-6">
-                            <div className="flex justify-between items-start gap-4 mb-2">
-                              <div>
-                                <h3 className="font-bold text-lg">{edu.degree}</h3>
-                                <p className="text-muted-foreground">{edu.field_of_study}</p>
-                              </div>
-                              {edu.gpa && (
-                                <Badge style={{ backgroundColor: brandColor }} className="text-white">
-                                  GPA: {edu.gpa}
-                                </Badge>
-                              )}
+                        <div className="bento-card">
+                          <div className="flex justify-between items-start gap-4 mb-2">
+                            <div>
+                              <h3 className="font-semibold text-sm">{edu.degree}</h3>
+                              <p className="text-xs text-muted-foreground">{edu.field_of_study}</p>
                             </div>
-                            <p style={{ color: brandColor }} className="font-medium mb-2">{edu.institution}</p>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(edu.start_date).getFullYear()} - {edu.is_current ? 'Present' : edu.end_date ? new Date(edu.end_date).getFullYear() : ''}
+                            {edu.gpa && (
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-white shrink-0" style={{ backgroundColor: brandColor }}>
+                                GPA: {edu.gpa}
                               </span>
-                              {edu.location && (
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {edu.location}
-                                </span>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                            )}
+                          </div>
+                          <p style={{ color: brandColor }} className="text-xs font-semibold mb-2">{edu.institution}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(edu.start_date).getFullYear()} - {edu.is_current ? 'Present' : edu.end_date ? new Date(edu.end_date).getFullYear() : ''}
+                            </span>
+                            {edu.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {edu.location}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </motion.div>
                     ))}
                   </div>
@@ -322,10 +323,10 @@ export default function PublicAbout() {
               {/* Certifications */}
               {certifications.length > 0 && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Award className="h-7 w-7" style={{ color: brandColor }} />
-                    Certifications
-                  </h2>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Award className="h-5 w-5" style={{ color: brandColor }} />
+                    <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Certifications</h2>
+                  </div>
                   <div className="space-y-4">
                     {certifications.map((cert, index) => (
                       <motion.div
@@ -336,33 +337,31 @@ export default function PublicAbout() {
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                         whileHover={{ x: -5 }}
                       >
-                        <Card className="transition-shadow hover:shadow-lg">
-                          <CardContent className="pt-6">
-                            <div className="flex items-start gap-4">
-                              <div
-                                className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ backgroundColor: `${brandColor}15` }}
-                              >
-                                <Award className="h-6 w-6" style={{ color: brandColor }} />
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="font-bold">{cert.title}</h3>
-                                <p className="text-muted-foreground text-sm">{cert.issuer}</p>
-                                <Badge variant="outline" className="mt-2 text-xs">
-                                  {new Date(cert.issue_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                </Badge>
-                                {cert.credential_url && (
-                                  <Button size="sm" variant="link" className="mt-2 p-0 h-auto" asChild>
-                                    <a href={cert.credential_url} target="_blank" rel="noopener noreferrer">
-                                      <ExternalLink className="h-3 w-3 mr-1" />
-                                      Verify
-                                    </a>
-                                  </Button>
-                                )}
-                              </div>
+                        <div className="bento-card">
+                          <div className="flex items-start gap-3">
+                            <div
+                              className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                              style={{ backgroundColor: `${brandColor}18` }}
+                            >
+                              <Award className="h-4 w-4" style={{ color: brandColor }} />
                             </div>
-                          </CardContent>
-                        </Card>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-sm">{cert.title}</h3>
+                              <p className="text-xs text-muted-foreground">{cert.issuer}</p>
+                              <span className="inline-block mt-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">
+                                {new Date(cert.issue_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                              </span>
+                              {cert.credential_url && (
+                                <Button size="sm" variant="link" className="mt-1 p-0 h-auto text-xs" asChild>
+                                  <a href={cert.credential_url} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="h-3 w-3 mr-1" />
+                                    Verify
+                                  </a>
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </motion.div>
                     ))}
                   </div>
@@ -377,10 +376,10 @@ export default function PublicAbout() {
       {experience.length > 0 && (
         <section className="py-16 px-4 border-t">
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-3">
-              <Briefcase className="h-8 w-8" style={{ color: brandColor }} />
-              Professional Experience
-            </h2>
+            <div className="flex items-center gap-2 mb-8">
+              <Briefcase className="h-5 w-5" style={{ color: brandColor }} />
+              <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Professional Experience</h2>
+            </div>
             <div className="relative">
               {/* Timeline line */}
               <div
@@ -403,63 +402,45 @@ export default function PublicAbout() {
                       style={{ borderColor: brandColor }}
                     />
 
-                    <Card className="hover:shadow-lg transition-all hover:-translate-y-1">
-                      <CardContent className="pt-6">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-bold text-lg">{exp.role}</h3>
-                              {exp.is_current && (
-                                <Badge style={{ backgroundColor: brandColor }} className="text-white text-xs">
-                                  Current
-                                </Badge>
-                              )}
-                            </div>
-                            <p style={{ color: brandColor }} className="font-semibold">
-                              {exp.company}
-                            </p>
-                          </div>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {new Date(exp.start_date).toLocaleDateString('en-US', {
-                                month: 'short',
-                                year: 'numeric',
-                              })}{' '}
-                              -{' '}
-                              {exp.is_current
-                                ? 'Present'
-                                : exp.end_date
-                                  ? new Date(exp.end_date).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    year: 'numeric',
-                                  })
-                                  : ''}
-                            </div>
-                            {exp.location && (
-                              <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                {exp.location}
-                              </div>
+                    <div className="bento-card hover:-translate-y-0.5 transition-transform">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-sm">{exp.role}</h3>
+                            {exp.is_current && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-white" style={{ backgroundColor: brandColor }}>Current</span>
                             )}
                           </div>
+                          <p style={{ color: brandColor }} className="text-xs font-semibold">{exp.company}</p>
                         </div>
-                        {exp.description && (
-                          <div className="text-muted-foreground text-sm whitespace-pre-line">
-                            {exp.description.split('\n').map((line, i) => (
-                              line.startsWith('-') || line.startsWith('•') ? (
-                                <div key={i} className="flex items-start gap-2 mb-1">
-                                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: brandColor }} />
-                                  <span>{line.replace(/^[-•]\s*/, '')}</span>
-                                </div>
-                              ) : (
-                                <p key={i} className="mb-2">{line}</p>
-                              )
-                            ))}
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - {exp.is_current ? 'Present' : exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                          {exp.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {exp.location}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {exp.description && (
+                        <div className="text-muted-foreground text-xs whitespace-pre-line">
+                          {exp.description.split('\n').map((line, i) => (
+                            line.startsWith('-') || line.startsWith('•') ? (
+                              <div key={i} className="flex items-start gap-2 mb-1">
+                                <CheckCircle2 className="h-3 w-3 mt-0.5 flex-shrink-0" style={{ color: brandColor }} />
+                                <span>{line.replace(/^[-•]\s*/, '')}</span>
+                              </div>
+                            ) : (
+                              <p key={i} className="mb-2">{line}</p>
+                            )
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -485,25 +466,23 @@ export default function PublicAbout() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: catIndex * 0.1 }}
                 >
-                  <Card className="h-full">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" style={{ color: brandColor }} />
-                        {category}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                  <div className="bento-card h-full">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: brandColor }} />
+                      <h3 className="text-sm font-semibold">{category}</h3>
+                    </div>
+                    <div className="space-y-3">
                       {categorySkills.map((skill) => (
                         <div key={skill.id}>
-                          <div className="flex justify-between text-sm mb-1">
+                          <div className="flex justify-between text-xs mb-1">
                             <span className="font-medium">{skill.skill_name}</span>
                             <span className="text-muted-foreground">{skill.proficiency_level}%</span>
                           </div>
                           <AnimatedProgress value={skill.proficiency_level || 0} brandColor={brandColor} />
                         </div>
                       ))}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -529,17 +508,15 @@ export default function PublicAbout() {
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <Card className="text-center h-full">
-                    <CardContent className="pt-6 pb-6">
-                      <div
-                        className="h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-3"
-                        style={{ backgroundColor: `${brandColor}15` }}
-                      >
-                        <Brain className="h-7 w-7" style={{ color: brandColor }} />
-                      </div>
-                      <p className="font-medium">{skill.skill_name}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="bento-card text-center h-full">
+                    <div
+                      className="h-10 w-10 rounded-lg flex items-center justify-center mx-auto mb-2"
+                      style={{ backgroundColor: `${brandColor}18` }}
+                    >
+                      <Brain className="h-5 w-5" style={{ color: brandColor }} />
+                    </div>
+                    <p className="font-semibold text-sm">{skill.skill_name}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -562,27 +539,25 @@ export default function PublicAbout() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <Card
-                    className="h-full transition-all hover:shadow-lg"
-                    style={{ borderLeft: `4px solid ${brandColor}` }}
+                  <div
+                    className="bento-card h-full flex items-start gap-3"
+                    style={{ borderLeft: `3px solid ${brandColor}` }}
                   >
-                    <CardContent className="pt-6 flex items-start gap-4">
-                      <div
-                        className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${brandColor}15` }}
-                      >
-                        <DynamicIcon
-                          name={item.icon_name}
-                          className="h-6 w-6"
-                          fallback={<Heart className="h-6 w-6" style={{ color: brandColor }} />}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <div
+                      className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${brandColor}18` }}
+                    >
+                      <DynamicIcon
+                        name={item.icon_name}
+                        className="h-4 w-4"
+                        fallback={<Heart className="h-4 w-4" style={{ color: brandColor }} />}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
                 </motion.div>
               ))
             ) : (
@@ -595,23 +570,21 @@ export default function PublicAbout() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <Card
-                    className="h-full transition-all hover:shadow-lg"
-                    style={{ borderLeft: `4px solid ${brandColor}` }}
+                  <div
+                    className="bento-card h-full flex items-start gap-3"
+                    style={{ borderLeft: `3px solid ${brandColor}` }}
                   >
-                    <CardContent className="pt-6 flex items-start gap-4">
-                      <div
-                        className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${brandColor}15` }}
-                      >
-                        <item.icon className="h-6 w-6" style={{ color: brandColor }} />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <div
+                      className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${brandColor}18` }}
+                    >
+                      <item.icon className="h-4 w-4" style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
                 </motion.div>
               ))
             )}
