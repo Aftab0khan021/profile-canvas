@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
 import { maskStorageUrl } from '@/lib/storageUrl';
+
 
 export interface ImageTransformOptions {
     width?: number;
@@ -29,39 +29,16 @@ export function getOptimizedImageUrl(
         return path;
     }
 
-    const {
-        width = 800,
-        height,
-        quality = 80,
-        format = 'webp'
-    } = options;
-
-    // If it's a full Supabase URL, extract just the storage path for the SDK call
-    const STORAGE_OBJECT_PREFIX =
-        'https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/object/public/portfolio-images/';
-    let storagePath = path;
-    if (path.startsWith(STORAGE_OBJECT_PREFIX)) {
-        storagePath = path.slice(STORAGE_OBJECT_PREFIX.length);
+    // If already a masked proxy path, return as-is
+    if (path.startsWith('/img/') || path.startsWith('/files/')) {
+        return path;
     }
 
-    try {
-        const { data } = supabase.storage
-            .from('portfolio-images')
-            .getPublicUrl(storagePath, {
-                transform: {
-                    width,
-                    height,
-                    quality,
-                    format: format as 'origin',
-                },
-            });
-
-        // Always mask — never expose the raw Supabase URL
-        return maskStorageUrl(data.publicUrl) || maskStorageUrl(path) || '/placeholder.svg';
-    } catch {
-        // Silently fall back to masked original URL
-        return maskStorageUrl(path) || '/placeholder.svg';
-    }
+    // Mask the Supabase storage URL to the clean proxy path
+    // (We use the direct object URL so the /img/ Vercel proxy works correctly.
+    //  Supabase image transforms use a different URL scheme that the proxy doesn't handle.)
+    const masked = maskStorageUrl(path);
+    return masked || '/placeholder.svg';
 }
 
 /**

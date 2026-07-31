@@ -17,6 +17,10 @@
 const SUPABASE_STORAGE_PREFIX =
   'https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/object/public/';
 
+/** Supabase image transformation URL prefix (used when transform options are passed to getPublicUrl) */
+const SUPABASE_RENDER_PREFIX =
+  'https://dwdhjkthnthbyxwouqnc.supabase.co/storage/v1/render/image/public/';
+
 /** Bucket → proxy path prefix map */
 const BUCKET_PROXY: Record<string, string> = {
   'portfolio-images': '/img',
@@ -30,15 +34,23 @@ const BUCKET_PROXY: Record<string, string> = {
 export function maskStorageUrl(url: string | null | undefined): string {
   if (!url) return '';
 
-  if (!url.startsWith(SUPABASE_STORAGE_PREFIX)) {
+  // Handle both regular storage URLs and image transform URLs
+  let prefix: string | null = null;
+  if (url.startsWith(SUPABASE_STORAGE_PREFIX)) {
+    prefix = SUPABASE_STORAGE_PREFIX;
+  } else if (url.startsWith(SUPABASE_RENDER_PREFIX)) {
+    prefix = SUPABASE_RENDER_PREFIX;
+  }
+
+  if (!prefix) {
     // Not a Supabase storage URL — return as-is (external links, placeholders, etc.)
     return url;
   }
 
-  // Strip the known prefix to get "bucket/rest/of/path"
-  const withoutPrefix = url.slice(SUPABASE_STORAGE_PREFIX.length);
+  // Strip the known prefix to get "bucket/rest/of/path" (may include query params for transforms)
+  const withoutPrefix = url.slice(prefix.length);
 
-  // Find which bucket this belongs to
+  // Find which bucket this belongs to (path may include ?width=...&quality=... query params)
   for (const [bucket, proxyPrefix] of Object.entries(BUCKET_PROXY)) {
     if (withoutPrefix.startsWith(bucket + '/')) {
       const filePath = withoutPrefix.slice(bucket.length + 1); // strip "bucket/"

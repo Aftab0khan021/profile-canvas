@@ -111,7 +111,7 @@ export default function PublicLayout() {
   const seoImage = profile.avatar_url || 'og-image.png';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dark min-h-screen bg-background">
       <SEO title={seoTitle} description={seoDescription} image={seoImage} url={currentUrl} type="profile" schema={personSchema} />
 
       {/* Dynamic brand color styles */}
