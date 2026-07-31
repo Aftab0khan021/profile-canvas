@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Save, Home, User, FolderOpen, FileText, Mail, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PageShell, Section, PageLoader } from '@/components/PageShell';
 
 interface PageConfig {
   slug: string;
@@ -119,26 +120,20 @@ export default function SiteContentPage() {
     setHasChanges(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Site Content</h1>
-          <p className="text-muted-foreground">Customize all text content on your public portfolio pages</p>
-        </div>
-        <Button onClick={handleSave} disabled={!hasChanges || saveAllContent.isPending}>
-          {saveAllContent.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+    <PageShell
+      title="Site Content"
+      description="Customize all text content on your public portfolio pages."
+      maxWidth="lg"
+      action={
+        <Button onClick={handleSave} disabled={!hasChanges || saveAllContent.isPending} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+          {saveAllContent.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-1.5" />}
           Save All Changes
         </Button>
-      </div>
+      }
+    >
 
       <Card>
         <CardContent className="pt-6">
@@ -195,6 +190,6 @@ export default function SiteContentPage() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

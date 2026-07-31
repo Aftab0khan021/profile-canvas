@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageShell, PageLoader } from '@/components/PageShell';
 import {
   Trash2,
   RotateCcw,
@@ -138,27 +139,14 @@ export default function TrashPage() {
   const totalTrashed = Object.values(trashData).reduce((sum, items) => sum + items.length, 0);
   const activeItems: TrashedItem[] = (trashData[activeTab] as TrashedItem[]) || [];
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Trash2 className="h-6 w-6" />
-          Trash
-        </h1>
-        <p className="text-muted-foreground">
-          {totalTrashed === 0
-            ? 'Your trash is empty.'
-            : `${totalTrashed} item${totalTrashed !== 1 ? 's' : ''} in trash — automatically purged after 30 days.`}
-        </p>
-      </div>
+    <PageShell
+      title="Trash"
+      description={totalTrashed === 0 ? 'Your trash is empty.' : `${totalTrashed} item${totalTrashed !== 1 ? 's' : ''} in trash — automatically purged after 30 days.`}
+      maxWidth="xl"
+    >
 
       {totalTrashed > 0 && (
         <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900">
@@ -268,6 +256,6 @@ export default function TrashPage() {
           </TabsContent>
         ))}
       </Tabs>
-    </div>
+    </PageShell>
   );
 }

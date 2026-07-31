@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useMessages, type Message } from '@/hooks/usePortfolioData';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Mail, Trash2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { PageShell, EmptyState, PageLoader } from '@/components/PageShell';
 
 export default function MessagesPage() {
   const { messages, isLoading, markAsRead, deleteMessage, unreadCount } = useMessages();
@@ -14,131 +13,116 @@ export default function MessagesPage() {
 
   const handleOpenMessage = async (message: Message) => {
     setSelectedMessage(message);
-    if (!message.is_read) {
-      await markAsRead.mutateAsync(message.id);
-    }
+    if (!message.is_read) await markAsRead.mutateAsync(message.id);
   };
 
   const handleDelete = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (confirm('Are you sure you want to delete this message?')) {
       await deleteMessage.mutateAsync(id);
-      if (selectedMessage?.id === id) {
-        setSelectedMessage(null);
-      }
+      if (selectedMessage?.id === id) setSelectedMessage(null);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Messages</h1>
-          <p className="text-muted-foreground">
-            Contact form submissions {unreadCount > 0 && <Badge className="ml-2">{unreadCount} unread</Badge>}
-          </p>
-        </div>
-      </div>
-
+    <PageShell
+      title="Messages"
+      description={unreadCount > 0 ? `${unreadCount} unread message${unreadCount > 1 ? 's' : ''}` : 'Contact form submissions from your portfolio.'}
+      maxWidth="xl"
+    >
       {messages.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No messages yet</h3>
-            <p className="text-muted-foreground text-center">
-              When visitors contact you through your portfolio, their messages will appear here.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState
+            icon={MessageSquare}
+            title="No messages yet"
+            body="When visitors contact you through your portfolio's contact form, their messages will appear here."
+          />
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {messages.map((message) => (
-            <Card
+            <div
               key={message.id}
-              className={cn(
-                "cursor-pointer transition-colors hover:bg-muted/50",
-                !message.is_read && "border-primary/50 bg-primary/5"
-              )}
               onClick={() => handleOpenMessage(message)}
+              className={cn(
+                'group flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-150',
+                !message.is_read
+                  ? 'border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/8'
+                  : 'border-border bg-card hover:bg-muted/40'
+              )}
             >
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {!message.is_read ? (
-                        <EyeOff className="h-4 w-4 text-primary flex-shrink-0" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      )}
-                      <span className={cn("font-semibold truncate", !message.is_read && "text-primary")}>
-                        {message.sender_name}
-                      </span>
-                      <span className="text-xs text-muted-foreground flex-shrink-0">
-                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                      <Mail className="h-3 w-3" />
-                      <span className="truncate">{message.sender_email}</span>
-                    </div>
-                    <p className={cn("text-sm line-clamp-2", !message.is_read ? "text-foreground" : "text-muted-foreground")}>
-                      {message.content}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="flex-shrink-0"
-                    onClick={(e) => handleDelete(message.id, e)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+              {/* Unread dot */}
+              <div className="mt-1 shrink-0">
+                {!message.is_read ? (
+                  <div className="h-2 w-2 rounded-full bg-violet-500" />
+                ) : (
+                  <div className="h-2 w-2 rounded-full bg-transparent" />
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 mb-0.5">
+                  <span className={cn('text-sm font-semibold truncate', !message.is_read ? 'text-foreground' : 'text-foreground/80')}>
+                    {message.sender_name}
+                  </span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                  <Mail className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{message.sender_email}</span>
+                </div>
+                <p className={cn('text-sm line-clamp-2 leading-relaxed', !message.is_read ? 'text-foreground' : 'text-muted-foreground')}>
+                  {message.content}
+                </p>
+              </div>
+
+              {/* Delete */}
+              <button
+                onClick={(e) => handleDelete(message.id, e)}
+                className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all duration-150"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ))}
         </div>
       )}
 
+      {/* Message detail dialog */}
       <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
         {selectedMessage && (
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
-              <DialogTitle>Message from {selectedMessage.sender_name}</DialogTitle>
-              <DialogDescription>
-                <a href={`mailto:${selectedMessage.sender_email}`} className="text-primary hover:underline">
+              <DialogTitle className="font-display text-lg">Message from {selectedMessage.sender_name}</DialogTitle>
+              <DialogDescription className="flex items-center gap-2 text-sm">
+                <a href={`mailto:${selectedMessage.sender_email}`} className="text-violet-500 hover:underline font-medium">
                   {selectedMessage.sender_email}
                 </a>
-                <span className="mx-2">•</span>
+                <span className="text-muted-foreground/40">·</span>
                 <span>{formatDistanceToNow(new Date(selectedMessage.created_at), { addSuffix: true })}</span>
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <p className="whitespace-pre-wrap">{selectedMessage.content}</p>
+            <div className="py-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground/90 border-t border-border/60 mt-1">
+              {selectedMessage.content}
             </div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" asChild>
+            <DialogFooter className="gap-2 mt-2">
+              <Button variant="outline" className="rounded-lg h-9 text-sm" asChild>
                 <a href={`mailto:${selectedMessage.sender_email}?subject=Re: Portfolio Contact`}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  Reply
+                  <Mail className="h-3.5 w-3.5 mr-1.5" />Reply
                 </a>
               </Button>
-              <Button variant="destructive" onClick={() => handleDelete(selectedMessage.id)}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+              <Button variant="destructive" className="rounded-lg h-9 text-sm" onClick={() => handleDelete(selectedMessage.id)}>
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
               </Button>
             </DialogFooter>
           </DialogContent>
         )}
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

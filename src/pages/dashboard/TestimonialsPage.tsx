@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Pencil, Trash2, Star, Loader2, Quote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { PageShell, EmptyState, PageLoader } from '@/components/PageShell';
 
 function StarRating({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
   return (
@@ -106,35 +107,35 @@ export default function TestimonialsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Testimonials</h1>
-          <p className="text-muted-foreground">Showcase feedback from your clients.</p>
-        </div>
+    <PageShell
+      title="Testimonials"
+      description="Showcase feedback from your clients and collaborators."
+      maxWidth="xl"
+      action={
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
             <Button
               variant="destructive"
               size="sm"
+              className="h-9 rounded-lg text-sm"
               onClick={handleBulkDelete}
               disabled={bulkDeleteTestimonials.isPending}
             >
               {bulkDeleteTestimonials.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
               ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="h-4 w-4 mr-1.5" />
               )}
               Delete ({selectedIds.size})
             </Button>
           )}
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" />Add Testimonial</Button>
+              <Button className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold"><Plus className="h-4 w-4 mr-1.5" />Add Testimonial</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg rounded-2xl">
               <DialogHeader>
-                <DialogTitle>{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</DialogTitle>
+                <DialogTitle className="font-display text-lg">{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -181,18 +182,15 @@ export default function TestimonialsPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      }
+    >
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
       ) : testimonials.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            No testimonials yet. Add your first testimonial to showcase client feedback.
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState icon={Quote} title="No testimonials yet" body="Add your first testimonial to showcase client feedback." />
+        </div>
       ) : (
         <>
           {/* Select All */}
@@ -256,6 +254,6 @@ export default function TestimonialsPage() {
           </div>
         </>
       )}
-    </div>
+    </PageShell>
   );
 }

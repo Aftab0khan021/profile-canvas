@@ -2,257 +2,176 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Loader2, CheckCircle2, RefreshCw, LogOut } from 'lucide-react';
+import { Mail, Loader2, RefreshCw, LogOut, CheckCircle2, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 export default function VerifyEmail() {
-    const { user, signOut } = useAuth();
-    const navigate = useNavigate();
-    const { toast } = useToast();
-    const [isResending, setIsResending] = useState(false);
-    const [cooldown, setCooldown] = useState(0);
-    const [isChecking, setIsChecking] = useState(true);
-    const [pollExpired, setPollExpired] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isResending, setIsResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [isChecking, setIsChecking] = useState(true);
+  const [pollExpired, setPollExpired] = useState(false);
 
-    // Check if user is already verified
-    useEffect(() => {
-        const checkVerification = async () => {
-            // Wait a bit for auth state to settle after signup
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Check if we have a pending verification email (user won't have session until verified)
-            const pendingEmail = localStorage.getItem('pendingVerificationEmail');
-
-            if (!user && !pendingEmail) {
-                // No user and no pending verification, redirect to auth
-                navigate('/auth');
-                return;
-            }
-
-            if (user) {
-                // User has session, check if already verified
-                const { data: { user: refreshedUser } } = await supabase.auth.getUser();
-
-                if (refreshedUser?.email_confirmed_at) {
-                    // Clear pending email if it exists
-                    localStorage.removeItem('pendingVerificationEmail');
-
-                    toast({
-                        title: 'Email Verified!',
-                        description: 'Your email has been verified. Redirecting to dashboard...',
-                    });
-                    setTimeout(() => navigate('/dashboard'), 1500);
-                    return;
-                }
-            }
-
-            // Show verification page
-            setIsChecking(false);
-        };
-
-        checkVerification();
-    }, [user, navigate, toast]);
-
-    // M-3: Poll for verification status every 5 seconds, max 60 attempts (5 minutes)
-    useEffect(() => {
-        if (isChecking) return;
-
-        let attempts = 0;
-        const MAX_ATTEMPTS = 60;
-
-        const interval = setInterval(async () => {
-            attempts++;
-
-            if (attempts >= MAX_ATTEMPTS) {
-                clearInterval(interval);
-                setPollExpired(true);
-                return;
-            }
-
-            const { data: { user: refreshedUser } } = await supabase.auth.getUser();
-
-            if (refreshedUser?.email_confirmed_at) {
-                clearInterval(interval);
-                toast({
-                    title: 'Email Verified!',
-                    description: 'Your email has been verified. Redirecting to dashboard...',
-                });
-                setTimeout(() => navigate('/dashboard'), 1500);
-            }
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, [isChecking, navigate, toast]);
-
-    // Cooldown timer
-    useEffect(() => {
-        if (cooldown > 0) {
-            const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
-            return () => clearTimeout(timer);
+  useEffect(() => {
+    const checkVerification = async () => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const pendingEmail = localStorage.getItem('pendingVerificationEmail');
+      if (!user && !pendingEmail) { navigate('/auth'); return; }
+      if (user) {
+        const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+        if (refreshedUser?.email_confirmed_at) {
+          localStorage.removeItem('pendingVerificationEmail');
+          toast({ title: 'Email Verified!', description: 'Redirecting to dashboard...' });
+          setTimeout(() => navigate('/dashboard'), 1500);
+          return;
         }
-    }, [cooldown]);
-
-    const handleResendEmail = async () => {
-        const email = user?.email || localStorage.getItem('pendingVerificationEmail');
-
-        if (!email || cooldown > 0) return;
-
-        setIsResending(true);
-
-        try {
-            const { error } = await supabase.auth.resend({
-                type: 'signup',
-                email: email,
-            });
-
-            if (error) throw error;
-
-            toast({
-                title: 'Verification Email Sent',
-                description: `We've sent a new verification email to ${email}`,
-            });
-
-            // Set 60 second cooldown
-            setCooldown(60);
-        } catch (error: any) {
-            toast({
-                title: 'Error',
-                description: error.message || 'Failed to resend verification email',
-                variant: 'destructive',
-            });
-        } finally {
-            setIsResending(false);
-        }
+      }
+      setIsChecking(false);
     };
+    checkVerification();
+  }, [user, navigate, toast]);
 
-    const handleLogout = async () => {
-        // L-1: Always clear the pending email on sign-out to prevent stale email leaking to future sessions
-        localStorage.removeItem('pendingVerificationEmail');
-        await signOut();
-        navigate('/auth');
-    };
+  useEffect(() => {
+    if (isChecking) return;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 60;
+    const interval = setInterval(async () => {
+      attempts++;
+      if (attempts >= MAX_ATTEMPTS) { clearInterval(interval); setPollExpired(true); return; }
+      const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+      if (refreshedUser?.email_confirmed_at) {
+        clearInterval(interval);
+        toast({ title: 'Email Verified!', description: 'Redirecting to dashboard...' });
+        setTimeout(() => navigate('/dashboard'), 1500);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isChecking, navigate, toast]);
 
-
-    // Get email to display
-    const displayEmail = user?.email || localStorage.getItem('pendingVerificationEmail');
-
-    if (isChecking) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-                    <p className="text-muted-foreground">Checking verification status...</p>
-                </div>
-            </div>
-        );
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
     }
+  }, [cooldown]);
 
+  const handleResendEmail = async () => {
+    const email = user?.email || localStorage.getItem('pendingVerificationEmail');
+    if (!email || cooldown > 0) return;
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resend({ type: 'signup', email });
+      if (error) throw error;
+      toast({ title: 'Email Sent', description: `Verification email sent to ${email}` });
+      setCooldown(60);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to resend', variant: 'destructive' });
+    } finally { setIsResending(false); }
+  };
+
+  const handleLogout = async () => {
+    localStorage.removeItem('pendingVerificationEmail');
+    await signOut();
+    navigate('/auth');
+  };
+
+  const displayEmail = user?.email || localStorage.getItem('pendingVerificationEmail');
+
+  if (isChecking) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-            <div className="absolute inset-0 hero-gradient pointer-events-none" />
-
-            <div className="w-full max-w-md relative z-10 animate-fade-in">
-                <Card className="glass-card">
-                    <CardHeader className="text-center">
-                        <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Mail className="h-6 w-6 text-primary" />
-                        </div>
-                        <CardTitle className="text-2xl">Verify Your Email</CardTitle>
-                        <CardDescription>
-                            We've sent a verification email to
-                        </CardDescription>
-                        <p className="text-sm font-medium text-foreground mt-2">
-                            {displayEmail}
-                        </p>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                        <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                                <div className="text-sm">
-                                    <p className="font-medium mb-1">Check your inbox</p>
-                                    <p className="text-muted-foreground">
-                                        Click the verification link in the email we sent you
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3">
-                                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                                <div className="text-sm">
-                                    <p className="font-medium mb-1">Check spam folder</p>
-                                    <p className="text-muted-foreground">
-                                        Sometimes verification emails end up in spam
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3">
-                                <RefreshCw className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                                <div className="text-sm">
-                                    <p className="font-medium mb-1">Auto-refresh enabled</p>
-                                    <p className="text-muted-foreground">
-                                        {pollExpired
-                                            ? 'Auto-check timed out. Please refresh this page or click the link in your email.'
-                                            : 'This page will automatically redirect once verified'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <Button
-                                onClick={handleResendEmail}
-                                disabled={isResending || cooldown > 0}
-                                className="w-full"
-                                variant="outline"
-                            >
-                                {isResending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Sending...
-                                    </>
-                                ) : cooldown > 0 ? (
-                                    <>
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Resend in {cooldown}s
-                                    </>
-                                ) : (
-                                    <>
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Resend Verification Email
-                                    </>
-                                )}
-                            </Button>
-
-                            <Button
-                                onClick={handleLogout}
-                                variant="ghost"
-                                className="w-full"
-                            >
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Sign Out
-                            </Button>
-                        </div>
-
-                        <div className="text-center text-xs text-muted-foreground">
-                            <p>Didn't receive the email?</p>
-                            <p className="mt-1">
-                                Make sure {displayEmail} is correct and check your spam folder
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <p className="text-center text-sm text-muted-foreground mt-6">
-                    <a href="/" className="hover:text-primary transition-colors">
-                        ← Back to home
-                    </a>
-                </p>
-            </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-violet-500 mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">Checking verification status...</p>
         </div>
+      </div>
     );
+  }
+
+  const steps = [
+    { icon: Mail, title: 'Check your inbox', desc: 'Click the verification link in the email we sent you', done: false },
+    { icon: CheckCircle2, title: 'Check spam folder', desc: 'Sometimes emails end up in spam or promotions', done: false },
+    { icon: RefreshCw, title: 'Auto-redirect enabled', desc: pollExpired ? 'Auto-check timed out. Refresh or click the email link.' : 'This page will redirect automatically once verified', done: false },
+  ];
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ background: 'hsl(var(--background))' }}>
+      {/* Background decoration */}
+      <div className="absolute inset-0 mesh-bg opacity-60" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-md"
+      >
+        {/* Card */}
+        <div className="bento-card p-8 rounded-3xl shadow-xl">
+          {/* Animated mail icon */}
+          <div className="text-center mb-8">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="mx-auto mb-5 h-20 w-20 rounded-3xl btn-gradient flex items-center justify-center shadow-lg"
+            >
+              <Mail className="h-10 w-10 text-white" />
+            </motion.div>
+            <h1 className="font-display text-2xl font-bold mb-2">Check your inbox</h1>
+            <p className="text-muted-foreground text-sm">We sent a verification link to</p>
+            <p className="font-semibold text-sm mt-0.5 gradient-text">{displayEmail}</p>
+          </div>
+
+          {/* Steps */}
+          <div className="space-y-3 mb-8">
+            {steps.map((step, i) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 + 0.2 }}
+                className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/50"
+              >
+                <div className="h-7 w-7 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <step.icon className="h-3.5 w-3.5 text-violet-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{step.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Cooldown ring progress */}
+          {cooldown > 0 && (
+            <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 text-violet-500" />
+              Resend available in {cooldown}s
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="space-y-2.5">
+            <Button onClick={handleResendEmail} disabled={isResending || cooldown > 0} variant="outline" className="w-full h-11 rounded-xl font-semibold border-border/60">
+              {isResending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending...</>
+                : <><RefreshCw className="mr-2 h-4 w-4" />Resend Verification Email</>}
+            </Button>
+            <Button onClick={handleLogout} variant="ghost" className="w-full h-11 rounded-xl text-muted-foreground hover:text-foreground">
+              <LogOut className="mr-2 h-4 w-4" />Sign Out
+            </Button>
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          <a href="/" className="hover:text-foreground transition-colors">← Back to home</a>
+        </p>
+      </motion.div>
+    </div>
+  );
 }

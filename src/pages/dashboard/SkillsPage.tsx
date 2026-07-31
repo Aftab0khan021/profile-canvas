@@ -1,19 +1,18 @@
-import { useState } from 'react';
 import { useSkills, type Skill } from '@/hooks/usePortfolioData';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Plus, Trash2, Lightbulb, Loader2, Pencil } from 'lucide-react';
+import { PageShell, EmptyState, PageLoader } from '@/components/PageShell';
+import { useState } from 'react';
 
 const skillSchema = z.object({
   skill_name: z.string().min(1, 'Skill name is required'),
@@ -77,31 +76,23 @@ export default function SkillsPage() {
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Skills</h1>
-          <p className="text-muted-foreground">Showcase your technical abilities</p>
-        </div>
+    <PageShell
+      title="Skills"
+      description="Showcase your technical abilities, grouped by category."
+      maxWidth="xl"
+      action={
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Skill
+            <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+              <Plus className="h-4 w-4 mr-1.5" />Add Skill
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md rounded-2xl">
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Skill' : 'Add Skill'}</DialogTitle>
+              <DialogTitle className="font-display text-lg">{editingId ? 'Edit Skill' : 'Add Skill'}</DialogTitle>
               <DialogDescription>
                 {editingId ? 'Update skill name, category, or proficiency.' : 'Add a new skill to your portfolio.'}
               </DialogDescription>
@@ -174,69 +165,59 @@ export default function SkillsPage() {
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
+      }
+    >
 
       {skills.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Lightbulb className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No skills added yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Add your technical skills to showcase your expertise.
-            </p>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Skill
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState
+            icon={Lightbulb}
+            title="No skills added yet"
+            body="Add your technical skills to showcase your expertise."
+            action={
+              <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+                <Plus className="h-4 w-4 mr-1.5" />Add Skill
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
-            <Card key={category}>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Badge variant="outline">{category}</Badge>
-                  <span className="text-muted-foreground text-sm font-normal">({categorySkills.length})</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div key={category} className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
+                <span className="font-display font-semibold text-sm">{category}</span>
+                <span className="font-mono text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-muted">{categorySkills.length}</span>
+              </div>
+              <div className="p-4 space-y-4">
                 {categorySkills.map((skill) => (
-                  <div key={skill.id} className="space-y-1">
+                  <div key={skill.id} className="group space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{skill.skill_name}</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-xs text-muted-foreground">{skill.proficiency_level}%</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => openEditDialog(skill)}
-                          title="Edit skill"
-                        >
+                        <span className="text-[11px] text-muted-foreground font-mono">{skill.proficiency_level}%</span>
+                        <button onClick={() => openEditDialog(skill)} className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted transition-all">
                           <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => setDeleteTarget(skill)}
-                          title="Delete skill"
-                        >
-                          <Trash2 className="h-3 w-3 text-destructive" />
-                        </Button>
+                        </button>
+                        <button onClick={() => setDeleteTarget(skill)} className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all">
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </div>
                     </div>
-                    <Progress value={skill.proficiency_level} className="h-2" />
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                        style={{ width: `${skill.proficiency_level}%` }}
+                      />
+                    </div>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* Delete confirmation dialog */}
       <DeleteConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
@@ -250,6 +231,6 @@ export default function SkillsPage() {
           setDeleteTarget(null);
         }}
       />
-    </div>
+    </PageShell>
   );
 }

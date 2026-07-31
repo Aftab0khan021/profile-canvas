@@ -4,13 +4,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Briefcase, MapPin, Calendar, Loader2 } from 'lucide-react';
+import { PageShell, EmptyState, PageLoader } from '@/components/PageShell';
 
 const experienceSchema = z.object({
   company: z.string().min(1, 'Company is required'),
@@ -97,31 +97,23 @@ export default function ExperiencePage() {
 
   const isCurrent = form.watch('is_current');
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Experience</h1>
-          <p className="text-muted-foreground">Manage your work history</p>
-        </div>
+    <PageShell
+      title="Experience"
+      description="Manage your work history and professional timeline."
+      maxWidth="xl"
+      action={
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Experience
+            <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+              <Plus className="h-4 w-4 mr-1.5" />Add Experience
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md rounded-2xl">
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Experience' : 'Add Experience'}</DialogTitle>
+              <DialogTitle className="font-display text-lg">{editingId ? 'Edit Experience' : 'Add Experience'}</DialogTitle>
               <DialogDescription>
                 {editingId ? 'Update your work experience details.' : 'Add a new position to your work history.'}
               </DialogDescription>
@@ -233,59 +225,56 @@ export default function ExperiencePage() {
       </div>
 
       {experience.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Briefcase className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No experience added yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Start building your professional timeline.
-            </p>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Experience
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState
+            icon={Briefcase}
+            title="No experience added yet"
+            body="Start building your professional timeline by adding your first role."
+            action={
+              <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+                <Plus className="h-4 w-4 mr-1.5" />Add Experience
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {experience.map((exp) => (
-            <Card key={exp.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
+            <div key={exp.id} className="group flex gap-4 p-5 rounded-xl border border-border bg-card hover:border-border/80 transition-colors duration-150">
+              {/* Timeline dot */}
+              <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-violet-500 ring-4 ring-violet-500/10" />
+                <div className="w-px flex-1 bg-border/60" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-3 mb-1">
                   <div>
-                    <CardTitle className="text-lg">{exp.role}</CardTitle>
-                    <CardDescription className="text-base text-primary">{exp.company}</CardDescription>
+                    <h3 className="font-display font-semibold text-[15px] leading-snug">{exp.role}</h3>
+                    <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{exp.company}</p>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(exp)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(exp.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0">
+                    <button onClick={() => openEditDialog(exp)} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(exp.id)} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-2">
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-1.5 mb-2 font-mono">
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} -{' '}
-                    {exp.is_current ? 'Present' : exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
+                    <Calendar className="h-3 w-3" />
+                    {new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} — {exp.is_current ? 'Present' : exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
                   </span>
-                  {exp.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {exp.location}
-                    </span>
-                  )}
+                  {exp.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{exp.location}</span>}
+                  {exp.is_current && <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-semibold">Current</span>}
                 </div>
-                {exp.description && <p className="text-sm text-muted-foreground">{exp.description}</p>}
-              </CardContent>
-            </Card>
+                {exp.description && <p className="text-sm text-muted-foreground leading-relaxed">{exp.description}</p>}
+              </div>
+            </div>
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

@@ -3,10 +3,9 @@ import { useCertifications, Certification } from '@/hooks/usePortfolioData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, Loader2, Award, ExternalLink, Calendar } from 'lucide-react';
+import { PageShell, EmptyState } from '@/components/PageShell';
 
 export default function CertificationsPage() {
   const { certifications, isLoading, createCertification, updateCertification, deleteCertification } = useCertifications();
@@ -65,19 +64,18 @@ export default function CertificationsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Certifications</h1>
-          <p className="text-muted-foreground">Showcase your professional certifications.</p>
-        </div>
+    <PageShell
+      title="Certifications"
+      description="Showcase your professional certifications and achievements."
+      maxWidth="xl"
+      action={
         <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />Add Certification</Button>
+            <Button className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold"><Plus className="h-4 w-4 mr-1.5" />Add Certification</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
-              <DialogTitle>{editingCert ? 'Edit Certification' : 'Add Certification'}</DialogTitle>
+              <DialogTitle className="font-display text-lg">{editingCert ? 'Edit Certification' : 'Add Certification'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -133,69 +131,53 @@ export default function CertificationsPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+      }
+    >
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
       ) : certifications.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            No certifications yet. Add your professional certifications.
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState icon={Award} title="No certifications yet" body="Add your professional certifications to build credibility." />
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {certifications.map((cert) => (
-            <Card key={cert.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Award className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{cert.title}</CardTitle>
-                      <CardDescription>{cert.issuer}</CardDescription>
-                    </div>
+            <div key={cert.id} className="group flex gap-3 p-4 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
+              <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Award className="h-5 w-5 text-amber-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-display font-semibold text-[14px] leading-snug">{cert.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{cert.issuer}</p>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(cert)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteCertification.mutate(cert.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <button onClick={() => openEdit(cert)} className="h-7 w-7 rounded flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"><Pencil className="h-3 w-3" /></button>
+                    <button onClick={() => deleteCertification.mutate(cert.id)} className="h-7 w-7 rounded flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                  <Calendar className="h-4 w-4" />
-                  {new Date(cert.issue_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono mt-1">
+                  <Calendar className="h-3 w-3" />{new Date(cert.issue_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </div>
                 {cert.skills_learned.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  <div className="flex flex-wrap gap-1 mt-2">
                     {cert.skills_learned.map((skill) => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                      <span key={skill} className="inline-flex items-center px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground">{skill}</span>
                     ))}
                   </div>
                 )}
-                {/* M-3: Render credential link only when it's a safe https:// URL */}
                 {cert.credential_url && cert.credential_url.startsWith('https://') && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={cert.credential_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Verify
-                    </a>
-                  </Button>
+                  <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-violet-500 hover:text-violet-600 font-mono mt-2">
+                    <ExternalLink className="h-3 w-3" />Verify credential
+                  </a>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

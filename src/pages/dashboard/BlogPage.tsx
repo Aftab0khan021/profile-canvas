@@ -19,6 +19,7 @@ import { Plus, Pencil, Trash2, FileText, Loader2, ExternalLink } from 'lucide-re
 import { formatDistanceToNow } from 'date-fns';
 import { type Blog } from '@/hooks/usePortfolioData';
 import { useProfile } from '@/hooks/useProfile';
+import { PageShell, EmptyState, PageLoader } from '@/components/PageShell';
 
 const blogSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -214,26 +215,18 @@ export default function BlogPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Blog</h1>
-          <p className="text-muted-foreground">Write and manage your articles</p>
-        </div>
+    <PageShell
+      title="Blog"
+      description="Write and manage your technical articles and insights."
+      maxWidth="full"
+      action={
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Post
+            <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+              <Plus className="h-4 w-4 mr-1.5" />New Post
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -337,22 +330,22 @@ export default function BlogPage() {
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
+      }
+    >
 
       {blogs.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No blog posts yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Start writing and sharing your thoughts.
-            </p>
-            <Button onClick={openCreateDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Post
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card">
+          <EmptyState
+            icon={FileText}
+            title="No blog posts yet"
+            body="Start sharing your expertise by writing your first article."
+            action={
+              <Button onClick={openCreateDialog} className="btn-gradient h-9 rounded-lg px-4 text-sm font-semibold">
+                <Plus className="h-4 w-4 mr-1.5" />New Post
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <div className="space-y-3">
           {blogs.map((blog) => (
@@ -396,6 +389,6 @@ export default function BlogPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

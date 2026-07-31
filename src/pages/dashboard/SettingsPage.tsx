@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ColorPicker } from '@/components/ColorPicker';
 import { Loader2, Save, Layout, Minimize2, Briefcase, Sparkles } from 'lucide-react';
+import { PageShell, Section, PageLoader } from '@/components/PageShell';
 
 const settingsSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
@@ -100,32 +101,21 @@ export default function SettingsPage() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6 max-w-2xl animate-pulse">
-        <div className="h-8 bg-muted rounded w-1/4" />
-        <div className="h-48 bg-muted rounded" />
-        <div className="h-48 bg-muted rounded" />
-        <div className="h-48 bg-muted rounded" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your profile and branding</p>
-      </div>
-
+    <PageShell
+      title="Settings"
+      description="Manage your profile, branding, and portfolio appearance."
+      maxWidth="md"
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Picture & Resume</CardTitle>
-              <CardDescription>Upload your avatar and resume PDF</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <Section
+            title="Profile Picture & Resume"
+            description="Upload your avatar and resume PDF."
+          >
+            <div className="flex flex-col sm:flex-row gap-6">
               <FormField
                 control={form.control}
                 name="avatar_url"
@@ -164,15 +154,14 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Your basic information displayed on your portfolio</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <Section
+            title="Personal Information"
+            description="Your basic information displayed on your portfolio."
+          >
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="full_name"
@@ -212,18 +201,14 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
-                Hero Customization
-              </CardTitle>
-              <CardDescription>Customize the animated hero section on your home page</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <Section
+            title="Hero Customization"
+            description="Customize the animated hero section on your home page."
+          >
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="roles_text"
@@ -256,15 +241,14 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-              <CardDescription>How visitors can reach you</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <Section
+            title="Contact Information"
+            description="How visitors can reach you."
+          >
+            <div className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -319,15 +303,14 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Branding</CardTitle>
-              <CardDescription>Customize the look of your portfolio</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <Section
+            title="Branding"
+            description="Customize the look of your portfolio."
+          >
+            <div className="space-y-6">
               <FormField
                 control={form.control}
                 name="brand_color"
@@ -424,15 +407,17 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto">
-            {updateProfile.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            Save Settings
-          </Button>
+          <div className="flex justify-end pt-1">
+            <Button type="submit" disabled={updateProfile.isPending} className="btn-gradient h-10 rounded-lg px-6 text-sm font-semibold">
+              {updateProfile.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              Save Settings
+            </Button>
+          </div>
         </form>
       </Form>
-    </div>
+    </PageShell>
   );
 }

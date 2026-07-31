@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { IconPicker, DynamicIcon } from '@/components/IconPicker';
 import { Plus, Pencil, Trash2, Loader2, Sparkles, Heart } from 'lucide-react';
+import { PageShell, Section, PageLoader } from '@/components/PageShell';
 
 type ItemType = 'highlight' | 'value';
 
@@ -72,13 +73,7 @@ export default function BrandPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   const renderItemCard = (item: ProfileItem) => (
     <Card key={item.id} className="group">
@@ -105,11 +100,11 @@ export default function BrandPage() {
   );
 
   return (
-    <div className="space-y-8 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold">Brand & Identity</h1>
-        <p className="text-muted-foreground">Customize the highlights and values displayed on your portfolio</p>
-      </div>
+    <PageShell
+      title="Brand & Identity"
+      description="Customize the highlights and values displayed on your portfolio."
+      maxWidth="xl"
+    >
 
       {/* Highlights Section */}
       <Card>
@@ -228,6 +223,6 @@ export default function BrandPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }
