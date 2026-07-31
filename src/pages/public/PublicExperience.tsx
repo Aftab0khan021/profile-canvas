@@ -124,14 +124,15 @@ export default function PublicExperience() {
     <>
       {/* Header */}
       <section className="pt-20 pb-12 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
+        <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Professional Experience</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Career</p>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Professional Experience</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
               {heroSubtitle}
             </p>
           </motion.div>
@@ -195,22 +196,15 @@ export default function PublicExperience() {
 
                       {/* Card Position based on index */}
                       <div className={`pl-12 md:pl-0 ${isLeft ? 'md:pr-12' : 'md:col-start-2 md:pl-12'}`}>
-                        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                          <CardHeader className="pb-3">
+                        <div className="bento-card hover:-translate-y-1 transition-transform duration-300">
+                          <div className="mb-3">
                             <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <Badge 
-                                className="text-white"
-                                style={{ backgroundColor: brandColor }}
-                              >
-                                Full-time
-                              </Badge>
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-white" style={{ backgroundColor: brandColor }}>Full-time</span>
                               {exp.is_current && (
-                                <Badge variant="outline" className="border-green-500 text-green-600">
-                                  Current
-                                </Badge>
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-emerald-600 bg-emerald-500/10">Current</span>
                               )}
                             </div>
-                            <CardTitle className="text-xl">{exp.role}</CardTitle>
+                            <h3 className="font-display font-bold text-xl mb-1">{exp.role}</h3>
                             <div className="space-y-1 text-sm">
                               <div className="flex items-center gap-2" style={{ color: brandColor }}>
                                 <Building2 className="h-4 w-4" />
@@ -226,10 +220,10 @@ export default function PublicExperience() {
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
                                   <span>
-                                    {format(new Date(exp.start_date), 'MMM yyyy')} - {' '}
-                                    {exp.is_current 
-                                      ? 'Present' 
-                                      : exp.end_date 
+                                    {format(new Date(exp.start_date), 'MMM yyyy')} -{' '}
+                                    {exp.is_current
+                                      ? 'Present'
+                                      : exp.end_date
                                         ? format(new Date(exp.end_date), 'MMM yyyy')
                                         : 'Present'
                                     }
@@ -237,44 +231,32 @@ export default function PublicExperience() {
                                 </div>
                               </div>
                             </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            {/* Description */}
+                          </div>
+                          <div className="space-y-4">
                             {exp.description && (
-                              <p className="text-muted-foreground">
-                                {exp.description}
-                              </p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{exp.description}</p>
                             )}
-
-                            {/* Key Achievements */}
                             <div>
-                              <h4 className="font-semibold mb-2 text-sm">Key Achievements</h4>
-                              <ul className="space-y-2">
+                              <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-2">Key Achievements</h4>
+                              <ul className="space-y-1.5">
                                 {achievements.map((achievement, i) => (
                                   <li key={i} className="flex items-start gap-2 text-sm">
-                                    <CheckCircle2 
-                                      className="h-4 w-4 mt-0.5 flex-shrink-0" 
-                                      style={{ color: brandColor }} 
-                                    />
+                                    <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: brandColor }} />
                                     <span>{achievement}</span>
                                   </li>
                                 ))}
                               </ul>
                             </div>
-
-                            {/* Skills Used */}
                             <div>
-                              <h4 className="font-semibold mb-2 text-sm">Skills Used</h4>
-                              <div className="flex flex-wrap gap-1">
+                              <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-2">Skills Used</h4>
+                              <div className="flex flex-wrap gap-1.5">
                                 {skillsUsed.map((skill) => (
-                                  <Badge key={skill} variant="secondary" className="text-xs">
-                                    {skill}
-                                  </Badge>
+                                  <span key={skill} className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">{skill}</span>
                                 ))}
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Empty column for alternating layout */}

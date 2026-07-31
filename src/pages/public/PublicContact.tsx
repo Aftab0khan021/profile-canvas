@@ -186,14 +186,15 @@ export default function PublicContact() {
     <>
       {/* Header */}
       <section className="pt-20 pb-12 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
+        <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Contact</p>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Get in Touch</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
               {heroSubtitle}
             </p>
           </motion.div>
@@ -209,19 +210,15 @@ export default function PublicContact() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="lg:col-span-2 space-y-6"
+              className="lg:col-span-2 space-y-4"
             >
-              <Card
-                className="overflow-hidden"
-                style={{ background: `linear-gradient(135deg, ${brandColor}10, ${brandColor}05)` }}
+              <div
+                className="bento-card"
+                style={{ background: `linear-gradient(135deg, ${brandColor}10, ${brandColor}04)` }}
               >
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>
-                    Prefer to reach out directly? Here's how you can contact me.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <h2 className="text-sm font-semibold mb-0.5">Contact Information</h2>
+                <p className="text-xs text-muted-foreground mb-4">Prefer to reach out directly? Here's how you can contact me.</p>
+                <div className="space-y-2">
                   {contactInfo.map((item, index) => (
                     item.href && (
                       <motion.a
@@ -232,40 +229,35 @@ export default function PublicContact() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-                        className="flex items-center gap-4 p-3 rounded-lg hover:bg-background/50 transition-colors group"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition-colors group"
                       >
                         <div
-                          className="h-12 w-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                          className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
                           style={{ backgroundColor: `${brandColor}20` }}
                         >
-                          <item.icon className="h-5 w-5" style={{ color: brandColor }} />
+                          <item.icon className="h-4 w-4" style={{ color: brandColor }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{item.label}</p>
-                          <p className="text-sm text-muted-foreground truncate">{item.value}</p>
+                          <p className="text-xs font-semibold text-muted-foreground">{item.label}</p>
+                          <p className="text-sm font-medium truncate">{item.value}</p>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                       </motion.a>
                     )
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Quick Response Time */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="h-3 w-3 rounded-full animate-pulse"
-                      style={{ backgroundColor: '#10b981' }}
-                    />
-                    <span className="font-medium">{availabilityText}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    I typically respond within 24 hours. Looking forward to hearing from you!
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Availability */}
+              <div className="bento-card">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-2.5 w-2.5 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} />
+                  <span className="font-semibold text-sm">{availabilityText}</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  I typically respond within 24 hours. Looking forward to hearing from you!
+                </p>
+              </div>
             </motion.div>
 
             {/* Contact Form */}
@@ -275,106 +267,83 @@ export default function PublicContact() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="lg:col-span-3"
             >
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle>Send a Message</CardTitle>
-                  <CardDescription>
-                    Fill out the form below and I'll get back to you as soon as possible.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {sent ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-center py-12"
+              <div className="bento-card h-full">
+                <h2 className="text-sm font-semibold mb-0.5">Send a Message</h2>
+                <p className="text-xs text-muted-foreground mb-5">Fill out the form below and I'll get back to you as soon as possible.</p>
+                {sent ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-10"
+                  >
+                    <div
+                      className="h-14 w-14 rounded-xl flex items-center justify-center mx-auto mb-4"
+                      style={{ backgroundColor: `${brandColor}15` }}
                     >
-                      <div
-                        className="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                        style={{ backgroundColor: `${brandColor}15` }}
-                      >
-                        <CheckCircle2 className="h-8 w-8" style={{ color: brandColor }} />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
-                      <p className="text-muted-foreground">
-                        {formSuccessMessage}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <form onSubmit={handleContact} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Name</Label>
-                          <Input
-                            id="name"
-                            placeholder="John Doe"
-                            value={contactForm.name}
-                            onChange={(e) =>
-                              setContactForm((p) => ({ ...p, name: e.target.value }))
-                            }
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={contactForm.email}
-                            onChange={(e) =>
-                              setContactForm((p) => ({ ...p, email: e.target.value }))
-                            }
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          placeholder="Tell me about your project, question, or just say hello..."
-                          rows={6}
-                          value={contactForm.message}
-                          onChange={(e) =>
-                            setContactForm((p) => ({ ...p, message: e.target.value }))
-                          }
+                      <CheckCircle2 className="h-7 w-7" style={{ color: brandColor }} />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2">Message Sent!</h3>
+                    <p className="text-sm text-muted-foreground">{formSuccessMessage}</p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleContact} className="space-y-5">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Name</label>
+                        <Input
+                          id="name"
+                          placeholder="John Doe"
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
                           required
+                          className="h-10 rounded-lg"
                         />
                       </div>
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full text-white"
-                        style={{ backgroundColor: brandColor }}
-                        disabled={sending || rateLimited}
-                      >
-                        {sending ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Sending...
-                          </>
-                        ) : rateLimited ? (
-                          <>
-                            <Shield className="h-4 w-4 mr-2" />
-                            Wait {cooldownTime}s
-                          </>
-                        ) : (
-                          <>
-                            <Send className="h-4 w-4 mr-2" />
-                            Send Message
-                          </>
-                        )}
-                      </Button>
-                      {executeRecaptcha && (
-                        <p className="text-xs text-muted-foreground text-center mt-2">
-                          Protected by reCAPTCHA
-                        </p>
+                      <div className="space-y-1.5">
+                        <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Email</label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
+                          required
+                          className="h-10 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="message" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Message</label>
+                      <Textarea
+                        id="message"
+                        placeholder="Tell me about your project, question, or just say hello..."
+                        rows={6}
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
+                        required
+                        className="rounded-lg resize-none"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={sending || rateLimited}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold disabled:opacity-60 hover:-translate-y-0.5 transition-all duration-200"
+                      style={{ backgroundColor: brandColor }}
+                    >
+                      {sending ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+                      ) : rateLimited ? (
+                        <><Shield className="h-4 w-4" /> Wait {cooldownTime}s</>
+                      ) : (
+                        <><Send className="h-4 w-4" /> Send Message</>
                       )}
-                    </form>
-                  )}
-                </CardContent>
-              </Card>
+                    </button>
+                    {executeRecaptcha && (
+                      <p className="text-xs text-muted-foreground text-center">Protected by reCAPTCHA</p>
+                    )}
+                  </form>
+                )}
+              </div>
             </motion.div>
           </div>
         </div>

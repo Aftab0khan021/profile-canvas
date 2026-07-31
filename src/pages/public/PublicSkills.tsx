@@ -208,14 +208,15 @@ export default function PublicSkills() {
     <>
       {/* Header */}
       <section className="pt-20 pb-12 px-4">
-        <div className="container mx-auto max-w-6xl text-center">
+        <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Technical Skills</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Competencies</p>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Technical Skills</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
               {heroSubtitle}
             </p>
           </motion.div>
@@ -225,33 +226,22 @@ export default function PublicSkills() {
       {/* Technical Expertise */}
       <section className="pb-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <motion.h2
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="text-2xl font-bold mb-8 flex items-center gap-2"
-          >
-            <Code className="h-6 w-6" style={{ color: brandColor }} />
-            Technical Expertise
-          </motion.h2>
+          <div className="flex items-center gap-2 mb-8">
+            <Code className="h-5 w-5" style={{ color: brandColor }} />
+            <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Technical Expertise</h2>
+          </div>
 
           {Object.keys(skillsByCategory).length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-12"
-            >
+            <div className="bento-card text-center py-12">
               <Zap className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Skills Added Yet</h3>
-              <p className="text-muted-foreground">
-                Check back later for technical skills.
-              </p>
-            </motion.div>
+              <h3 className="font-display text-xl font-semibold mb-2">No Skills Added Yet</h3>
+              <p className="text-muted-foreground">Check back later for technical skills.</p>
+            </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {Object.entries(skillsByCategory).map(([category, categorySkills], catIndex) => {
                 const colors = getCategoryColor(category);
-                
+
                 return (
                   <motion.div
                     key={category}
@@ -260,19 +250,15 @@ export default function PublicSkills() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: catIndex * 0.1 }}
                   >
-                    <Card className="h-full overflow-hidden">
-                      <CardHeader 
-                        className="text-white"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` 
-                        }}
+                    <div className="bento-card h-full overflow-hidden p-0">
+                      <div
+                        className="px-5 py-3 flex items-center gap-2"
+                        style={{ background: `linear-gradient(135deg, ${colors.from}18, ${colors.to}0c)` }}
                       >
-                        <CardTitle className="flex items-center gap-2">
-                          <Code className="h-5 w-5" />
-                          {category}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6 space-y-4">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.from }} />
+                        <span className="font-semibold text-sm">{category}</span>
+                      </div>
+                      <div className="p-5 space-y-3">
                         {categorySkills.map((skill, index) => (
                           <motion.div
                             key={skill.id}
@@ -283,16 +269,12 @@ export default function PublicSkills() {
                           >
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-sm font-medium">{skill.skill_name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {animatedProgress[skill.id] || 0}%
-                              </span>
+                              <span className="text-xs text-muted-foreground">{animatedProgress[skill.id] || 0}%</span>
                             </div>
-                            <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
                               <motion.div
                                 className="absolute inset-y-0 left-0 rounded-full"
-                                style={{ 
-                                  background: `linear-gradient(90deg, ${colors.from}, ${colors.to})` 
-                                }}
+                                style={{ background: `linear-gradient(90deg, ${colors.from}, ${colors.to})` }}
                                 initial={{ width: '0%' }}
                                 animate={{ width: `${animatedProgress[skill.id] || 0}%` }}
                                 transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
@@ -300,8 +282,8 @@ export default function PublicSkills() {
                             </div>
                           </motion.div>
                         ))}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -313,15 +295,10 @@ export default function PublicSkills() {
       {/* Soft Skills */}
       <section className="pb-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <motion.h2
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="text-2xl font-bold mb-8 flex items-center gap-2"
-          >
-            <Brain className="h-6 w-6" style={{ color: brandColor }} />
-            Soft Skills
-          </motion.h2>
+          <div className="flex items-center gap-2 mb-8">
+            <Brain className="h-5 w-5" style={{ color: brandColor }} />
+            <h2 className="text-sm font-mono font-semibold uppercase tracking-widest text-muted-foreground">Soft Skills</h2>
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {defaultSoftSkills.map((skill, index) => (
@@ -332,25 +309,16 @@ export default function PublicSkills() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="h-full text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardContent className="pt-6 pb-4">
-                    <div 
-                      className="h-14 w-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` 
-                      }}
-                    >
-                      <DynamicIcon 
-                        name={skill.icon} 
-                        className="h-7 w-7 brand-fill" 
-                      />
-                    </div>
-                    <h3 className="font-semibold text-sm mb-1">{skill.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {skill.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="bento-card h-full text-center hover:-translate-y-1 transition-transform duration-300">
+                  <div
+                    className="h-12 w-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+                    style={{ backgroundColor: `${brandColor}18` }}
+                  >
+                    <DynamicIcon name={skill.icon} className="h-6 w-6" style={{ color: brandColor }} />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-0.5">{skill.name}</h3>
+                  <p className="text-xs text-muted-foreground leading-snug">{skill.description}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -399,78 +367,31 @@ export default function PublicSkills() {
       {/* Summary Stats */}
       <section className="pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-8 pb-6">
-                  <div 
-                    className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` 
-                    }}
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { icon: Code, label: 'Technical Skills', value: `${stats.totalTechnical}+` },
+              { icon: Brain, label: 'Soft Skills', value: `${stats.totalSoftSkills}+` },
+              { icon: Clock, label: 'Years Experience', value: `${stats.yearsExperience}+` },
+            ].map(({ icon: Icon, label, value }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="bento-card text-center">
+                  <div
+                    className="h-14 w-14 rounded-xl flex items-center justify-center mx-auto mb-4"
+                    style={{ backgroundColor: `${brandColor}18` }}
                   >
-                    <Code className="h-8 w-8" style={{ color: brandColor }} />
+                    <Icon className="h-7 w-7" style={{ color: brandColor }} />
                   </div>
-                  <p className="text-4xl font-bold mb-1" style={{ color: brandColor }}>
-                    {stats.totalTechnical}+
-                  </p>
-                  <p className="text-muted-foreground">Technical Skills</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-8 pb-6">
-                  <div 
-                    className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` 
-                    }}
-                  >
-                    <Brain className="h-8 w-8" style={{ color: brandColor }} />
-                  </div>
-                  <p className="text-4xl font-bold mb-1" style={{ color: brandColor }}>
-                    {stats.totalSoftSkills}+
-                  </p>
-                  <p className="text-muted-foreground">Soft Skills</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-8 pb-6">
-                  <div 
-                    className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` 
-                    }}
-                  >
-                    <Clock className="h-8 w-8" style={{ color: brandColor }} />
-                  </div>
-                  <p className="text-4xl font-bold mb-1" style={{ color: brandColor }}>
-                    {stats.yearsExperience}+
-                  </p>
-                  <p className="text-muted-foreground">Years Experience</p>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  <p className="font-display text-4xl font-bold mb-1" style={{ color: brandColor }}>{value}</p>
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
