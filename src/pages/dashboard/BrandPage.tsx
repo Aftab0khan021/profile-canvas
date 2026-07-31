@@ -76,27 +76,25 @@ export default function BrandPage() {
   if (isLoading) return <PageLoader />;
 
   const renderItemCard = (item: ProfileItem) => (
-    <Card key={item.id} className="group">
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-4">
-          <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <DynamicIcon name={item.icon_name} className="h-6 w-6 text-primary" fallback={<Sparkles className="h-6 w-6 text-primary" />} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold">{item.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-          </div>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" onClick={() => openEditDialog(item)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(item.id)}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+    <div key={item.id} className="bento-card group">
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+          <DynamicIcon name={item.icon_name} className="h-4 w-4 text-violet-500" fallback={<Sparkles className="h-4 w-4 text-violet-500" />} />
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold">{item.title}</h3>
+          <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+        </div>
+        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(item)}>
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(item.id)}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -107,70 +105,62 @@ export default function BrandPage() {
     >
 
       {/* Highlights Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
-                My Highlights
-              </CardTitle>
-              <CardDescription>
-                "What Defines Me" cards shown on your About page
-              </CardDescription>
-            </div>
-            <Button onClick={() => openCreateDialog('highlight')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Highlight
-            </Button>
+      <div className="bento-card">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-500" />
+              My Highlights
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              "What Defines Me" cards shown on your About page
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {highlights.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No highlights yet. Add what defines you!</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {highlights.map(renderItemCard)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <Button className="btn-gradient h-8 rounded-lg px-3 text-xs font-semibold" onClick={() => openCreateDialog('highlight')}>
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add Highlight
+          </Button>
+        </div>
+        {highlights.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">No highlights yet. Add what defines you!</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-3">
+            {highlights.map(renderItemCard)}
+          </div>
+        )}
+      </div>
 
       {/* Values Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
-                My Values
-              </CardTitle>
-              <CardDescription>
-                Core values cards shown on your About page
-              </CardDescription>
-            </div>
-            <Button onClick={() => openCreateDialog('value')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Value
-            </Button>
+      <div className="bento-card">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <Heart className="h-4 w-4 text-violet-500" />
+              My Values
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Core values cards shown on your About page
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {values.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No values yet. Share what you stand for!</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {values.map(renderItemCard)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <Button className="btn-gradient h-8 rounded-lg px-3 text-xs font-semibold" onClick={() => openCreateDialog('value')}>
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add Value
+          </Button>
+        </div>
+        {values.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">No values yet. Share what you stand for!</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-3">
+            {values.map(renderItemCard)}
+          </div>
+        )}
+      </div>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

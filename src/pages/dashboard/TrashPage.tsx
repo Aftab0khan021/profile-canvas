@@ -149,16 +149,14 @@ export default function TrashPage() {
     >
 
       {totalTrashed > 0 && (
-        <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900">
-          <CardContent className="pt-4 flex gap-3 items-start">
-            <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-amber-800 dark:text-amber-200">
-              Items in the Trash are hidden from your public portfolio. They will be
-              <strong> permanently deleted 30 days</strong> after being moved to Trash.
-              You can restore them anytime before that.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="bento-card border-amber-200/30 bg-amber-950/20 flex gap-3 items-start">
+          <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-200">
+            Items in the Trash are hidden from your public portfolio. They will be
+            <strong> permanently deleted 30 days</strong> after being moved to Trash.
+            You can restore them anytime before that.
+          </p>
+        </div>
       )}
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TrashCategory)}>
@@ -182,73 +180,63 @@ export default function TrashPage() {
         {(Object.keys(CATEGORY_CONFIG) as TrashCategory[]).map((cat) => (
           <TabsContent key={cat} value={cat} className="mt-4">
             {(activeItems.length === 0 && cat === activeTab) ? (
-              <Card>
-                <CardContent className="flex flex-col items-center py-12 text-center">
-                  <Trash2 className="h-10 w-10 text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground">No {CATEGORY_CONFIG[cat].label.toLowerCase()} in trash.</p>
-                </CardContent>
-              </Card>
+              <div className="bento-card flex flex-col items-center py-10 text-center">
+                <Trash2 className="h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">No {CATEGORY_CONFIG[cat].label.toLowerCase()} in trash.</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {activeItems.map((item) => {
                   const remaining = daysUntilPurge(item.deleted_at);
                   return (
-                    <Card key={item.id} className="border-dashed">
-                      <CardHeader className="pb-2">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <CardTitle className="text-base line-through text-muted-foreground">
-                              {item.label}
-                            </CardTitle>
-                            {item.sublabel && (
-                              <CardDescription>{item.sublabel}</CardDescription>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge
-                              variant={remaining <= 3 ? 'destructive' : remaining <= 7 ? 'secondary' : 'outline'}
-                              className="text-xs whitespace-nowrap"
-                            >
-                              {remaining}d left
-                            </Badge>
-                          </div>
+                    <div key={item.id} className="bento-card border-dashed">
+                      <div className="flex items-start justify-between gap-4 mb-1">
+                        <div>
+                          <p className="text-sm font-semibold line-through text-muted-foreground">{item.label}</p>
+                          {item.sublabel && (
+                            <p className="text-xs text-muted-foreground">{item.sublabel}</p>
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Trashed {formatDistanceToNow(new Date(item.deleted_at), { addSuffix: true })}
-                        </p>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-green-200 text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
-                            onClick={() => restoreItem.mutate({ table: item.table, id: item.id })}
-                            disabled={restoreItem.isPending || permanentlyDelete.isPending}
-                          >
-                            {restoreItem.isPending ? (
-                              <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                            ) : (
-                              <RotateCcw className="h-3 w-3 mr-1.5" />
-                            )}
-                            Restore
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => permanentlyDelete.mutate({ table: item.table, id: item.id })}
-                            disabled={restoreItem.isPending || permanentlyDelete.isPending}
-                          >
-                            {permanentlyDelete.isPending ? (
-                              <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-3 w-3 mr-1.5" />
-                            )}
-                            Delete Forever
-                          </Button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${remaining <= 3 ? 'bg-red-500/10 text-red-400' : remaining <= 7 ? 'bg-amber-500/10 text-amber-400' : 'bg-muted text-muted-foreground'}`}>
+                            {remaining}d left
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Trashed {formatDistanceToNow(new Date(item.deleted_at), { addSuffix: true })}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs border-green-800/30 text-green-500 hover:bg-green-950"
+                          onClick={() => restoreItem.mutate({ table: item.table, id: item.id })}
+                          disabled={restoreItem.isPending || permanentlyDelete.isPending}
+                        >
+                          {restoreItem.isPending ? (
+                            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                          ) : (
+                            <RotateCcw className="h-3 w-3 mr-1.5" />
+                          )}
+                          Restore
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-7 text-xs"
+                          onClick={() => permanentlyDelete.mutate({ table: item.table, id: item.id })}
+                          disabled={restoreItem.isPending || permanentlyDelete.isPending}
+                        >
+                          {permanentlyDelete.isPending ? (
+                            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3 w-3 mr-1.5" />
+                          )}
+                          Delete Forever
+                        </Button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

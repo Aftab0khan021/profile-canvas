@@ -135,8 +135,7 @@ export default function SiteContentPage() {
       }
     >
 
-      <Card>
-        <CardContent className="pt-6">
+      <div className="bento-card">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full mb-6">
               {PAGE_CONFIGS.map((page) => (
@@ -150,19 +149,19 @@ export default function SiteContentPage() {
             {PAGE_CONFIGS.map((page) => (
               <TabsContent key={page.slug} value={page.slug} className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold flex items-center gap-2 mb-1">
-                    <page.icon className="h-5 w-5" />
+                  <h2 className="text-sm font-semibold flex items-center gap-2 mb-1">
+                    <page.icon className="h-4 w-4 text-violet-500" />
                     {page.label} Page Content
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Customize the text displayed on your {page.label.toLowerCase()} page
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   {page.fields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={`${page.slug}-${field.key}`}>{field.label}</Label>
+                    <div key={field.key} className="space-y-1.5">
+                      <Label htmlFor={`${page.slug}-${field.key}`} className="text-xs font-semibold">{field.label}</Label>
                       {field.multiline ? (
                         <Textarea
                           id={`${page.slug}-${field.key}`}
@@ -188,8 +187,7 @@ export default function SiteContentPage() {
               </TabsContent>
             ))}
           </Tabs>
-        </CardContent>
-      </Card>
+      </div>
     </PageShell>
   );
 }

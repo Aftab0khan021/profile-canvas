@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Pencil, Trash2, Star, Loader2, Quote } from 'lucide-react';
@@ -207,49 +207,45 @@ export default function TestimonialsPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             {testimonials.map((testimonial) => (
-              <Card key={testimonial.id} className={cn(selectedIds.has(testimonial.id) && 'ring-2 ring-primary')}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={selectedIds.has(testimonial.id)}
-                        onCheckedChange={() => toggleSelect(testimonial.id)}
-                      />
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Quote className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">{testimonial.client_name}</CardTitle>
-                        {testimonial.company && (
-                          <CardDescription>{testimonial.company}</CardDescription>
-                        )}
-                      </div>
+              <div key={testimonial.id} className={cn('bento-card', selectedIds.has(testimonial.id) && 'ring-2 ring-primary')}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={selectedIds.has(testimonial.id)}
+                      onCheckedChange={() => toggleSelect(testimonial.id)}
+                    />
+                    <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                      <Quote className="h-4 w-4 text-violet-500" />
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(testimonial)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteTestimonial.mutate(testimonial.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <div>
+                      <p className="text-sm font-semibold">{testimonial.client_name}</p>
+                      {testimonial.company && (
+                        <p className="text-xs text-muted-foreground">{testimonial.company}</p>
+                      )}
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm mb-3 line-clamp-4">"{testimonial.text}"</p>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={cn(
-                          'h-4 w-4',
-                          star <= testimonial.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'
-                        )}
-                      />
-                    ))}
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(testimonial)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteTestimonial.mutate(testimonial.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <p className="text-muted-foreground text-sm mb-3 line-clamp-4 italic">"{testimonial.text}"</p>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={cn(
+                        'h-4 w-4',
+                        star <= testimonial.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </>

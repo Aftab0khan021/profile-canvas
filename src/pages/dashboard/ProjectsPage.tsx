@@ -247,7 +247,7 @@ export default function ProjectsPage() {
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
       ) : projects.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-12 text-center text-muted-foreground">No projects yet. Add your first project to get started.</CardContent></Card>
+        <div className="bento-card border-dashed text-center py-12 text-muted-foreground">No projects yet. Add your first project to get started.</div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="projects">
@@ -265,76 +265,65 @@ export default function ProjectsPage() {
                         {...provided.draggableProps}
                         className={snapshot.isDragging ? 'opacity-90' : ''}
                       >
-                        <Card className="h-full">
+                        <div className="bento-card h-full p-0 overflow-hidden">
                           {project.image_url && (
                             <img
                               src={maskStorageUrl(project.image_url)}
                               alt={project.title}
-                              className="w-full h-40 object-cover rounded-t-lg"
+                              className="w-full h-40 object-cover"
                             />
                           )}
-                          <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <div
                                   {...provided.dragHandleProps}
                                   className="cursor-grab active:cursor-grabbing p-1 -ml-1 rounded hover:bg-muted"
                                 >
                                   <GripVertical className="h-4 w-4 text-muted-foreground" />
                                 </div>
-                                <span className="truncate">{project.title}</span>
+                                <span className="font-semibold text-sm truncate">{project.title}</span>
                               </div>
-                              <div className="flex gap-1 flex-shrink-0">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setPreviewProject(project)}
-                                  title="Preview"
-                                >
-                                  <Eye className="h-4 w-4" />
+                              <div className="flex gap-0.5 flex-shrink-0">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPreviewProject(project)} title="Preview">
+                                  <Eye className="h-3.5 w-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => openEdit(project)}>
-                                  <Pencil className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(project)}>
+                                  <Pencil className="h-3.5 w-3.5" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    if (confirm(`Delete "${project.title}"? This cannot be undone.`)) {
-                                      deleteProject.mutate(project.id);
-                                    }
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                                  if (confirm(`Delete "${project.title}"? This cannot be undone.`)) {
+                                    deleteProject.mutate(project.id);
+                                  }
+                                }}>
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
-                            </CardTitle>
-                            <CardDescription className="line-clamp-2">{project.description}</CardDescription>
-                          </CardHeader>
-                          <CardContent>
+                            </div>
+                            <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{project.description}</p>
                             <div className="flex flex-wrap gap-1 mb-3">
                               {project.tech_stack.map((tech) => (
-                                <Badge key={tech} variant="secondary">{tech}</Badge>
+                                <span key={tech} className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">{tech}</span>
                               ))}
                             </div>
                             <div className="flex gap-2">
                               {project.live_url && (
-                                <Button size="sm" variant="outline" asChild>
+                                <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
                                   <a href={project.live_url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="h-3 w-3 mr-1" />Live
                                   </a>
                                 </Button>
                               )}
                               {project.github_url && (
-                                <Button size="sm" variant="outline" asChild>
+                                <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
                                   <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                                     <Github className="h-3 w-3 mr-1" />Code
                                   </a>
                                 </Button>
                               )}
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </Draggable>
