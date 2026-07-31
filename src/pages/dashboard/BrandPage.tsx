@@ -78,8 +78,8 @@ export default function BrandPage() {
   const renderItemCard = (item: ProfileItem) => (
     <div key={item.id} className="bento-card group">
       <div className="flex items-start gap-3">
-        <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
-          <DynamicIcon name={item.icon_name} className="h-4 w-4 text-violet-500" fallback={<Sparkles className="h-4 w-4 text-violet-500" />} />
+        <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <DynamicIcon name={item.icon_name} className="h-4 w-4 text-emerald-500" fallback={<Sparkles className="h-4 w-4 text-emerald-500" />} />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold">{item.title}</h3>
@@ -109,7 +109,7 @@ export default function BrandPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-violet-500" />
+              <Sparkles className="h-4 w-4 text-emerald-500" />
               My Highlights
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -138,7 +138,7 @@ export default function BrandPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <Heart className="h-4 w-4 text-violet-500" />
+              <Heart className="h-4 w-4 text-emerald-500" />
               My Values
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">

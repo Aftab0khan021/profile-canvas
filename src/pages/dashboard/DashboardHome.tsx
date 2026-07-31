@@ -64,10 +64,10 @@ export default function DashboardHome() {
       <motion.div variants={item}>
         <div className="relative overflow-hidden rounded-2xl p-6 border border-border/60"
           style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(99,102,241,0.04) 100%)' }}>
-          <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/5 rounded-full blur-2xl" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl" />
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white text-base font-bold shadow-md shrink-0">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-base font-bold shadow-md shrink-0">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || '✦'}
               </div>
               <div>
@@ -93,12 +93,12 @@ export default function DashboardHome() {
       {/* Analytics stats — bento grid */}
       <motion.div variants={item}>
         <div className="flex items-center gap-2 mb-3">
-          <BarChart3 className="h-4 w-4 text-violet-500" />
+          <BarChart3 className="h-4 w-4 text-emerald-500" />
           <h2 className="font-semibold text-sm">Portfolio Analytics</h2>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Total Views', value: analyticsLoading ? '—' : analytics?.viewsLast30Days || 0, sub: 'Last 30 days', icon: Eye, color: 'text-violet-500', bg: 'bg-violet-500/10' },
+            { label: 'Total Views', value: analyticsLoading ? '—' : analytics?.viewsLast30Days || 0, sub: 'Last 30 days', icon: Eye, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
             { label: 'Today', value: analyticsLoading ? '—' : analytics?.viewsToday || 0, sub: 'Views today', icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10' },
             { label: 'This Week', value: analyticsLoading ? '—' : analytics?.viewsThisWeek || 0, sub: 'Last 7 days', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
             { label: 'This Month', value: analyticsLoading ? '—' : analytics?.viewsThisMonth || 0, sub: 'Last 30 days', icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/10' },
@@ -130,7 +130,7 @@ export default function DashboardHome() {
           {analyticsLoading ? (
             <div className="h-[180px] flex items-center justify-center">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <div className="h-4 w-4 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
+                <div className="h-4 w-4 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
                 Loading analytics...
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function DashboardHome() {
                       <span className="text-xs text-muted-foreground font-mono">{page.count}</span>
                     </div>
                     <div className="h-1 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -194,7 +194,7 @@ export default function DashboardHome() {
           {[
             { label: 'Projects', value: projects.length, icon: FolderOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', to: '/dashboard/projects', link: 'Manage projects' },
             { label: 'Experience', value: experience.length, icon: Briefcase, color: 'text-emerald-500', bg: 'bg-emerald-500/10', to: '/dashboard/experience', link: 'Manage experience' },
-            { label: 'Messages', value: `${unreadCount} unread`, icon: MessageSquare, color: 'text-violet-500', bg: 'bg-violet-500/10', to: '/dashboard/messages', link: 'View messages' },
+            { label: 'Messages', value: `${unreadCount} unread`, icon: MessageSquare, color: 'text-emerald-500', bg: 'bg-emerald-500/10', to: '/dashboard/messages', link: 'View messages' },
           ].map((stat) => (
             <div key={stat.label} className="bento-card flex items-center gap-4">
               <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", stat.bg)}>
@@ -204,7 +204,7 @@ export default function DashboardHome() {
                 <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
                 <p className="font-display text-xl font-bold">{stat.value}</p>
               </div>
-              <Link to={stat.to} className="text-xs text-violet-500 hover:text-violet-600 font-semibold flex items-center gap-1 shrink-0">
+              <Link to={stat.to} className="text-xs text-emerald-500 hover:text-emerald-600 font-semibold flex items-center gap-1 shrink-0">
                 {stat.link} <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -253,7 +253,7 @@ export default function DashboardHome() {
       {/* Quick actions */}
       <motion.div variants={item}>
         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Zap className="h-4 w-4 text-violet-500" />
+          <Zap className="h-4 w-4 text-emerald-500" />
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -268,8 +268,8 @@ export default function DashboardHome() {
               to={action.to}
               className="bento-card flex flex-col items-center gap-2 p-4 text-center group cursor-pointer"
             >
-              <div className="h-9 w-9 rounded-xl bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/15 transition-colors">
-                <action.icon className="h-4 w-4 text-violet-500" />
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/15 transition-colors">
+                <action.icon className="h-4 w-4 text-emerald-500" />
               </div>
               <span className="text-xs font-semibold">{action.label}</span>
             </Link>

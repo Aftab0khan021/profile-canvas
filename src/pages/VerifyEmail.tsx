@@ -85,7 +85,7 @@ export default function VerifyEmail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-500 mx-auto mb-3" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500 mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">Checking verification status...</p>
         </div>
       </div>
@@ -102,8 +102,8 @@ export default function VerifyEmail() {
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ background: 'hsl(var(--background))' }}>
       {/* Background decoration */}
       <div className="absolute inset-0 mesh-bg opacity-60" />
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -137,8 +137,8 @@ export default function VerifyEmail() {
                 transition={{ delay: i * 0.1 + 0.2 }}
                 className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/50"
               >
-                <div className="h-7 w-7 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <step.icon className="h-3.5 w-3.5 text-violet-500" />
+                <div className="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <step.icon className="h-3.5 w-3.5 text-emerald-500" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{step.title}</p>
@@ -151,7 +151,7 @@ export default function VerifyEmail() {
           {/* Cooldown ring progress */}
           {cooldown > 0 && (
             <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 text-violet-500" />
+              <Clock className="h-4 w-4 text-emerald-500" />
               Resend available in {cooldown}s
             </div>
           )}

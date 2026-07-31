@@ -244,14 +244,14 @@ export default function ExperiencePage() {
             <div key={exp.id} className="group flex gap-4 p-5 bento-card transition-colors duration-150">
               {/* Timeline dot */}
               <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-violet-500 ring-4 ring-violet-500/10" />
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10" />
                 <div className="w-px flex-1 bg-border/60" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div>
                     <h3 className="font-display font-semibold text-[15px] leading-snug">{exp.role}</h3>
-                    <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{exp.company}</p>
+                    <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{exp.company}</p>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0">
                     <button onClick={() => openEditDialog(exp)} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">

@@ -69,7 +69,7 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-500 mx-auto mb-3" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500 mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">Verifying reset link...</p>
         </div>
       </div>
@@ -79,8 +79,8 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
       <div className="absolute inset-0 mesh-bg opacity-50" />
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -127,8 +127,8 @@ export default function ResetPassword() {
             ) : (
               <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <div className="mb-6">
-                  <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4">
-                    <ShieldCheck className="h-6 w-6 text-violet-500" />
+                  <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <ShieldCheck className="h-6 w-6 text-emerald-500" />
                   </div>
                   <h1 className="font-display text-2xl font-bold mb-1.5">Create new password</h1>
                   <p className="text-muted-foreground text-sm">Choose a strong password for your account.</p>

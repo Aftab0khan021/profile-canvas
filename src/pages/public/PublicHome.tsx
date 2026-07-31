@@ -523,7 +523,7 @@ export default function PublicHome() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <div className="group rounded-xl overflow-hidden border border-border bg-card hover:border-violet-500/30 transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(107,33,232,0.12),0_8px_32px_-8px_rgba(107,33,232,0.18)] h-full flex flex-col">
+                    <div className="group rounded-xl overflow-hidden border border-border bg-card hover:border-emerald-500/30 transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.12),0_8px_32px_-8px_rgba(16,185,129,0.18)] h-full flex flex-col">
                       {project.image_url && (
                         <div className="relative overflow-hidden h-48">
                           <img

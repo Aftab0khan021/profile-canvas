@@ -40,8 +40,8 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
       <div className="absolute inset-0 mesh-bg opacity-50" />
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -92,8 +92,8 @@ export default function ForgotPassword() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="mb-6">
-                  <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4">
-                    <Mail className="h-6 w-6 text-violet-500" />
+                  <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <Mail className="h-6 w-6 text-emerald-500" />
                   </div>
                   <h1 className="font-display text-2xl font-bold mb-1.5">Forgot your password?</h1>
                   <p className="text-muted-foreground text-sm leading-relaxed">

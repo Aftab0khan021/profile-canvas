@@ -49,14 +49,14 @@ export default function MessagesPage() {
               className={cn(
                 'group flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-150',
                 !message.is_read
-                  ? 'border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/8'
+                  ? 'border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/8'
                   : 'border-border bg-card hover:bg-muted/40'
               )}
             >
               {/* Unread dot */}
               <div className="mt-1 shrink-0">
                 {!message.is_read ? (
-                  <div className="h-2 w-2 rounded-full bg-violet-500" />
+                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
                 ) : (
                   <div className="h-2 w-2 rounded-full bg-transparent" />
                 )}
@@ -100,7 +100,7 @@ export default function MessagesPage() {
             <DialogHeader>
               <DialogTitle className="font-display text-lg">Message from {selectedMessage.sender_name}</DialogTitle>
               <DialogDescription className="flex items-center gap-2 text-sm">
-                <a href={`mailto:${selectedMessage.sender_email}`} className="text-violet-500 hover:underline font-medium">
+                <a href={`mailto:${selectedMessage.sender_email}`} className="text-emerald-500 hover:underline font-medium">
                   {selectedMessage.sender_email}
                 </a>
                 <span className="text-muted-foreground/40">·</span>

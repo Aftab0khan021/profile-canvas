@@ -102,8 +102,8 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
-      <div className="h-12 w-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
-        <Icon className="h-6 w-6 text-violet-500" />
+      <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+        <Icon className="h-6 w-6 text-emerald-500" />
       </div>
       <h3 className="font-display font-semibold text-[15px] mb-1.5">{title}</h3>
       <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{body}</p>
@@ -126,7 +126,7 @@ export function PageLoader() {
   return (
     <div className="flex items-center justify-center h-48">
       <div className="flex items-center gap-2 text-muted-foreground text-sm">
-        <div className="h-4 w-4 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
+        <div className="h-4 w-4 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
         Loading...
       </div>
     </div>

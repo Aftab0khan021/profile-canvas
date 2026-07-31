@@ -183,7 +183,7 @@ export default function EducationPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" />
+          <div className="h-6 w-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
         </div>
       ) : education.length === 0 ? (
         <div className="bento-card">
@@ -197,14 +197,14 @@ export default function EducationPage() {
         <div className="space-y-3">
           {education.map((edu) => (
             <div key={edu.id} className="group flex gap-4 p-5 bento-card">
-              <div className="h-10 w-10 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
-                <GraduationCap className="h-5 w-5 text-violet-500" />
+              <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="h-5 w-5 text-emerald-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div>
                     <h3 className="font-display font-semibold text-[15px] leading-snug">{edu.degree} in {edu.field_of_study}</h3>
-                    <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{edu.institution}</p>
+                    <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{edu.institution}</p>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     <button onClick={() => openEdit(edu)} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"><Pencil className="h-3.5 w-3.5" /></button>

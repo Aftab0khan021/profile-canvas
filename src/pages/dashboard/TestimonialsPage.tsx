@@ -186,7 +186,7 @@ export default function TestimonialsPage() {
     >
 
       {isLoading ? (
-        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
+        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" /></div>
       ) : testimonials.length === 0 ? (
         <div className="bento-card">
           <EmptyState icon={Quote} title="No testimonials yet" body="Add your first testimonial to showcase client feedback." />
@@ -214,8 +214,8 @@ export default function TestimonialsPage() {
                       checked={selectedIds.has(testimonial.id)}
                       onCheckedChange={() => toggleSelect(testimonial.id)}
                     />
-                    <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                      <Quote className="h-4 w-4 text-violet-500" />
+                    <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                      <Quote className="h-4 w-4 text-emerald-500" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">{testimonial.client_name}</p>

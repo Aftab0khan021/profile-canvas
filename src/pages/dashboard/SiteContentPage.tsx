@@ -150,7 +150,7 @@ export default function SiteContentPage() {
               <TabsContent key={page.slug} value={page.slug} className="space-y-6">
                 <div>
                   <h2 className="text-sm font-semibold flex items-center gap-2 mb-1">
-                    <page.icon className="h-4 w-4 text-violet-500" />
+                    <page.icon className="h-4 w-4 text-emerald-500" />
                     {page.label} Page Content
                   </h2>
                   <p className="text-xs text-muted-foreground">

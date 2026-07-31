@@ -56,8 +56,8 @@ export default function ResumePage() {
       <div className="grid grid-cols-3 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
-              <s.icon className="h-4.5 w-4.5 text-violet-500" />
+            <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <s.icon className="h-4.5 w-4.5 text-emerald-500" />
             </div>
             <div>
               <div className="font-display text-xl font-bold">{s.value}</div>
@@ -77,7 +77,7 @@ export default function ResumePage() {
             'Feature your best 3 projects',
           ].map(tip => (
             <li key={tip} className="flex items-start gap-2 text-sm text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-500 shrink-0 mt-2" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 mt-2" />
               {tip}
             </li>
           ))}
@@ -105,7 +105,7 @@ export default function ResumePage() {
               skills={skills}
               projects={projects}
               certifications={certifications}
-              brandColor={profile?.brand_color || '#6B21E8'}
+              brandColor={profile?.brand_color || '#10B981'}
             />
           </div>
         </div>

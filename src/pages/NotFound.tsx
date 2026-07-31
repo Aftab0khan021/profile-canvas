@@ -16,8 +16,8 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden p-6">
       {/* Background */}
       <div className="absolute inset-0 mesh-bg" />
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}

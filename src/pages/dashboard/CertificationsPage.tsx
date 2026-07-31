@@ -135,7 +135,7 @@ export default function CertificationsPage() {
     >
 
       {isLoading ? (
-        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-violet-500/20 border-t-violet-500 animate-spin" /></div>
+        <div className="flex justify-center py-12"><div className="h-6 w-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" /></div>
       ) : certifications.length === 0 ? (
         <div className="bento-card">
           <EmptyState icon={Award} title="No certifications yet" body="Add your professional certifications to build credibility." />
@@ -169,7 +169,7 @@ export default function CertificationsPage() {
                   </div>
                 )}
                 {cert.credential_url && cert.credential_url.startsWith('https://') && (
-                  <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-violet-500 hover:text-violet-600 font-mono mt-2">
+                  <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-emerald-500 hover:text-emerald-600 font-mono mt-2">
                     <ExternalLink className="h-3 w-3" />Verify credential
                   </a>
                 )}
