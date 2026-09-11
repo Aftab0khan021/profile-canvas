@@ -27,20 +27,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    sourcemap: 'hidden', // Generate maps for Sentry upload but don't serve them publicly
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Split React and routing into separate chunk
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // Split UI libraries
-          'ui-vendor': ['framer-motion', 'lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          // Split data fetching
-          'query-vendor': ['@tanstack/react-query'],
-          // Split form libraries
-          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
-        },
-      },
-    },
+    sourcemap: 'hidden',
+    chunkSizeWarningLimit: 1000,
   },
 }));

@@ -1,44 +1,69 @@
 import { useEffect, useRef } from 'react';
-import Lenis from 'lenis';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
  * Initialises Lenis smooth scroll and wires it to GSAP's ticker so that
  * ScrollTrigger reads from Lenis's interpolated scroll position — keeping
  * pinned sections and scroll-linked animations perfectly in sync.
  *
+ * Wrapped in try/catch — if Lenis or GSAP fail to load, scroll falls back
+ * to native browser scrolling (zero impact on UX).
+ *
  * Security: no external input, purely internal RAF loop.
  */
 export function useLenis() {
-  const lenisRef = useRef<Lenis | null>(null);
+  const lenisRef = useRef<any>(null);
 
   useEffect(() => {
     // Respect reduced-motion preference
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenisRef.current = lenis;
+    let lenis: any = null;
+    let gsapRef: any = null;
+    let onTick: ((time: number) => void) | null = null;
 
-    // Sync Lenis → GSAP ticker (critical for ScrollTrigger accuracy)
-    const onTick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    const init = async () => {
+      try {
+        const [LenisModule, gsapModule, stModule] = await Promise.all([
+          import('lenis'),
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
 
-    // Let ScrollTrigger use Lenis's scroll instead of window.scrollY
-    lenis.on('scroll', ScrollTrigger.update);
+        const Lenis = LenisModule.default;
+        gsapRef = gsapModule.default;
+        const ScrollTrigger = stModule.ScrollTrigger;
+
+        gsapRef.registerPlugin(ScrollTrigger);
+
+        lenis = new Lenis({
+          duration: 1.2,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        lenisRef.current = lenis;
+
+        // Sync Lenis → GSAP ticker
+        onTick = (time: number) => lenis.raf(time * 1000);
+        gsapRef.ticker.add(onTick);
+        gsapRef.ticker.lagSmoothing(0);
+
+        // Let ScrollTrigger use Lenis's scroll
+        lenis.on('scroll', ScrollTrigger.update);
+      } catch (err) {
+        // Graceful fallback — native scroll will work fine
+        console.warn('[useLenis] Failed to init smooth scroll:', err);
+      }
+    };
+
+    init();
 
     return () => {
-      gsap.ticker.remove(onTick);
-      lenis.destroy();
-      lenisRef.current = null;
+      try {
+        if (onTick && gsapRef) gsapRef.ticker.remove(onTick);
+        if (lenis) lenis.destroy();
+        lenisRef.current = null;
+      } catch { /* cleanup errors are safe to swallow */ }
     };
   }, []);
 
