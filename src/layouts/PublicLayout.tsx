@@ -33,6 +33,7 @@ export default function PublicLayout() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
+  const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
 
   // Init Lenis smooth scroll
   useLenis();
@@ -149,7 +150,7 @@ export default function PublicLayout() {
 
       {/* Intro screen — shows once per session */}
       {!introComplete && (
-        <IntroScreen name={profile.full_name || 'Developer'} onComplete={() => setIntroComplete(true)} />
+        <IntroScreen name={profile.full_name || 'Developer'} onComplete={handleIntroComplete} />
       )}
 
       {/* Aurora background */}
