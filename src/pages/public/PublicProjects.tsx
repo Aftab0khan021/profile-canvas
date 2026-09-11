@@ -145,264 +145,180 @@ export default function PublicProjects() {
     );
   }
 
-  // ─── MODERN TEMPLATE (default) ───
+  // ─── MODERN TEMPLATE (default) — IMMERSIVE ───
   return (
     <>
       {/* Header */}
       <section className="pt-20 pb-8 px-4">
-        <div className="container mx-auto max-w-6xl text-center">
+        <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">My Projects</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+              PORTFOLIO
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-title mb-4" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+              My Projects
+            </h1>
+            <p className="text-base max-w-2xl leading-relaxed" style={{ color: '#6b7280' }}>
               {heroSubtitle}
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Toolbar: Search, Categories, View Toggle */}
-      <section className="pb-8 px-4 sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-b">
+      {/* Toolbar */}
+      <section className="pb-8 px-4 sticky top-14 z-40 backdrop-blur-xl" style={{ backgroundColor: 'rgba(8,8,8,0.85)', borderBottom: `1px solid ${brandColor}10` }}>
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4">
-            {/* Search Bar */}
+            {/* Search */}
             <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4b5563' }} />
+              <input
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm font-mono outline-none transition-all duration-300"
+                style={{
+                  backgroundColor: 'rgba(14,14,14,0.8)',
+                  border: `1px solid rgba(255,255,255,0.06)`,
+                  color: '#f0ede6',
+                  caretColor: brandColor,
+                }}
+                onFocus={(e) => e.target.style.borderColor = `${brandColor}50`}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
               />
               {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#6b7280' }}>
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
 
-            {/* Category Tabs */}
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              <Button
-                variant={!selectedCategory ? 'default' : 'outline'}
-                size="sm"
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-2">
+              <button
                 onClick={() => setSelectedCategory(null)}
-                style={!selectedCategory ? { backgroundColor: brandColor } : undefined}
-                className={!selectedCategory ? 'text-white' : ''}
+                className="px-3 py-1.5 rounded-full text-xs font-mono font-semibold transition-all duration-300"
+                style={{
+                  backgroundColor: !selectedCategory ? brandColor : 'rgba(14,14,14,0.8)',
+                  color: !selectedCategory ? '#fff' : '#6b7280',
+                  border: `1px solid ${!selectedCategory ? brandColor : 'rgba(255,255,255,0.08)'}`,
+                  boxShadow: !selectedCategory ? `0 0 12px -4px ${brandColor}` : 'none',
+                }}
               >
-                All
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {projects.length}
-                </Badge>
-              </Button>
-              {categories.map(([category, count]) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-                  style={selectedCategory === category ? { backgroundColor: brandColor } : undefined}
-                  className={selectedCategory === category ? 'text-white' : ''}
+                ALL
+              </button>
+              {Array.from(categories.entries()).map(([cat, count]) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                  className="px-3 py-1.5 rounded-full text-xs font-mono font-semibold transition-all duration-300"
+                  style={{
+                    backgroundColor: selectedCategory === cat ? brandColor : 'rgba(14,14,14,0.8)',
+                    color: selectedCategory === cat ? '#fff' : '#6b7280',
+                    border: `1px solid ${selectedCategory === cat ? brandColor : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: selectedCategory === cat ? `0 0 12px -4px ${brandColor}` : 'none',
+                  }}
                 >
-                  {category}
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    {count}
-                  </Badge>
-                </Button>
+                  {cat} ({count})
+                </button>
               ))}
-            </div>
-
-            {/* View Toggle */}
-            <div className="flex items-center gap-1 border rounded-lg p-1">
-              <Button
-                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setViewMode('grid')}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setViewMode('list')}
-              >
-                <List className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Projects Display */}
-      <section className="pb-20 px-4">
+      {/* Project Grid */}
+      <section className="py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           {filteredProjects.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20"
+              className="text-center py-24"
             >
-              <FolderOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Projects Found</h3>
-              <p className="text-muted-foreground">
-                {searchQuery || selectedCategory
-                  ? 'Try adjusting your search or filters.'
-                  : emptyStateMessage}
-              </p>
-              {(searchQuery || selectedCategory) && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory(null);
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              )}
+              <FolderOpen className="h-12 w-12 mx-auto mb-4" style={{ color: '#374151' }} />
+              <p className="font-mono text-sm" style={{ color: '#6b7280' }}>{emptyStateMessage}</p>
             </motion.div>
-          ) : viewMode === 'grid' ? (
-            /* Grid View */
-            <div className="grid md:grid-cols-2 gap-8">
-              {filteredProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="bento-card overflow-hidden group h-full flex flex-col p-0">
-                    {/* Image with Overlay */}
-                    <div className="relative overflow-hidden h-48">
-                      {project.image_url ? (
-                        <img
-                          src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center"
-                          style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
-                        >
-                          <FolderOpen className="h-14 w-14 text-muted-foreground/50" />
-                        </div>
-                      )}
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        <Button size="sm" className="btn-gradient text-xs h-8" asChild>
-                          <Link to={`/p/${username}/projects/${project.id}`}>
-                            <Eye className="h-3.5 w-3.5 mr-1.5" />
-                            View Details
-                          </Link>
-                        </Button>
-                        {project.github_url && (
-                          <Button size="sm" variant="secondary" className="text-xs h-8" asChild>
-                            <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-3.5 w-3.5 mr-1.5" />
-                              Code
-                            </a>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-4 flex-1 flex flex-col">
-                      <p className="font-semibold text-sm mb-1">{project.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed flex-1">{project.description}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {(project.tech_stack || []).map((t) => (
-                          <span
-                            key={t}
-                            className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
-                            onClick={() => setSelectedCategory(t)}
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           ) : (
-            /* List View */
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-6">
               {filteredProjects.map((project, index) => (
                 <motion.div
                   key={project.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  initial={{ opacity: 0, y: 40, rotateY: index % 2 === 0 ? 6 : -6 }}
+                  whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.7, delay: index * 0.08 }}
+                  className={index === 0 ? 'md:col-span-2' : ''}
                 >
-                  <div className="bento-card overflow-hidden group p-0">
-                    <div className="flex flex-col md:flex-row">
-                      {/* Image */}
-                      <div className="relative overflow-hidden w-full md:w-56 h-40 md:h-auto flex-shrink-0">
-                        {project.image_url ? (
+                  <Link to={`/p/${username}/projects/${project.id}`} data-cursor="VIEW">
+                    <div
+                      className="group rounded-xl overflow-hidden transition-all duration-500 h-full flex flex-col scan-line relative hover:scale-[1.01]"
+                      style={{
+                        backgroundColor: '#0e0e0e',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        '--scan-color': `${brandColor}12`,
+                      } as React.CSSProperties}
+                    >
+                      {project.image_url && (
+                        <div className={`relative overflow-hidden ${index === 0 ? 'h-72' : 'h-48'}`}>
                           <img
-                            src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
+                            src={getOptimizedImageUrl(project.image_url, index === 0 ? IMAGE_PRESETS.hero : IMAGE_PRESETS.card)}
                             alt={project.title}
                             loading="lazy"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
-                        ) : (
-                          <div
-                            className="w-full h-full flex items-center justify-center"
-                            style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}05)` }}
-                          >
-                            <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent" />
+                          {/* Overlay badges */}
+                          <div className="absolute bottom-3 left-3 flex gap-2">
+                            {project.live_url && (
+                              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-semibold"
+                                style={{ backgroundColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#f0ede6' }}>
+                                <ExternalLink className="h-3 w-3" /> LIVE
+                              </span>
+                            )}
+                            {project.github_url && (
+                              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-semibold"
+                                style={{ backgroundColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#f0ede6' }}>
+                                <Github className="h-3 w-3" /> CODE
+                              </span>
+                            )}
                           </div>
+                          {project.featured && (
+                            <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase"
+                              style={{ backgroundColor: brandColor, color: '#fff' }}>
+                              FEATURED
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="p-6 flex-1 flex flex-col">
+                        {project.category && (
+                          <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.15em] mb-2" style={{ color: brandColor }}>
+                            {project.category}
+                          </span>
                         )}
-                      </div>
-                      {/* Content */}
-                      <div className="flex-1 p-4">
-                        <h3 className="font-semibold text-sm mb-1">{project.title}</h3>
-                        <p className="text-xs text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                          {project.description}
-                        </p>
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {(project.tech_stack || []).map((t) => (
-                            <span
-                              key={t}
-                              className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
-                              onClick={() => setSelectedCategory(t)}
-                            >
+                        <h3 className="font-display font-bold text-lg mb-2 group-hover:text-white transition-colors" style={{ color: '#e5e7eb' }}>{project.title}</h3>
+                        <p className="text-sm line-clamp-2 mb-4 flex-1" style={{ color: '#6b7280' }}>{project.description}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(project.tech_stack || []).slice(0, 5).map((t) => (
+                            <span key={t} className="px-2 py-0.5 rounded text-[10px] font-mono transition-all duration-300"
+                              style={{ backgroundColor: `${brandColor}10`, color: `${brandColor}cc`, border: `1px solid ${brandColor}20` }}>
                               {t}
                             </span>
                           ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" className="btn-gradient h-7 text-xs" asChild>
-                            <Link to={`/p/${username}/projects/${project.id}`}>
-                              <Eye className="h-3 w-3 mr-1" />
-                              View Details
-                            </Link>
-                          </Button>
-                          {project.github_url && (
-                            <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
-                              <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                                <Github className="h-3 w-3 mr-1" />
-                                Source
-                              </a>
-                            </Button>
+                          {(project.tech_stack || []).length > 5 && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono" style={{ color: '#4b5563' }}>
+                              +{(project.tech_stack || []).length - 5}
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>

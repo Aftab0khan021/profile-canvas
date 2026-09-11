@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { format } from 'date-fns';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
 import { usePublicPageContent } from '@/hooks/useProfileItems';
@@ -119,7 +120,7 @@ export default function PublicExperience() {
     );
   }
 
-  // ─── MODERN TEMPLATE (default) ───
+  // ─── MODERN TEMPLATE (default) — IMMERSIVE ───
   return (
     <>
       {/* Header */}
@@ -128,143 +129,99 @@ export default function PublicExperience() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Career</p>
-            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Professional Experience</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+              CAREER
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+              Professional Experience
+            </h1>
+            <p className="text-base max-w-2xl leading-relaxed" style={{ color: '#6b7280' }}>
               {heroSubtitle}
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Timeline Section */}
-      <section className="pb-20 px-4">
+      {/* Timeline */}
+      <section className="pb-24 px-4">
         <div className="container mx-auto max-w-4xl">
           {sortedExperience.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Experience Added</h3>
-              <p className="text-muted-foreground">
-                Check back later for professional experience details.
-              </p>
-            </motion.div>
+            <p className="text-center font-mono text-sm py-16" style={{ color: '#6b7280' }}>No experience added yet.</p>
           ) : (
             <div className="relative">
-              {/* Central Timeline Line */}
-              <div 
-                className="absolute left-0 md:left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 hidden md:block"
-                style={{ 
-                  background: `linear-gradient(to bottom, ${brandColor}, ${brandColor}50, ${brandColor}20)` 
-                }}
+              {/* Animated vertical connector line */}
+              <motion.div
+                className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px"
+                style={{ backgroundColor: `${brandColor}25`, transformOrigin: 'top' }}
+                initial={{ scaleY: 0 }}
+                whileInView={{ scaleY: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
               />
 
-              {/* Mobile Timeline Line */}
-              <div 
-                className="absolute left-6 top-0 bottom-0 w-0.5 md:hidden"
-                style={{ 
-                  background: `linear-gradient(to bottom, ${brandColor}, ${brandColor}50, ${brandColor}20)` 
-                }}
-              />
-
-              {/* Timeline Items */}
-              <div className="space-y-12">
-                {sortedExperience.map((exp, index) => {
-                  const achievements = getAchievements(exp);
-                  const skillsUsed = getSkillsUsed(exp);
-                  const isLeft = index % 2 === 0;
-
-                  return (
-                    <motion.div
-                      key={exp.id}
-                      initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.2 }}
-                      className="relative grid md:grid-cols-2 gap-8 md:gap-12"
-                    >
-                      {/* Timeline Dot */}
-                      <div 
-                        className="absolute left-6 md:left-1/2 top-0 w-4 h-4 rounded-full border-4 border-background -translate-x-1/2 z-10"
-                        style={{ backgroundColor: brandColor }}
-                      />
-
-                      {/* Card Position based on index */}
-                      <div className={`pl-12 md:pl-0 ${isLeft ? 'md:pr-12' : 'md:col-start-2 md:pl-12'}`}>
-                        <div className="bento-card hover:-translate-y-1 transition-transform duration-300">
-                          <div className="mb-3">
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-white" style={{ backgroundColor: brandColor }}>Full-time</span>
-                              {exp.is_current && (
-                                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-emerald-600 bg-emerald-500/10">Current</span>
-                              )}
-                            </div>
-                            <h3 className="font-display font-bold text-xl mb-1">{exp.role}</h3>
-                            <div className="space-y-1 text-sm">
-                              <div className="flex items-center gap-2" style={{ color: brandColor }}>
-                                <Building2 className="h-4 w-4" />
-                                <span className="font-semibold">{exp.company}</span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
-                                {exp.location && (
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" />
-                                    <span>{exp.location}</span>
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  <span>
-                                    {format(new Date(exp.start_date), 'MMM yyyy')} -{' '}
-                                    {exp.is_current
-                                      ? 'Present'
-                                      : exp.end_date
-                                        ? format(new Date(exp.end_date), 'MMM yyyy')
-                                        : 'Present'
-                                    }
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            {exp.description && (
-                              <p className="text-sm text-muted-foreground leading-relaxed">{exp.description}</p>
-                            )}
-                            <div>
-                              <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-2">Key Achievements</h4>
-                              <ul className="space-y-1.5">
-                                {achievements.map((achievement, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-sm">
-                                    <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: brandColor }} />
-                                    <span>{achievement}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-2">Skills Used</h4>
-                              <div className="flex flex-wrap gap-1.5">
-                                {skillsUsed.map((skill) => (
-                                  <span key={skill} className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">{skill}</span>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+              {sortedExperience.map((exp, index) => {
+                const isLeft = index % 2 === 0;
+                return (
+                  <motion.div
+                    key={exp.id}
+                    className={`relative flex items-start mb-12 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                    initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.7, delay: 0.1 }}
+                  >
+                    {/* Timeline node with sonar ping */}
+                    <div className="absolute left-[15px] md:left-1/2 md:-translate-x-1/2 z-10">
+                      <div
+                        className="w-[10px] h-[10px] rounded-full relative"
+                        style={{ backgroundColor: brandColor, boxShadow: `0 0 12px ${brandColor}60` }}
+                      >
+                        <div className="pulse-dot absolute inset-0" style={{ background: brandColor }} />
                       </div>
+                    </div>
 
-                      {/* Empty column for alternating layout */}
-                      {!isLeft && <div className="hidden md:block" />}
-                    </motion.div>
-                  );
-                })}
-              </div>
+                    {/* Card */}
+                    <div className={`ml-10 md:ml-0 ${isLeft ? 'md:pr-12 md:w-1/2' : 'md:pl-12 md:w-1/2'}`}>
+                      <div
+                        className="rounded-xl p-6 transition-all duration-500 hover:scale-[1.01]"
+                        style={{
+                          backgroundColor: '#0e0e0e',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                      >
+                        {/* Date */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-mono font-semibold" style={{ color: brandColor }}>
+                            {exp.start_date && format(new Date(exp.start_date), 'MMM yyyy')}
+                            {' → '}
+                            {exp.end_date ? format(new Date(exp.end_date), 'MMM yyyy') : 'Present'}
+                          </span>
+                        </div>
+
+                        <h3 className="font-display font-bold text-base mb-1" style={{ color: '#f0ede6' }}>{exp.position}</h3>
+                        <p className="text-sm font-semibold mb-3" style={{ color: brandColor }}>{exp.company}</p>
+
+                        {exp.description && (
+                          <p className="text-xs leading-relaxed mb-3" style={{ color: '#6b7280' }}>{exp.description}</p>
+                        )}
+
+                        {exp.technologies && exp.technologies.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {exp.technologies.map(t => (
+                              <span key={t} className="px-2 py-0.5 rounded text-[10px] font-mono"
+                                style={{ backgroundColor: `${brandColor}10`, color: `${brandColor}cc`, border: `1px solid ${brandColor}20` }}>
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>

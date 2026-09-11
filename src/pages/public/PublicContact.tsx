@@ -190,157 +190,197 @@ export default function PublicContact() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Contact</p>
-            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Get in Touch</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+              CONTACT
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+              Get in Touch
+            </h1>
+            <p className="text-base max-w-2xl leading-relaxed" style={{ color: '#6b7280' }}>
               {heroSubtitle}
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="pb-20 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid lg:grid-cols-5 gap-8">
-            {/* Contact Info - Sidebar */}
+      {/* Contact Content */}
+      <section className="pb-24 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="grid md:grid-cols-5 gap-8">
+            {/* Contact Info — Left Column */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="lg:col-span-2 space-y-4"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="md:col-span-2 space-y-4"
             >
-              <div
-                className="bento-card"
-                style={{ background: `linear-gradient(135deg, ${brandColor}10, ${brandColor}04)` }}
-              >
-                <h2 className="text-sm font-semibold mb-0.5">Contact Information</h2>
-                <p className="text-xs text-muted-foreground mb-4">Prefer to reach out directly? Here's how you can contact me.</p>
-                <div className="space-y-2">
-                  {contactInfo.map((item, index) => (
-                    item.href && (
-                      <motion.a
-                        key={item.label}
-                        href={item.href}
-                        target={item.href.startsWith('http') ? '_blank' : undefined}
-                        rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition-colors group"
-                      >
-                        <div
-                          className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: `${brandColor}20` }}
-                        >
-                          <item.icon className="h-4 w-4" style={{ color: brandColor }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-muted-foreground">{item.label}</p>
-                          <p className="text-sm font-medium truncate">{item.value}</p>
-                        </div>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </motion.a>
-                    )
-                  ))}
+              {/* Availability badge */}
+              <div className="rounded-xl p-5" style={{ backgroundColor: '#0e0e0e', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="pulse-dot" />
+                  <span className="text-xs font-mono font-semibold" style={{ color: '#22c55e' }}>AVAILABLE</span>
                 </div>
+                <p className="text-xs" style={{ color: '#6b7280' }}>{availabilityText}</p>
               </div>
 
-              {/* Availability */}
-              <div className="bento-card">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-2.5 w-2.5 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} />
-                  <span className="font-semibold text-sm">{availabilityText}</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  I typically respond within 24 hours. Looking forward to hearing from you!
-                </p>
-              </div>
+              {/* Contact links */}
+              {contactInfo.map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
+                >
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target={item.label !== 'Email' && item.label !== 'Phone' ? '_blank' : undefined}
+                      rel="noopener noreferrer"
+                      data-cursor="OPEN"
+                      className="flex items-center gap-3 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02]"
+                      style={{ backgroundColor: '#0e0e0e', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${brandColor}12`, border: `1px solid ${brandColor}20` }}>
+                        <item.icon className="h-4 w-4" style={{ color: brandColor }} />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: '#4b5563' }}>{item.label}</div>
+                        <div className="text-sm font-semibold truncate max-w-[180px]" style={{ color: '#e5e7eb' }}>{item.value}</div>
+                      </div>
+                    </a>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-xl p-4" style={{ backgroundColor: '#0e0e0e', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${brandColor}12` }}>
+                        <item.icon className="h-4 w-4" style={{ color: brandColor }} />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: '#4b5563' }}>{item.label}</div>
+                        <div className="text-sm" style={{ color: '#6b7280' }}>{item.value}</div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
             </motion.div>
 
-            {/* Contact Form */}
+            {/* Contact Form — Right Column */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-3"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="md:col-span-3"
             >
-              <div className="bento-card h-full">
-                <h2 className="text-sm font-semibold mb-0.5">Send a Message</h2>
-                <p className="text-xs text-muted-foreground mb-5">Fill out the form below and I'll get back to you as soon as possible.</p>
+              <div
+                className="rounded-xl p-6 md:p-8 neon-border"
+                style={{ backgroundColor: '#0e0e0e', '--neon-color': brandColor } as React.CSSProperties}
+              >
                 {sent ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-10"
+                    className="text-center py-12"
                   >
-                    <div
-                      className="h-14 w-14 rounded-xl flex items-center justify-center mx-auto mb-4"
-                      style={{ backgroundColor: `${brandColor}15` }}
-                    >
-                      <CheckCircle2 className="h-7 w-7" style={{ color: brandColor }} />
-                    </div>
-                    <h3 className="font-display text-xl font-semibold mb-2">Message Sent!</h3>
-                    <p className="text-sm text-muted-foreground">{formSuccessMessage}</p>
+                    <CheckCircle2 className="h-12 w-12 mx-auto mb-4" style={{ color: '#22c55e' }} />
+                    <h3 className="font-display font-bold text-lg mb-2" style={{ color: '#f0ede6' }}>Message Sent!</h3>
+                    <p className="text-sm font-mono" style={{ color: '#6b7280' }}>{formSuccessMessage}</p>
                   </motion.div>
                 ) : (
                   <form onSubmit={handleContact} className="space-y-5">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Name</label>
-                        <Input
-                          id="name"
-                          placeholder="John Doe"
-                          value={contactForm.name}
-                          onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
-                          required
-                          className="h-10 rounded-lg"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Email</label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="john@example.com"
-                          value={contactForm.email}
-                          onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
-                          required
-                          className="h-10 rounded-lg"
-                        />
-                      </div>
+                    {/* Terminal intro */}
+                    <div className="font-mono text-[11px] space-y-1 mb-4 pb-4" style={{ borderBottom: `1px solid ${brandColor}15`, color: '#4b5563' }}>
+                      <p><span style={{ color: brandColor }}>$</span> establishing_connection...</p>
+                      <p><span style={{ color: brandColor }}>$</span> status: <span style={{ color: '#22c55e' }}>READY</span></p>
                     </div>
-                    <div className="space-y-1.5">
-                      <label htmlFor="message" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">Message</label>
-                      <Textarea
-                        id="message"
-                        placeholder="Tell me about your project, question, or just say hello..."
-                        rows={6}
-                        value={contactForm.message}
-                        onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
+
+                    <div>
+                      <label className="text-[10px] font-mono font-semibold uppercase tracking-widest block mb-2" style={{ color: '#6b7280' }}>Name</label>
+                      <input
+                        type="text"
                         required
-                        className="rounded-lg resize-none"
+                        value={contactForm.name}
+                        onChange={e => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                        maxLength={100}
+                        className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-300"
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#f0ede6',
+                          caretColor: brandColor,
+                        }}
+                        onFocus={e => e.target.style.borderColor = `${brandColor}60`}
+                        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                       />
                     </div>
+
+                    <div>
+                      <label className="text-[10px] font-mono font-semibold uppercase tracking-widest block mb-2" style={{ color: '#6b7280' }}>Email</label>
+                      <input
+                        type="email"
+                        required
+                        value={contactForm.email}
+                        onChange={e => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                        maxLength={254}
+                        className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-300"
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#f0ede6',
+                          caretColor: brandColor,
+                        }}
+                        onFocus={e => e.target.style.borderColor = `${brandColor}60`}
+                        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-mono font-semibold uppercase tracking-widest block mb-2" style={{ color: '#6b7280' }}>Message</label>
+                      <textarea
+                        required
+                        rows={5}
+                        value={contactForm.message}
+                        onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                        maxLength={2000}
+                        className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-300 resize-none"
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#f0ede6',
+                          caretColor: brandColor,
+                        }}
+                        onFocus={e => e.target.style.borderColor = `${brandColor}60`}
+                        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      />
+                    </div>
+
+                    {rateLimited && (
+                      <p className="text-xs font-mono" style={{ color: '#ef4444' }}>
+                        Rate limited. Try again in {cooldownTime}s
+                      </p>
+                    )}
+
                     <button
                       type="submit"
                       disabled={sending || rateLimited}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold disabled:opacity-60 hover:-translate-y-0.5 transition-all duration-200"
-                      style={{ backgroundColor: brandColor }}
+                      data-cursor="CONNECT"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] disabled:opacity-50"
+                      style={{
+                        backgroundColor: brandColor,
+                        color: '#fff',
+                        boxShadow: `0 0 24px -6px ${brandColor}60`,
+                      }}
                     >
                       {sending ? (
                         <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
-                      ) : rateLimited ? (
-                        <><Shield className="h-4 w-4" /> Wait {cooldownTime}s</>
                       ) : (
                         <><Send className="h-4 w-4" /> Send Message</>
                       )}
                     </button>
-                    {executeRecaptcha && (
-                      <p className="text-xs text-muted-foreground text-center">Protected by reCAPTCHA</p>
-                    )}
+
+                    <p className="text-[10px] font-mono text-center flex items-center justify-center gap-1" style={{ color: '#374151' }}>
+                      <Shield className="h-3 w-3" /> Protected by reCAPTCHA
+                    </p>
                   </form>
                 )}
               </div>

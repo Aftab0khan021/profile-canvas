@@ -10,16 +10,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
   Github, Linkedin, Mail, ExternalLink, ArrowRight, FileText,
-  Star, Quote, ChevronLeft, ChevronRight, Download, Code, Sparkles
+  Star, Quote, ChevronLeft, ChevronRight, Download, Code, Sparkles,
+  Terminal, MousePointer2, ChevronDown
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 import { maskStorageUrl } from '@/lib/storageUrl';
+import { ConstellationGraph } from '@/components/ConstellationGraph';
+import { SectionMarker } from '@/components/ScrollProgress';
+import { useTextScramble } from '@/hooks/useTextScramble';
+import { useMagnetic } from '@/hooks/useMagnetic';
+import { use3DTilt } from '@/hooks/use3DTilt';
 
 export default function PublicHome() {
   const { profile, brandColor, username, template } = usePublicLayoutContext();
@@ -335,106 +341,188 @@ export default function PublicHome() {
     );
   }
 
-  // ===== MODERN TEMPLATE (default) ====
+  // ===== MODERN TEMPLATE (default) — IMMERSIVE 3D ====
+
+  // Hooks for immersive effects
+  const { scramble } = useTextScramble();
+  const { magneticRef: ctaRef, springX: ctaX, springY: ctaY } = useMagnetic(14);
+  const { tiltRef: avatarTiltRef, rotateX: avatarRX, rotateY: avatarRY } = use3DTilt(10);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const [nameRevealed, setNameRevealed] = useState(false);
+
+  // Scramble name on mount
+  useEffect(() => {
+    if (nameRevealed || !nameRef.current || !profile?.full_name) return;
+    const cancel = scramble(nameRef.current, profile.full_name, 900);
+    setNameRevealed(true);
+    return cancel;
+  }, [profile?.full_name, nameRevealed, scramble]);
+
+  // Section marker config
+  const sections = [
+    { id: 'hero-section', label: 'HOME' },
+    { id: 'projects-section', label: 'WORK' },
+    { id: 'skills-section', label: 'SKILLS' },
+    { id: 'testimonials-section', label: 'PROOF' },
+    { id: 'blog-section', label: 'BLOG' },
+    { id: 'cta-section', label: 'CONNECT' },
+  ];
+
   return (
     <>
-      {/* Hero Section with Animated Background */}
-      <section className="relative pt-24 pb-32 px-4 overflow-hidden">
-        {/* Animated background blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-            style={{ backgroundColor: `${brandColor}20` }}
-          />
-          <div
-            className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-            style={{ backgroundColor: `${brandColor}15`, animationDelay: '2s' }}
-          />
-        </div>
+      {/* Section Marker — right side nav */}
+      <SectionMarker sections={sections} brandColor={brandColor} />
 
+      {/* ════ HERO ════ */}
+      <section id="hero-section" className="relative min-h-[90vh] flex items-center px-4 overflow-hidden">
         <div className="container mx-auto max-w-6xl relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Text Content */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
             >
-              <div className="mb-4">
-                <Badge variant="secondary" className="text-sm px-3 py-1">
-                  <Sparkles className="h-3 w-3 mr-1" /> {availabilityStatus}
-                </Badge>
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-                Hi, I'm{' '}
-                <span style={{ color: brandColor }}>{profile?.full_name?.split(' ')[0] || 'there'}</span>
+              {/* Availability badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="mb-6"
+              >
+                <span
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-semibold"
+                  style={{ backgroundColor: `${brandColor}12`, color: brandColor, border: `1px solid ${brandColor}25`, letterSpacing: '0.08em' }}
+                >
+                  <span className="pulse-dot" style={{ width: 6, height: 6, background: '#22c55e' }} />
+                  {availabilityStatus.toUpperCase()}
+                </span>
+              </motion.div>
+
+              {/* Name — scramble decode */}
+              <h1
+                ref={nameRef}
+                className="text-5xl md:text-6xl lg:text-7xl font-bold mb-2 tracking-tight decode-text text-3d"
+                style={{ color: '#f0ede6', letterSpacing: '-0.04em' }}
+              >
+                {profile?.full_name || 'Developer'}
               </h1>
-              <div className="h-12 mb-6">
+
+              {/* Role — animated rotate */}
+              <div className="h-12 mb-6 overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.p
                     key={currentRoleIndex}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-2xl md:text-3xl font-medium text-muted-foreground"
+                    exit={{ opacity: 0, y: -24 }}
+                    transition={{ duration: 0.45 }}
+                    className="text-xl md:text-2xl font-mono"
+                    style={{ color: brandColor, letterSpacing: '0.02em' }}
                   >
-                    {roles[currentRoleIndex]}
+                    {'> '}{roles[currentRoleIndex]}
+                    <span className="inline-block w-[2px] h-5 ml-1 align-middle" style={{ backgroundColor: brandColor, animation: 'blink 1s step-end infinite' }} />
                   </motion.p>
                 </AnimatePresence>
               </div>
-              <p className="text-lg text-muted-foreground mb-8 max-w-lg leading-relaxed">
+
+              {/* Bio */}
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="text-base mb-8 max-w-lg leading-relaxed"
+                style={{ color: '#9ca3af' }}
+              >
                 {profile?.bio}
-              </p>
-              <div className="flex flex-wrap gap-3 mb-8">
-                <Button size="lg" style={{ backgroundColor: brandColor }} className="text-white gap-2" asChild>
-                  <Link to={`${basePath}/projects`}>
+              </motion.p>
+
+              {/* CTA buttons — magnetic */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+                className="flex flex-wrap gap-4 mb-8"
+              >
+                <motion.div ref={ctaRef} style={{ x: ctaX, y: ctaY }} className="magnetic-target">
+                  <Link
+                    to={`${basePath}/projects`}
+                    data-cursor="VIEW"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.03]"
+                    style={{ backgroundColor: brandColor, color: '#fff', boxShadow: `0 0 24px -6px ${brandColor}60` }}
+                  >
                     View My Work <ArrowRight className="h-4 w-4" />
                   </Link>
-                </Button>
+                </motion.div>
                 {profile?.resume_url && (
-                  <Button size="lg" variant="outline" className="gap-2" asChild>
-                    <a href={maskStorageUrl(profile.resume_url)} target="_blank" rel="noopener noreferrer">
-                      <Download className="h-4 w-4" /> Resume
-                    </a>
-                  </Button>
+                  <a
+                    href={maskStorageUrl(profile.resume_url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm neon-border transition-all duration-300 hover:scale-[1.03]"
+                    style={{ color: '#f0ede6', '--neon-color': brandColor } as React.CSSProperties}
+                  >
+                    <Download className="h-4 w-4" /> Resume
+                  </a>
                 )}
-              </div>
-              <div className="flex gap-4">
+              </motion.div>
+
+              {/* Social links */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+                className="flex gap-3"
+              >
                 {profile?.github_url && (
                   <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
-                    <Github className="h-5 w-5" />
+                    data-cursor="OPEN"
+                    className="p-2.5 rounded-lg transition-all duration-300 hover:scale-110"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <Github className="h-4 w-4" style={{ color: '#9ca3af' }} />
                   </a>
                 )}
                 {profile?.linkedin_url && (
                   <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
-                    <Linkedin className="h-5 w-5" />
+                    data-cursor="OPEN"
+                    className="p-2.5 rounded-lg transition-all duration-300 hover:scale-110"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <Linkedin className="h-4 w-4" style={{ color: '#9ca3af' }} />
                   </a>
                 )}
                 {profile?.email && (
                   <a href={`mailto:${profile.email}`}
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
-                    <Mail className="h-5 w-5" />
+                    data-cursor="CONNECT"
+                    className="p-2.5 rounded-lg transition-all duration-300 hover:scale-110"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <Mail className="h-4 w-4" style={{ color: '#9ca3af' }} />
                   </a>
                 )}
-              </div>
+              </motion.div>
             </motion.div>
 
-            {/* Right: Profile Image with Floating Skill Badges */}
+            {/* Right: 3D Tilt Avatar with orbital badges */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
               className="relative flex justify-center"
             >
-              <div className="relative">
-                {/* Avatar: photo or initials fallback */}
+              <motion.div
+                ref={avatarTiltRef}
+                style={{
+                  rotateX: avatarRX,
+                  rotateY: avatarRY,
+                  transformStyle: 'preserve-3d',
+                  perspective: 1000,
+                }}
+                className="relative"
+              >
+                {/* Avatar */}
                 <div
-                  className="w-72 h-72 md:w-80 md:h-80 rounded-full overflow-hidden animate-float-slow flex-shrink-0"
+                  className="w-72 h-72 md:w-80 md:h-80 rounded-2xl overflow-hidden"
                   style={{
-                    boxShadow: `0 0 0 5px ${brandColor}40, 0 25px 50px -12px ${brandColor}60`,
+                    boxShadow: `0 0 0 1px ${brandColor}30, 0 0 60px -12px ${brandColor}50, 0 25px 50px -12px rgba(0,0,0,0.6)`,
                   }}
                 >
                   {profile?.avatar_url ? (
@@ -446,170 +534,150 @@ export default function PublicHome() {
                     />
                   ) : (
                     <div
-                      className="w-full h-full flex items-center justify-center text-white text-6xl font-bold select-none"
-                      style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}99)` }}
+                      className="w-full h-full flex items-center justify-center text-6xl font-bold select-none"
+                      style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}99)`, color: '#fff' }}
                     >
-                      {profile?.full_name
-                        ?.split(' ')
-                        .map((n: string) => n[0])
-                        .slice(0, 2)
-                        .join('')
-                        .toUpperCase() || '?'}
+                      {profile?.full_name?.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || '?'}
                     </div>
                   )}
                 </div>
-                {/* Floating skill badges — evenly spaced outside the circle */}
-                {topSkillNames[0] && (
-                  <Badge
-                    className="absolute -top-6 left-1/2 -translate-x-1/2 animate-float text-white shadow-lg max-w-[100px] truncate block"
-                    style={{ backgroundColor: brandColor }}
-                    title={topSkillNames[0]}
-                  >
-                    {truncateBadge(topSkillNames[0])}
-                  </Badge>
-                )}
-                {topSkillNames[1] && (
-                  <Badge
-                    className="absolute top-1/2 -right-14 -translate-y-1/2 animate-float-delayed text-white shadow-lg max-w-[100px] truncate block"
-                    style={{ backgroundColor: brandColor }}
-                    title={topSkillNames[1]}
-                  >
-                    {truncateBadge(topSkillNames[1])}
-                  </Badge>
-                )}
-                {topSkillNames[2] && (
-                  <Badge
-                    className="absolute -bottom-6 left-1/2 -translate-x-1/2 animate-float text-white shadow-lg max-w-[100px] truncate block"
-                    style={{ backgroundColor: brandColor, animationDelay: '0.5s' }}
-                    title={topSkillNames[2]}
-                  >
-                    {truncateBadge(topSkillNames[2])}
-                  </Badge>
-                )}
-                {topSkillNames[3] && (
-                  <Badge
-                    className="absolute top-1/2 -left-14 -translate-y-1/2 animate-float-delayed text-white shadow-lg max-w-[100px] truncate block"
-                    style={{ backgroundColor: brandColor, animationDelay: '0.8s' }}
-                    title={topSkillNames[3]}
-                  >
-                    {truncateBadge(topSkillNames[3])}
-                  </Badge>
-                )}
-              </div>
+
+                {/* Orbital skill badges */}
+                {topSkillNames.slice(0, 4).map((name, i) => {
+                  const angles = [
+                    { top: '-16px', left: '50%', transform: 'translateX(-50%)' },
+                    { top: '50%', right: '-60px', transform: 'translateY(-50%)' },
+                    { bottom: '-16px', left: '50%', transform: 'translateX(-50%)' },
+                    { top: '50%', left: '-60px', transform: 'translateY(-50%)' },
+                  ];
+                  return (
+                    <motion.div
+                      key={name}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 1.2 + i * 0.15, type: 'spring', stiffness: 300 }}
+                      className="absolute px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold shadow-lg max-w-[90px] truncate"
+                      style={{
+                        ...angles[i],
+                        backgroundColor: '#0e0e0e',
+                        border: `1px solid ${brandColor}40`,
+                        color: brandColor,
+                        boxShadow: `0 0 12px -4px ${brandColor}40`,
+                        zIndex: 10,
+                      } as React.CSSProperties}
+                    >
+                      {truncateBadge(name, 10)}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
             </motion.div>
           </div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.0 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 scroll-indicator"
+          >
+            <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#4b5563' }}>Scroll</span>
+            <ChevronDown className="h-4 w-4" style={{ color: '#4b5563' }} />
+          </motion.div>
         </div>
       </section>
 
-      {/* Featured Projects Preview */}
+      {/* ════ FEATURED PROJECTS — Coverflow-inspired ════ */}
       {projects.length > 0 && (
-        <section className="py-20 px-4 border-t border-border/40">
-          <div className="container mx-auto max-w-5xl">
-            <div className="flex items-end justify-between mb-10">
+        <section id="projects-section" className="py-24 px-4" style={{ borderTop: `1px solid ${brandColor}10` }}>
+          <div className="container mx-auto max-w-6xl">
+            {/* Section header */}
+            <div className="flex items-end justify-between mb-14">
               <div>
-                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Selected Work</p>
-                <h2 className="font-display text-3xl font-bold tracking-tight">Featured Projects</h2>
+                <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+                  01 — SELECTED WORK
+                </span>
+                <h2 className="font-display text-4xl font-bold tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+                  Featured Projects
+                </h2>
               </div>
-              <Link to={`${basePath}/projects`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
-                View All <ArrowRight className="h-4 w-4" />
+              <Link
+                to={`${basePath}/projects`}
+                data-cursor="VIEW"
+                className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest transition-colors hover:opacity-80"
+                style={{ color: brandColor }}
+              >
+                View All <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="grid md:grid-cols-2 gap-5">
+
+            {/* Project cards with 3D depth */}
+            <div className="grid md:grid-cols-2 gap-6">
               {featuredProjects.map((project, index) => (
-                  <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 40, rotateY: index % 2 === 0 ? 6 : -6 }}
+                  whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.7, delay: index * 0.12 }}
+                >
+                  <div
+                    className="group rounded-xl overflow-hidden transition-all duration-500 h-full flex flex-col scan-line relative"
+                    style={{
+                      backgroundColor: '#0e0e0e',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      '--scan-color': `${brandColor}15`,
+                    } as React.CSSProperties}
+                    data-cursor="VIEW"
                   >
-                    <div className="group rounded-xl overflow-hidden border border-border bg-card hover:border-emerald-500/30 transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.12),0_8px_32px_-8px_rgba(16,185,129,0.18)] h-full flex flex-col">
-                      {project.image_url && (
-                        <div className="relative overflow-hidden h-48">
-                          <img
-                            src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
-                            alt={project.title}
-                            loading="lazy"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                          <div className="absolute bottom-3 left-3 flex gap-2">
-                            {project.live_url && (
-                              <a href={project.live_url} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold hover:bg-white/20 transition-colors">
-                                <ExternalLink className="h-3 w-3" /> Live Demo
-                              </a>
-                            )}
-                            {project.github_url && (
-                              <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold hover:bg-white/20 transition-colors">
-                                <Github className="h-3 w-3" /> GitHub
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      <div className="p-5 flex-1 flex flex-col">
-                        <h3 className="font-display font-bold text-lg mb-1.5">{project.title}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{project.description}</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(project.tech_stack || []).slice(0, 4).map((t) => (
-                            <span key={t} className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">{t}</span>
-                          ))}
-                          {(project.tech_stack || []).length > 4 && (
-                            <span className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-muted text-muted-foreground">+{(project.tech_stack || []).length - 4}</span>
+                    {project.image_url && (
+                      <div className="relative overflow-hidden h-52">
+                        <img
+                          src={getOptimizedImageUrl(project.image_url, IMAGE_PRESETS.card)}
+                          alt={project.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent" />
+                        <div className="absolute bottom-3 left-3 flex gap-2">
+                          {project.live_url && (
+                            <a href={project.live_url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-semibold transition-colors"
+                              style={{ backgroundColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#f0ede6' }}
+                              onClick={e => e.stopPropagation()}>
+                              <ExternalLink className="h-3 w-3" /> LIVE
+                            </a>
+                          )}
+                          {project.github_url && (
+                            <a href={project.github_url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-semibold transition-colors"
+                              style={{ backgroundColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#f0ede6' }}
+                              onClick={e => e.stopPropagation()}>
+                              <Github className="h-3 w-3" /> CODE
+                            </a>
                           )}
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Skills Preview with Progress Bars */}
-      {skills.length > 0 && (
-        <section className="py-20 px-4 border-t border-border/40">
-          <div className="container mx-auto max-w-5xl">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Expertise</p>
-                <h2 className="font-display text-3xl font-bold tracking-tight">Skills & Technologies</h2>
-              </div>
-              <Link to={`${basePath}/about`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
-                View All <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="grid md:grid-cols-3 gap-5">
-              {topCategories.map(([category, categorySkills], catIndex) => (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: catIndex * 0.1 }}
-                >
-                  <div className="bento-card h-full">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="h-7 w-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${brandColor}20` }}>
-                        <Code className="h-3.5 w-3.5" style={{ color: brandColor }} />
+                    )}
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="font-display font-bold text-lg mb-2" style={{ color: '#f0ede6' }}>{project.title}</h3>
+                      <p className="text-sm line-clamp-2 mb-4 flex-1" style={{ color: '#6b7280' }}>{project.description}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(project.tech_stack || []).slice(0, 4).map((t) => (
+                          <span
+                            key={t}
+                            className="px-2 py-0.5 rounded text-[10px] font-mono transition-all duration-300"
+                            style={{ backgroundColor: `${brandColor}10`, color: `${brandColor}cc`, border: `1px solid ${brandColor}20` }}
+                          >
+                            {t}
+                          </span>
+                        ))}
+                        {(project.tech_stack || []).length > 4 && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono" style={{ color: '#4b5563' }}>
+                            +{(project.tech_stack || []).length - 4}
+                          </span>
+                        )}
                       </div>
-                      <h3 className="text-sm font-semibold">{category}</h3>
-                    </div>
-                    <div className="space-y-3">
-                      {categorySkills.slice(0, 4).map((skill) => (
-                        <div key={skill.id}>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="font-medium">{skill.skill_name}</span>
-                            <span className="text-muted-foreground">{skill.proficiency_level}%</span>
-                          </div>
-                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${skill.proficiency_level}%`, backgroundColor: brandColor }} />
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
                 </motion.div>
@@ -619,185 +687,270 @@ export default function PublicHome() {
         </section>
       )}
 
-      {/* Testimonials Carousel */}
-      {testimonials.length > 0 && (
-        <section className="py-20 px-4 border-t border-border/40" style={{ backgroundColor: `${brandColor}06` }}>
-          <div className="container mx-auto max-w-3xl">
-            <div className="text-center mb-10">
-              <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Social Proof</p>
-              <h2 className="font-display text-3xl font-bold tracking-tight">What People Say</h2>
-            </div>
-            <div className="relative">
-              <div className="bento-card p-8 md:p-12 text-center">
-                <Quote className="h-10 w-10 mx-auto mb-6 opacity-20" style={{ color: brandColor }} />
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentTestimonial}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <p className="text-xl md:text-2xl italic mb-6 text-foreground/90 leading-relaxed">
-                      "{testimonials[currentTestimonial]?.text}"
-                    </p>
-                    <div className="flex items-center justify-center gap-1 mb-4">
-                      {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <p className="font-semibold text-base">{testimonials[currentTestimonial]?.client_name}</p>
-                    {testimonials[currentTestimonial]?.company && (
-                      <p className="text-sm text-muted-foreground mt-0.5">{testimonials[currentTestimonial]?.company}</p>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+      {/* ════ SKILLS — Constellation Network ════ */}
+      {skills.length > 0 && (
+        <section id="skills-section" className="py-24 px-4" style={{ borderTop: `1px solid ${brandColor}10` }}>
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-end justify-between mb-14">
+              <div>
+                <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+                  02 — EXPERTISE
+                </span>
+                <h2 className="font-display text-4xl font-bold tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+                  Skill Network
+                </h2>
               </div>
-              {testimonials.length > 1 && (
-                <div className="flex justify-center gap-4 mt-5">
-                  <button onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-                    className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <div className="flex items-center gap-2">
-                    {testimonials.map((_, i) => (
-                      <button key={i} onClick={() => setCurrentTestimonial(i)}
-                        className="w-2 h-2 rounded-full transition-all duration-300"
-                        style={{ backgroundColor: i === currentTestimonial ? brandColor : 'hsl(var(--muted))', transform: i === currentTestimonial ? 'scale(1.4)' : 'scale(1)' }}
-                      />
-                    ))}
-                  </div>
-                  <button onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
-                    className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
+              <Link
+                to={`${basePath}/skills`}
+                data-cursor="VIEW"
+                className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest transition-colors hover:opacity-80"
+                style={{ color: brandColor }}
+              >
+                Explore All <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            {/* Constellation graph */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="rounded-xl p-6"
+              style={{ backgroundColor: 'rgba(14,14,14,0.6)', border: '1px solid rgba(255,255,255,0.04)' }}
+            >
+              <ConstellationGraph skills={skills} brandColor={brandColor} />
+            </motion.div>
+
+            {/* Category legend */}
+            <div className="flex flex-wrap gap-3 mt-6 justify-center">
+              {topCategories.map(([category, catSkills]) => (
+                <span
+                  key={category}
+                  className="px-3 py-1 rounded-full text-[10px] font-mono font-semibold"
+                  style={{ backgroundColor: `${brandColor}10`, color: `${brandColor}cc`, border: `1px solid ${brandColor}20` }}
+                >
+                  {category} · {catSkills.length}
+                </span>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Blog Preview - Featured Layout */}
-      {blogs.length > 0 && (
-        <section className="py-20 px-4 border-t border-border/40">
-          <div className="container mx-auto max-w-5xl">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-2">Writing</p>
-                <h2 className="font-display text-3xl font-bold tracking-tight">Latest Insights</h2>
+      {/* ════ TESTIMONIALS — Stacked Cards ════ */}
+      {testimonials.length > 0 && (
+        <section id="testimonials-section" className="py-24 px-4" style={{ borderTop: `1px solid ${brandColor}10` }}>
+          <div className="container mx-auto max-w-3xl">
+            <div className="text-center mb-14">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+                03 — SOCIAL PROOF
+              </span>
+              <h2 className="font-display text-4xl font-bold tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+                What People Say
+              </h2>
+            </div>
+
+            {/* Card stack */}
+            <div className="relative" style={{ minHeight: 280 }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentTestimonial}
+                  initial={{ opacity: 0, y: 30, rotateZ: -2 }}
+                  animate={{ opacity: 1, y: 0, rotateZ: 0 }}
+                  exit={{ opacity: 0, x: -200, rotateZ: -8 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  className="rounded-xl p-8 md:p-12 text-center"
+                  style={{
+                    backgroundColor: '#0e0e0e',
+                    border: `1px solid ${brandColor}15`,
+                    boxShadow: `0 0 40px -12px ${brandColor}15`,
+                  }}
+                >
+                  <Quote className="h-8 w-8 mx-auto mb-6 opacity-20" style={{ color: brandColor }} />
+                  <p className="text-lg md:text-xl italic mb-6 leading-relaxed" style={{ color: '#e5e7eb' }}>
+                    &ldquo;{testimonials[currentTestimonial]?.text}&rdquo;
+                  </p>
+                  <div className="flex items-center justify-center gap-1 mb-4">
+                    {[...Array(testimonials[currentTestimonial]?.rating || 5)].map((_, i) => (
+                      <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="font-semibold text-sm" style={{ color: '#f0ede6' }}>
+                    {testimonials[currentTestimonial]?.client_name}
+                  </p>
+                  {testimonials[currentTestimonial]?.company && (
+                    <p className="text-xs mt-1 font-mono" style={{ color: '#6b7280' }}>
+                      {testimonials[currentTestimonial]?.company}
+                    </p>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Stacked card shadows behind */}
+              {testimonials.length > 1 && (
+                <>
+                  <div className="absolute inset-x-4 -bottom-2 h-full rounded-xl -z-10"
+                    style={{ backgroundColor: '#0a0a0a', border: `1px solid ${brandColor}08`, transform: 'scale(0.97)' }} />
+                  {testimonials.length > 2 && (
+                    <div className="absolute inset-x-8 -bottom-4 h-full rounded-xl -z-20"
+                      style={{ backgroundColor: '#080808', border: `1px solid ${brandColor}05`, transform: 'scale(0.94)' }} />
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Navigation dots */}
+            {testimonials.length > 1 && (
+              <div className="flex justify-center gap-3 mt-8">
+                <button onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                  className="p-2 rounded-lg transition-all duration-300 hover:scale-110"
+                  style={{ border: `1px solid ${brandColor}30`, color: '#6b7280' }}>
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-2">
+                  {testimonials.map((_, i) => (
+                    <button key={i} onClick={() => setCurrentTestimonial(i)}
+                      className="w-2 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        backgroundColor: i === currentTestimonial ? brandColor : '#374151',
+                        transform: i === currentTestimonial ? 'scale(1.5)' : 'scale(1)',
+                        boxShadow: i === currentTestimonial ? `0 0 8px ${brandColor}` : 'none',
+                      }}
+                    />
+                  ))}
+                </div>
+                <button onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                  className="p-2 rounded-lg transition-all duration-300 hover:scale-110"
+                  style={{ border: `1px solid ${brandColor}30`, color: '#6b7280' }}>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
-              <Link to={`${basePath}/blog`} className="flex items-center gap-1.5 text-sm font-semibold hover:text-foreground text-muted-foreground transition-colors">
-                View All <ArrowRight className="h-4 w-4" />
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ════ BLOG — Marquee Strip ════ */}
+      {blogs.length > 0 && (
+        <section id="blog-section" className="py-24 px-4" style={{ borderTop: `1px solid ${brandColor}10` }}>
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-end justify-between mb-14">
+              <div>
+                <span className="text-[10px] font-mono font-semibold uppercase tracking-[0.2em] mb-3 block" style={{ color: brandColor }}>
+                  04 — INSIGHTS
+                </span>
+                <h2 className="font-display text-4xl font-bold tracking-tight gradient-title" style={{ '--gradient-color': brandColor } as React.CSSProperties}>
+                  Latest Writing
+                </h2>
+              </div>
+              <Link
+                to={`${basePath}/blog`}
+                data-cursor="READ"
+                className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest transition-colors hover:opacity-80"
+                style={{ color: brandColor }}
+              >
+                All Posts <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="grid lg:grid-cols-2 gap-5">
-              {/* Featured Article */}
-              {featuredBlog && (
+
+            <div className="space-y-4">
+              {blogs.map((blog, index) => (
                 <motion.div
-                  initial={{ opacity: 0, x: -30 }}
+                  key={blog.id}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <Link to={`/p/${username}/blog/${featuredBlog.slug}`}>
-                    <div className="group bento-card overflow-hidden h-full flex flex-col p-0">
+                  <Link to={`/p/${username}/blog/${blog.slug}`} data-cursor="READ">
+                    <div
+                      className="group flex items-center gap-6 p-5 rounded-xl transition-all duration-500 hover:scale-[1.01]"
+                      style={{
+                        backgroundColor: 'rgba(14,14,14,0.6)',
+                        border: '1px solid rgba(255,255,255,0.04)',
+                      }}
+                    >
                       <div
-                        className="h-44 flex items-center justify-center relative overflow-hidden"
-                        style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}06)` }}
+                        className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:scale-110"
+                        style={{ backgroundColor: `${brandColor}12`, border: `1px solid ${brandColor}20` }}
                       >
-                        <FileText className="h-14 w-14 opacity-25" style={{ color: brandColor }} />
-                        <div className="absolute top-3 left-3">
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white" style={{ backgroundColor: brandColor }}>Featured</span>
-                        </div>
+                        <FileText className="h-5 w-5" style={{ color: brandColor }} />
                       </div>
-                      <div className="p-5 flex-1 flex flex-col">
-                        <h3 className="font-display font-bold text-xl mb-2 group-hover:underline">{featuredBlog.title}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{featuredBlog.content}</p>
-                        <div className="flex items-center justify-between">
-                          <time className="text-xs text-muted-foreground">
-                            {format(new Date(featuredBlog.published_at || featuredBlog.created_at), 'MMMM d, yyyy')}
-                          </time>
-                          <span className="text-xs font-semibold flex items-center gap-1" style={{ color: brandColor }}>
-                            Read <ArrowRight className="h-3 w-3" />
-                          </span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display font-bold text-sm mb-0.5 truncate" style={{ color: '#f0ede6' }}>{blog.title}</h3>
+                        <p className="text-xs line-clamp-1" style={{ color: '#6b7280' }}>{blog.content}</p>
                       </div>
+                      <time className="text-[10px] font-mono flex-shrink-0 hidden sm:block" style={{ color: '#4b5563' }}>
+                        {format(new Date(blog.published_at || blog.created_at), 'MMM d, yyyy')}
+                      </time>
+                      <ArrowRight className="h-4 w-4 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1" style={{ color: '#4b5563' }} />
                     </div>
                   </Link>
                 </motion.div>
-              )}
-
-              {/* Recent Articles List */}
-              <div className="space-y-3">
-                {recentBlogs.map((blog, index) => (
-                  <motion.div
-                    key={blog.id}
-                    initial={{ opacity: 0, x: 30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <Link to={`/p/${username}/blog/${blog.slug}`}>
-                      <div className="group bento-card flex gap-4 p-4">
-                        <div
-                          className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: `${brandColor}15` }}
-                        >
-                          <FileText className="h-5 w-5" style={{ color: brandColor }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm mb-0.5 group-hover:underline truncate">{blog.title}</h3>
-                          <p className="text-muted-foreground text-xs line-clamp-1 mb-1">{blog.content}</p>
-                          <time className="text-[11px] text-muted-foreground">
-                            {format(new Date(blog.published_at || blog.created_at), 'MMM d, yyyy')}
-                          </time>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-                {recentBlogs.length === 0 && featuredBlog && (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <p className="text-sm">More articles coming soon...</p>
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Contact CTA */}
-      <section className="py-20 px-4 border-t border-border/40">
+      {/* ════ CTA — Terminal Prompt ════ */}
+      <section id="cta-section" className="py-24 px-4" style={{ borderTop: `1px solid ${brandColor}10` }}>
         <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.7 }}
           >
             <div
-              className="bento-card p-10 md:p-14 text-center relative overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${brandColor}12, ${brandColor}04)` }}
+              className="rounded-xl overflow-hidden neon-border"
+              style={{ '--neon-color': brandColor, backgroundColor: '#0a0a0a' } as React.CSSProperties}
             >
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{ background: `radial-gradient(circle at 30% 50%, ${brandColor}, transparent 60%)` }}
-              />
-              <div className="relative z-10">
-                <p className="text-xs font-mono font-semibold uppercase tracking-widest text-muted-foreground mb-3">Let's Connect</p>
-                <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 tracking-tight">{ctaTitle}</h2>
-                <p className="text-muted-foreground text-base mb-8 max-w-lg mx-auto leading-relaxed">
-                  {ctaDescription}
-                </p>
-                <Link
-                  to={`${basePath}/contact`}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold hover:-translate-y-0.5 transition-all duration-200 shadow-lg"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  <Mail className="h-4 w-4" /> Start a Project
-                </Link>
+              {/* Terminal header */}
+              <div className="flex items-center gap-2 px-5 py-3" style={{ borderBottom: `1px solid ${brandColor}15` }}>
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+                </div>
+                <span className="text-[10px] font-mono ml-2" style={{ color: '#4b5563' }}>connection.sh</span>
+              </div>
+
+              {/* Terminal body */}
+              <div className="p-8 md:p-12">
+                <div className="font-mono text-sm space-y-2 mb-8">
+                  <p style={{ color: '#4b5563' }}>
+                    <span style={{ color: brandColor }}>$</span> initiating_connection...
+                  </p>
+                  <p style={{ color: '#4b5563' }}>
+                    <span style={{ color: brandColor }}>$</span> target: <span style={{ color: '#f0ede6' }}>{profile?.email || 'available'}</span>
+                  </p>
+                  <p style={{ color: '#4b5563' }}>
+                    <span style={{ color: brandColor }}>$</span> status: <span style={{ color: '#22c55e' }}>AVAILABLE_FOR_HIRE</span>
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 tracking-tight" style={{ color: '#f0ede6' }}>
+                    {ctaTitle}
+                  </h2>
+                  <p className="text-sm mb-8 max-w-lg mx-auto leading-relaxed" style={{ color: '#6b7280' }}>
+                    {ctaDescription}
+                  </p>
+                  <Link
+                    to={`${basePath}/contact`}
+                    data-cursor="CONNECT"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.04]"
+                    style={{
+                      backgroundColor: brandColor,
+                      color: '#fff',
+                      boxShadow: `0 0 32px -8px ${brandColor}60`,
+                    }}
+                  >
+                    <Terminal className="h-4 w-4" /> Start a Project
+                  </Link>
+                </div>
               </div>
             </div>
           </motion.div>

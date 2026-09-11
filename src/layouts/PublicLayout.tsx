@@ -1,12 +1,18 @@
-import { Outlet, useParams, Link, useLocation, useOutletContext } from 'react-router-dom';
+import { Outlet, useParams, Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { usePublicProfile } from '@/hooks/useProfile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Menu, X } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 import NotFound from '@/pages/NotFound';
+import { useLenis } from '@/hooks/useLenis';
+import { CustomCursor } from '@/components/CustomCursor';
+import { IntroScreen } from '@/components/IntroScreen';
+import { ScrollProgress } from '@/components/ScrollProgress';
+import { HiddenTerminal } from '@/components/HiddenTerminal';
 
 interface PublicLayoutContext {
   profile: ReturnType<typeof usePublicProfile>['data'];
@@ -24,7 +30,12 @@ export default function PublicLayout() {
   const { username } = useParams<{ username: string }>();
   const location = useLocation();
   const { data: profile, isLoading } = usePublicProfile(username || '');
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
+
+  // Init Lenis smooth scroll
+  useLenis();
   const [scrolled, setScrolled] = useState(false);
 
   // Track scroll for nav style changes
@@ -110,12 +121,63 @@ export default function PublicLayout() {
 
   const seoImage = profile.avatar_url || 'og-image.png';
 
+  // Keyboard shortcuts — P/A/C/S/E/B/H + ? legend
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const keyMap: Record<string, string> = {
+        h: basePath,
+        p: `${basePath}/projects`,
+        a: `${basePath}/about`,
+        s: `${basePath}/skills`,
+        e: `${basePath}/experience`,
+        c: `${basePath}/contact`,
+        b: `${basePath}/blog`,
+      };
+      if (e.key === 'Escape') { navigate(basePath); return; }
+      const target = keyMap[e.key.toLowerCase()];
+      if (target) navigate(target);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [basePath, navigate]);
+
   return (
-    <div className="dark min-h-screen bg-background">
+    <div className="dark min-h-screen editorial-surface">
       <SEO title={seoTitle} description={seoDescription} image={seoImage} url={currentUrl} type="profile" schema={personSchema} />
+
+      {/* Intro screen — shows once per session */}
+      {!introComplete && (
+        <IntroScreen name={profile.full_name || 'Developer'} onComplete={() => setIntroComplete(true)} />
+      )}
+
+      {/* Aurora background */}
+      <div className="aurora-bg" style={{ '--aurora-color': brandColor } as React.CSSProperties} />
+
+      {/* Film grain overlay */}
+      <div className="grain-overlay" />
+
+      {/* Custom cursor */}
+      <CustomCursor />
+
+      {/* Scroll progress bar */}
+      <ScrollProgress brandColor={brandColor} />
+
+      {/* Hidden terminal — press ` to open */}
+      <HiddenTerminal profile={profile} brandColor={brandColor} />
 
       {/* Dynamic brand color styles */}
       <style>{`
+        :root {
+          --cursor-color: ${brandColor};
+          --aurora-color: ${brandColor};
+          --gradient-color: ${brandColor};
+          --neon-color: ${brandColor};
+          --conic-color: ${brandColor};
+          --glow-color: ${brandColor};
+          --scan-color: ${brandColor}20;
+        }
         .brand-primary { color: ${brandColor}; }
         .brand-bg { background-color: ${brandColor}; }
         .brand-border { border-color: ${brandColor}; }
@@ -130,20 +192,27 @@ export default function PublicLayout() {
 
       {/* ── Floating Navigation ── */}
       <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled
           ? "py-2"
           : "py-4"
       )}>
         <div className={cn(
-          "mx-auto max-w-5xl px-4 transition-all duration-300",
+          "mx-auto max-w-5xl px-4 transition-all duration-500",
         )}>
-          <div className={cn(
-            "flex items-center justify-between h-12 px-4 rounded-2xl transition-all duration-300",
-            scrolled
-              ? "bg-background/90 backdrop-blur-xl border border-border/60 shadow-lg"
-              : "bg-background/60 backdrop-blur-md border border-border/40"
-          )}>
+          <div
+            className={cn(
+              "flex items-center justify-between h-12 px-4 rounded-2xl transition-all duration-500",
+              scrolled
+                ? "backdrop-blur-xl shadow-lg"
+                : "backdrop-blur-md"
+            )}
+            style={{
+              background: scrolled ? 'rgba(10,10,10,0.85)' : 'rgba(10,10,10,0.5)',
+              border: `1px solid ${scrolled ? brandColor + '30' : 'rgba(255,255,255,0.06)'}`,
+              boxShadow: scrolled ? `0 0 24px -8px ${brandColor}40` : 'none',
+            }}
+          >
             {/* Profile identity */}
             <Link to={basePath} className="flex items-center gap-2.5 group">
               {profile.avatar_url ? (
@@ -243,26 +312,36 @@ export default function PublicLayout() {
 
       {/* Main content — padded for floating nav */}
       <main className="pt-20">
-        <Outlet context={{ profile, brandColor, initials, username: username || '', template } satisfies PublicLayoutContext} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Outlet context={{ profile, brandColor, initials, username: username || '', template } satisfies PublicLayoutContext} />
+          </motion.div>
+        </AnimatePresence>
       </main>
 
-      {/* Footer */}
-      <footer className="py-10 border-t border-border/40">
+      {/* Footer — editorial style */}
+      <footer className="py-16 border-t" style={{ borderColor: `${brandColor}15` }}>
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
               {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt={initials} className="h-7 w-7 rounded-lg object-cover" />
+                <img src={profile.avatar_url} alt={initials} className="h-8 w-8 rounded-lg object-cover" style={{ boxShadow: `0 0 0 2px ${brandColor}40` }} />
               ) : (
-                <div className="h-7 w-7 rounded-lg brand-bg flex items-center justify-center text-white text-xs font-bold">
+                <div className="h-8 w-8 rounded-lg brand-bg flex items-center justify-center text-white text-xs font-bold">
                   {initials}
                 </div>
               )}
-              <span className="font-display font-bold text-sm">{profile.full_name}</span>
+              <span className="font-display font-bold text-sm" style={{ color: '#f0ede6' }}>{profile.full_name}</span>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              © {new Date().getFullYear()} {profile.full_name}. Built with{' '}
-              <a href="/" className="text-emerald-500 hover:text-emerald-600 font-semibold transition-colors">FolioX</a>
+            <p className="text-xs text-center font-mono" style={{ color: '#4b5563', letterSpacing: '0.08em' }}>
+              © {new Date().getFullYear()} {profile.full_name} · Built with{' '}
+              <a href="/" className="font-semibold transition-colors hover:opacity-80" style={{ color: brandColor }}>FolioX</a>
             </p>
             <div className="flex items-center gap-2">
               {profile.github_url && (
