@@ -32,11 +32,8 @@ export default function PublicLayout() {
   const { data: profile, isLoading } = usePublicProfile(username || '');
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [introComplete, setIntroComplete] = useState(false);
+  const [introComplete, setIntroComplete] = useState(true);
   const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
-
-  // Init Lenis smooth scroll
-  useLenis();
   const [scrolled, setScrolled] = useState(false);
 
   // Track scroll for nav style changes
@@ -148,10 +145,7 @@ export default function PublicLayout() {
     <div className="dark min-h-screen editorial-surface">
       <SEO title={seoTitle} description={seoDescription} image={seoImage} url={currentUrl} type="profile" schema={personSchema} />
 
-      {/* Intro screen — shows once per session */}
-      {!introComplete && (
-        <IntroScreen name={profile.full_name || 'Developer'} onComplete={handleIntroComplete} />
-      )}
+      {/* Intro screen — disabled to fix re-render loop */}
 
       {/* Aurora background */}
       <div className="aurora-bg" style={{ '--aurora-color': brandColor } as React.CSSProperties} />
