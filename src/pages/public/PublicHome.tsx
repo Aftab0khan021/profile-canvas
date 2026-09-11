@@ -115,6 +115,31 @@ export default function PublicHome() {
     name.length > max ? name.slice(0, max).trimEnd() + '…' : name;
   const recentBlogs = blogs.slice(1, 3);
 
+  // ===== IMMERSIVE HOOKS — must be above ALL early returns (Rules of Hooks) =====
+  const { scramble } = useTextScramble();
+  const { magneticRef: ctaRef, springX: ctaX, springY: ctaY } = useMagnetic(14);
+  const { tiltRef: avatarTiltRef, rotateX: avatarRX, rotateY: avatarRY } = use3DTilt(10);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const [nameRevealed, setNameRevealed] = useState(false);
+
+  // Scramble name on mount
+  useEffect(() => {
+    if (nameRevealed || !nameRef.current || !profile?.full_name) return;
+    const cancel = scramble(nameRef.current, profile.full_name, 900);
+    setNameRevealed(true);
+    return cancel;
+  }, [profile?.full_name, nameRevealed, scramble]);
+
+  // Section marker config
+  const sections = [
+    { id: 'hero-section', label: 'HOME' },
+    { id: 'projects-section', label: 'WORK' },
+    { id: 'skills-section', label: 'SKILLS' },
+    { id: 'testimonials-section', label: 'PROOF' },
+    { id: 'blog-section', label: 'BLOG' },
+    { id: 'cta-section', label: 'CONNECT' },
+  ];
+
   if (isLoading && !profile) return <HeroSkeleton />;
 
   // ===== MINIMAL TEMPLATE HERO =====
@@ -343,31 +368,6 @@ export default function PublicHome() {
   }
 
   // ===== MODERN TEMPLATE (default) — IMMERSIVE 3D ====
-
-  // Hooks for immersive effects
-  const { scramble } = useTextScramble();
-  const { magneticRef: ctaRef, springX: ctaX, springY: ctaY } = useMagnetic(14);
-  const { tiltRef: avatarTiltRef, rotateX: avatarRX, rotateY: avatarRY } = use3DTilt(10);
-  const nameRef = useRef<HTMLHeadingElement>(null);
-  const [nameRevealed, setNameRevealed] = useState(false);
-
-  // Scramble name on mount
-  useEffect(() => {
-    if (nameRevealed || !nameRef.current || !profile?.full_name) return;
-    const cancel = scramble(nameRef.current, profile.full_name, 900);
-    setNameRevealed(true);
-    return cancel;
-  }, [profile?.full_name, nameRevealed, scramble]);
-
-  // Section marker config
-  const sections = [
-    { id: 'hero-section', label: 'HOME' },
-    { id: 'projects-section', label: 'WORK' },
-    { id: 'skills-section', label: 'SKILLS' },
-    { id: 'testimonials-section', label: 'PROOF' },
-    { id: 'blog-section', label: 'BLOG' },
-    { id: 'cta-section', label: 'CONNECT' },
-  ];
 
   return (
     <>
