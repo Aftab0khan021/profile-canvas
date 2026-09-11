@@ -74,7 +74,8 @@ export default function PublicHome() {
         pagePath: `/p/${username}`,
       });
     }
-  }, [profile?.id, username, trackView]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id, username]);
 
   // Auto-rotate testimonials
   useEffect(() => {
