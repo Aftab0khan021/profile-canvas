@@ -45,6 +45,7 @@ export default function PublicSkills() {
   const { getContent } = usePublicPageContent(profile?.id);
   const { items: profileItems } = usePublicProfileItems(profile?.id);
   const [animatedProgress, setAnimatedProgress] = useState<Record<string, number>>({});
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // Get dynamic content
   const heroSubtitle = getContent(
@@ -204,7 +205,6 @@ export default function PublicSkills() {
   }
 
   // ───── MODERN TEMPLATE (default) — IMMERSIVE ─────
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
     <>
