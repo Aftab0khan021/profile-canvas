@@ -70,6 +70,33 @@ export default function PublicLayout() {
     };
   }, [profile, currentUrl, sameAs]);
 
+  const basePath = `/p/${username}`;
+
+  // Keyboard shortcuts — must be above ALL early returns (Rules of Hooks)
+  useEffect(() => {
+    if (!profile) return;
+    const bp = `/p/${username}`;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const keyMap: Record<string, string> = {
+        h: bp,
+        p: `${bp}/projects`,
+        a: `${bp}/about`,
+        s: `${bp}/skills`,
+        e: `${bp}/experience`,
+        c: `${bp}/contact`,
+        b: `${bp}/blog`,
+      };
+      if (e.key === 'Escape') { navigate(bp); return; }
+      const target = keyMap[e.key.toLowerCase()];
+      if (target) navigate(target);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, profile?.id]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -89,7 +116,6 @@ export default function PublicLayout() {
   const SAFE_HEX = /^#[0-9a-fA-F]{3,8}$/;
   const brandColor = SAFE_HEX.test(profile.brand_color ?? '') ? profile.brand_color! : '#7C3AED';
   const safeResumeUrl = profile.resume_url?.startsWith('https://') ? profile.resume_url : null;
-  const basePath = `/p/${username}`;
   const rawTemplate = (profile as unknown as Record<string, unknown>).template as string | null;
   const template: 'modern' | 'minimal' | 'professional' =
     rawTemplate === 'minimal' || rawTemplate === 'professional' ? rawTemplate : 'modern';
@@ -119,27 +145,7 @@ export default function PublicLayout() {
 
   const seoImage = profile.avatar_url || 'og-image.png';
 
-  // Keyboard shortcuts — P/A/C/S/E/B/H + ? legend
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
-      const keyMap: Record<string, string> = {
-        h: basePath,
-        p: `${basePath}/projects`,
-        a: `${basePath}/about`,
-        s: `${basePath}/skills`,
-        e: `${basePath}/experience`,
-        c: `${basePath}/contact`,
-        b: `${basePath}/blog`,
-      };
-      if (e.key === 'Escape') { navigate(basePath); return; }
-      const target = keyMap[e.key.toLowerCase()];
-      if (target) navigate(target);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [basePath, navigate]);
+  // (keyboard shortcuts moved above early returns)
 
   return (
     <div className="dark min-h-screen editorial-surface">
