@@ -211,7 +211,7 @@ export default function PublicProjects() {
               >
                 ALL
               </button>
-              {Array.from(categories.entries()).map(([cat, count]) => (
+              {categories.map(([cat, count]) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}

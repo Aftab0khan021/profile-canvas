@@ -212,8 +212,9 @@ export default function PublicContact() {
             {/* Contact Info — Left Column */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="md:col-span-2 space-y-4"
             >
               {/* Availability badge */}
@@ -230,8 +231,9 @@ export default function PublicContact() {
                 <motion.div
                   key={item.label}
                   initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
                 >
                   {item.href ? (
                     <a
