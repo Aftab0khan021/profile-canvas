@@ -606,6 +606,200 @@ html, body, #root {
     50% { opacity: 0; }
   }
 
+  /* ─── PREMIUM 3D GLOBAL ENHANCEMENTS ─── */
+
+  /* Perspective grid floor — used as page section background */
+  .grid-floor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.6) 70%, transparent 100%);
+  }
+
+  /* 3D card hover — apply to any card for depth tilt */
+  .card-3d {
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .card-3d:hover {
+    transform: perspective(800px) rotateX(-4deg) rotateY(4deg) translateZ(8px);
+    box-shadow: 0 24px 60px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+  }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  /* Holographic shimmer — rainbow light shift on hover */
+  .holo-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      transparent 20%,
+      rgba(255,255,255,0.04) 40%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.04) 60%,
+      transparent 80%
+    );
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .holo-card:hover::before {
+    opacity: 1;
+    animation: holo-shift 1.5s ease-in-out infinite;
+  }
+
+  /* Floating animation — cards that breathe */
+  .float-card {
+    animation: float-card 6s ease-in-out infinite;
+    will-change: transform;
+  }
+  .float-card:nth-child(2) { animation-delay: -2s; }
+  .float-card:nth-child(3) { animation-delay: -4s; }
+
+  /* Glitch text effect */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    font: inherit;
+  }
+  .glitch::before {
+    color: var(--glow-color, #7c3aed);
+    animation: glitch-1 4s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(-2px, -2px);
+    opacity: 0.6;
+  }
+  .glitch::after {
+    color: #06b6d4;
+    animation: glitch-2 4s infinite;
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+    transform: translate(2px, 2px);
+    opacity: 0.6;
+  }
+
+  /* Typing cursor blink */
+  .typing-cursor::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+    color: var(--cursor-color, #7c3aed);
+  }
+
+  /* Stagger reveal — add class + delay via CSS var */
+  .stagger-child {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: stagger-up 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+    animation-delay: calc(var(--i, 0) * 0.1s);
+  }
+
+  /* Counter number glow */
+  .stat-number {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Page section reveal via IntersectionObserver (JS adds .in-view) */
+  .reveal-section {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal-section.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Timeline dot pulse */
+  .timeline-dot {
+    position: relative;
+  }
+  .timeline-dot::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--glow-color, #7c3aed);
+    animation: sonar-ping 2.5s ease-out infinite;
+  }
+
+  /* Page hero gradient overlay */
+  .hero-gradient {
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--aurora-color, #7c3aed) 0%, transparent 70%);
+    opacity: 0.12;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Spotlight follow effect — set via JS on mousemove */
+  .spotlight {
+    background: radial-gradient(600px circle at var(--x,50%) var(--y,50%), rgba(255,255,255,0.04), transparent 40%);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* ── NEW KEYFRAMES ── */
+
+  @keyframes holo-shift {
+    0%   { background-position: 200% 200%; }
+    100% { background-position: -200% -200%; }
+  }
+
+  @keyframes float-card {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33%  { transform: translateY(-8px) rotate(0.5deg); }
+    66%  { transform: translateY(-4px) rotate(-0.5deg); }
+  }
+
+  @keyframes glitch-1 {
+    0%, 90%, 100% { transform: translate(-2px,-2px); opacity: 0; }
+    92% { transform: translate(-4px, 2px); opacity: 0.6; }
+    94% { transform: translate(4px,-2px); opacity: 0.6; }
+    96% { transform: translate(-2px, 4px); opacity: 0; }
+  }
+
+  @keyframes glitch-2 {
+    0%, 90%, 100% { transform: translate(2px,2px); opacity: 0; }
+    93% { transform: translate(4px,-2px); opacity: 0.6; }
+    95% { transform: translate(-4px,2px); opacity: 0.6; }
+    97% { transform: translate(2px,-4px); opacity: 0; }
+  }
+
+  @keyframes stagger-up {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   /* Reduced motion — collapse all to instant */
   @media (prefers-reduced-motion: reduce) {
     .aurora-bg::before,
@@ -614,7 +808,13 @@ html, body, #root {
     .gradient-title,
     .conic-border::before,
     .pulse-dot::before,
-    .scroll-indicator {
+    .scroll-indicator,
+    .float-card,
+    .glitch::before,
+    .glitch::after,
+    .stagger-child,
+    .holo-card::before,
+    .timeline-dot::before {
       animation: none !important;
     }
     .reveal-word {
@@ -627,6 +827,17 @@ html, body, #root {
     }
     .scan-line::after {
       display: none !important;
+    }
+    .reveal-section {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .card-3d:hover {
+      transform: none !important;
+    }
+    .stagger-child {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 }
