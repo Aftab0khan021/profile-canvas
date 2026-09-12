@@ -23,7 +23,6 @@ import { getOptimizedImageUrl, IMAGE_PRESETS } from '@/lib/imageOptimization';
 import { maskStorageUrl } from '@/lib/storageUrl';
 import { ConstellationGraph } from '@/components/ConstellationGraph';
 import { SectionMarker } from '@/components/ScrollProgress';
-import { useTextScramble } from '@/hooks/useTextScramble';
 import { useMagnetic } from '@/hooks/useMagnetic';
 import { use3DTilt } from '@/hooks/use3DTilt';
 
@@ -116,19 +115,11 @@ export default function PublicHome() {
   const recentBlogs = blogs.slice(1, 3);
 
   // ===== IMMERSIVE HOOKS — must be above ALL early returns (Rules of Hooks) =====
-  const { scramble } = useTextScramble();
   const { magneticRef: ctaRef, springX: ctaX, springY: ctaY } = useMagnetic(14);
   const { tiltRef: avatarTiltRef, rotateX: avatarRX, rotateY: avatarRY } = use3DTilt(10);
-  const nameRef = useRef<HTMLHeadingElement>(null);
+  // nameRevealed tracks CSS animation only (no scramble to avoid corrupting async-loaded name)
   const [nameRevealed, setNameRevealed] = useState(false);
-
-  // Scramble name on mount
-  useEffect(() => {
-    if (nameRevealed || !nameRef.current || !profile?.full_name) return;
-    const cancel = scramble(nameRef.current, profile.full_name, 900);
-    setNameRevealed(true);
-    return cancel;
-  }, [profile?.full_name, nameRevealed, scramble]);
+  useEffect(() => { if (profile?.full_name) setNameRevealed(true); }, [profile?.full_name]);
 
   // Section marker config
   const sections = [
@@ -402,9 +393,17 @@ export default function PublicHome() {
 
               {/* Name — scramble decode */}
               <h1
-                ref={nameRef}
-                className="text-5xl md:text-6xl lg:text-7xl font-bold mb-2 tracking-tight decode-text text-3d"
-                style={{ color: '#f0ede6', letterSpacing: '-0.04em' }}
+                className="text-5xl md:text-6xl lg:text-7xl font-bold mb-2 tracking-tight text-3d"
+                style={{
+                  background: `linear-gradient(135deg, #f0ede6 40%, ${brandColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  letterSpacing: '-0.04em',
+                  opacity: nameRevealed ? 1 : 0,
+                  transform: nameRevealed ? 'translateY(0)' : 'translateY(16px)',
+                  transition: 'opacity 0.6s ease, transform 0.6s ease',
+                }}
               >
                 {profile?.full_name || 'Developer'}
               </h1>

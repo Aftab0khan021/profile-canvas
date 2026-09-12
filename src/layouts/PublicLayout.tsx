@@ -1,6 +1,7 @@
 import { Outlet, useParams, Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { usePublicProfile } from '@/hooks/useProfile';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/components/ThemeProvider';
 import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Menu, X } from 'lucide-react';
@@ -29,8 +30,14 @@ export function usePublicLayoutContext() {
 export default function PublicLayout() {
   const { username } = useParams<{ username: string }>();
   const location = useLocation();
-  const { data: profile, isLoading } = usePublicProfile(username || '');
+  // staleTime:0 + refetchInterval ensures brand color / profile changes reflect immediately
+  const { data: profile, isLoading } = usePublicProfile(username || '', { staleTime: 0, refetchInterval: 30000 });
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  // Resolve effective theme for class
+  const effectiveTheme = theme === 'system'
+    ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : theme;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Show intro only once per browser session
   const [introComplete, setIntroComplete] = useState(() => {
@@ -154,7 +161,7 @@ export default function PublicLayout() {
   // (keyboard shortcuts moved above early returns)
 
   return (
-    <div className="dark min-h-screen editorial-surface">
+    <div className={cn('min-h-screen editorial-surface', effectiveTheme === 'dark' ? 'dark' : '')}>
       <SEO title={seoTitle} description={seoDescription} image={seoImage} url={currentUrl} type="profile" schema={personSchema} />
 
       {/* Intro screen — shows once per session */}

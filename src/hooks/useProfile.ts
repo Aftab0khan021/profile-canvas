@@ -85,7 +85,7 @@ export function useProfile() {
   };
 }
 
-export function usePublicProfile(username: string) {
+export function usePublicProfile(username: string, options?: { staleTime?: number; refetchInterval?: number }) {
   return useQuery({
     queryKey: ['publicProfile', username],
     queryFn: async () => {
@@ -99,5 +99,7 @@ export function usePublicProfile(username: string) {
       return data as Profile | null;
     },
     enabled: !!username,
+    staleTime: options?.staleTime,
+    refetchInterval: options?.refetchInterval,
   });
 }
