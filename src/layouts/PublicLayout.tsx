@@ -159,7 +159,13 @@ export default function PublicLayout() {
 
       {/* Intro screen — shows once per session */}
       {!introComplete && (
-        <IntroScreen name={profile.full_name || 'Developer'} onComplete={handleIntroComplete} />
+        <IntroScreen
+          name={profile.full_name || 'Developer'}
+          title={profile.title || undefined}
+          avatarUrl={profile.avatar_url || undefined}
+          brandColor={brandColor}
+          onComplete={handleIntroComplete}
+        />
       )}
 
       {/* Aurora background */}
