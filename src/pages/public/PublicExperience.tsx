@@ -3,17 +3,9 @@ import { format } from 'date-fns';
 import { usePublicLayoutContext } from '@/layouts/PublicLayout';
 import { usePublicPortfolioData } from '@/hooks/usePortfolioData';
 import { usePublicPageContent } from '@/hooks/useProfileItems';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { 
-  Briefcase, 
-  MapPin, 
-  Calendar,
-  CheckCircle2,
-  Building2
-} from 'lucide-react';
-import { format } from 'date-fns';
+import { MapPin, Calendar, Building2 } from 'lucide-react';
 
 export default function PublicExperience() {
   const { profile, brandColor, template } = usePublicLayoutContext();
@@ -200,7 +192,7 @@ export default function PublicExperience() {
                           </span>
                         </div>
 
-                        <h3 className="font-display font-bold text-base mb-1" style={{ color: '#f0ede6' }}>{exp.position}</h3>
+                        <h3 className="font-display font-bold text-base mb-1" style={{ color: '#f0ede6' }}>{exp.role}</h3>
                         <p className="text-sm font-semibold mb-3" style={{ color: brandColor }}>{exp.company}</p>
 
                         {exp.description && (

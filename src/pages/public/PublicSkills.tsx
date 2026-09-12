@@ -85,11 +85,17 @@ export default function PublicSkills() {
     const yearsOfExperience = experience.length > 0 
       ? Math.ceil((Date.now() - new Date(experience[experience.length - 1]?.start_date || Date.now()).getTime()) / (1000 * 60 * 60 * 24 * 365))
       : 0;
-    
+    const avgProficiency = skills.length > 0
+      ? Math.round(skills.reduce((sum, s) => sum + (s.proficiency_level || 80), 0) / skills.length)
+      : 0;
+
     return {
       totalTechnical,
+      totalSkills: totalTechnical,
+      totalCategories,
       totalSoftSkills: defaultSoftSkills.length,
       yearsExperience: yearsOfExperience,
+      averageProficiency: avgProficiency,
     };
   }, [skills, skillsByCategory, experience]);
 
